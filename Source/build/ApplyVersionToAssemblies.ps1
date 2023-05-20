@@ -87,4 +87,22 @@ $files = gci $Env:BUILD_SOURCESDIRECTORY -recurse -include "*Properties*" |
 	foreach { gci -Path $_.FullName -Recurse -include AssemblyInfo.* }
 if($files)
 {
-	Write "Will apply $NewVersio
+	Write "Will apply $NewVersion to $($files.count) files."
+	
+	foreach ($file in $files) {
+			
+			
+		if(-not $Disable)
+		{
+			$filecontent = Get-Content($file)
+			attrib $file -r
+			$filecontent -replace $VersionRegex, $NewVersion | Out-File -Encoding "UTF8" $file
+			Write "$file.FullName - version applied"
+		}
+	}
+}
+else
+{
+	Write-Warning "Found no files."
+}
+
