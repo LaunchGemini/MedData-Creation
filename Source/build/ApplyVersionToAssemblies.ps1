@@ -36,4 +36,55 @@ if(-not $Env:BUILD -and -not ($Env:BUILD_SOURCESDIRECTORY -and $Env:BUILD_BUILDI
 	Write-Host '$Env:BUILD_SOURCESDIRECTORY - For example, enter something like:'
 	Write-Host '$Env:BUILD_SOURCESDIRECTORY = "C:\code\FabrikamTFVC\HelloWorld"'
 	Write-Host '$Env:BUILD_BUILDNUMBER - For example, enter something like:'
-	Write-Host '$Env:BUILD_BUILD
+	Write-Host '$Env:BUILD_BUILDNUMBER = "Build HelloWorld_0000.00.00.0"'
+	exit 1
+}
+	
+# Make sure path to source code directory is available
+if (-not $Env:BUILD_SOURCESDIRECTORY)
+{
+	Write-Error ("BUILD_SOURCESDIRECTORY environment variable is missing.")
+	exit 1
+}
+elseif (-not (Test-Path $Env:BUILD_SOURCESDIRECTORY))
+{
+	Write-Error "BUILD_SOURCESDIRECTORY does not exist: $Env:BUILD_SOURCESDIRECTORY"
+	exit 1
+}
+Write-Verbose "BUILD_SOURCESDIRECTORY: $Env:BUILD_SOURCESDIRECTORY"
+	
+# Make sure there is a build number
+if (-not $Env:BUILD_BUILDID)
+{
+	Write-Error ("BUILD_BUILDID environment variable is missing.")
+	exit 1
+}
+Write "BUILD_BUILDID: $Env:BUILD_BUILDID"
+	
+# Get and validate the version data
+$version = "1.0.$Env:BUILD_BUILDID.1"
+$VersionData = [regex]::matches($version,$VersionRegex)
+switch($VersionData.Count)
+{
+   0		
+      { 
+         Write-Error "Could not find version number data in BUILD_BUILDNUMBER."
+         exit 1
+      }
+   1 {}
+   default 
+      { 
+         Write-Warning "Found more than instance of version data in BUILD_BUILDNUMBER." 
+         Write-Warning "Will assume first instance is version."
+      }
+}
+$NewVersion = $VersionData[0]
+Write "Version: $NewVersion"
+	
+# Apply the version to the assembly property files
+$files = gci $Env:BUILD_SOURCESDIRECTORY -recurse -include "*Properties*" | 
+	?{ $_.PSIsContainer } | 
+	foreach { gci -Path $_.FullName -Recurse -include AssemblyInfo.* }
+if($files)
+{
+	Write "Will apply $NewVersio
