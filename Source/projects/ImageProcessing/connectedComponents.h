@@ -157,3 +157,86 @@ std::vector<ComponentStatistics<T, U> > findConnectedComponents3d(
     {
       T* p = (T*)((unsigned char*)inputBuffer + w*inputLeap + v*inputStride);
       auto s = &components[w*width*height + v*width];
+      for (int u = 0; u < width; u++)
+      {
+        if (*p != backgroundColor)
+        {
+          for (int i = 0; i < N; i++)
+          {
+            if (u + du[i] >= 0 && u + du[i] < width && v + dv[i] >= 0 && v + dv[i] < height && w + dw[i] >= 0 && w + dw[i] < depth) //  in range?
+            {
+              if (*((T*)((unsigned char*)p + dw[i] * inputLeap + dv[i] * inputStride) + du[i]) == *p)
+                s->unite(&components[(w + dw[i])*width*height + (v + dv[i])*width + u + du[i]]);
+              // DO NOT bail out here
+            }
+          }
+        }
+
+        p++;
+        s++;
+      }
+    }
+  }
+
+  // As a temporary measure, we'll generate a vector of counts over labels.
+  // Would probably be better to allow the caller to provide a generic
+  // statistics aggregation method e.g. f(x,y,z,label)
+  std::vector<ComponentStatistics<T,U> > statistics;
+
+  U label = 0;
+
+  if (label == backgroundLabel) // skip over reserved background label
+  {
+    label++;
+    statistics.push_back({ 0,backgroundColor });
+  }
+  
+  for (int w = 0; w < depth; w++)
+  {
+    for (int v = 0; v < height; v++)
+    {
+      T* o = (T*)((unsigned char*)inputBuffer + w*inputLeap + v*inputStride);
+      U* p = (U*)((unsigned char*)outputBuffer + w*outputLeap + v*outputStride);
+      auto c = &components[w*width*height + v*width];
+
+      for (int u = 0; u < width; u++)
+      {
+        if (*o == backgroundColor)
+        {
+          *p = backgroundLabel; // special reserved label
+        }
+        else
+        {
+          auto root = c->find();
+          if (root->hasLabel_ == false)
+          {
+            root->label_ = label; // take the next available label
+            root->hasLabel_ = true;
+
+            if (label == std::numeric_limits<U>::max())
+              throw std::exception("Too many components during connected component analysis.");
+            label++;
+            statistics.push_back({ 0, *o });
+            if (label == backgroundLabel)
+            {
+              if (label == std::numeric_limits<U>::max())
+                throw std::exception("Too many components during connected component analysis.");
+              label++;
+              statistics.push_back({ 0,backgroundColor });
+            }
+          }
+          *p = root->label_;
+        }
+
+        statistics[*p].pixelCount_++; // Could do more interesting statistics here such as centroid, rotational inertia, etc....
+
+        o++;
+        p++;
+        c++;
+      }
+    }
+  }
+
+  return statistics;
+}
+}
