@@ -39,4 +39,35 @@ namespace InnerEye {
         }
       }
 
-      void Convolution::Convolve(array<unsigned char>^ data, int width, int height, int depth, array<Direction
+      void Convolution::Convolve(array<unsigned char>^ data, int width, int height, int depth, array<Direction>^ directions, array<float>^ sigmas)
+      {
+        if (directions->Length != sigmas->Length)
+          throw gcnew System::Exception("Arrays of directions and sigmas should be of the same length.");
+
+        int leap = width*height*sizeof(unsigned char), stride = width*sizeof(unsigned char), hop = sizeof(unsigned char);
+
+        pin_ptr<unsigned char> buffer = &data[0];
+
+        try
+        {
+          for (int d = 0; d < directions->Length; d++)
+          {
+            createdataset::GaussianKernel1D kernel(sigmas[d]);
+            Direction direction = directions[d];
+            createdataset::convolve1d<unsigned char>(width, height, depth, (unsigned char*)buffer, leap, stride, hop, (int)direction, kernel.getData(), kernel.getRadius());
+          }
+        }
+        catch (std::exception& oops)
+        {
+          throw gcnew System::Exception(gcnew System::String(oops.what()));
+        }
+      }
+
+      void Convolution::Convolve(array<short>^ data, int width, int height, int depth, array<Direction>^ directions, array<float>^ sigmas)
+      {
+        if (directions->Length != sigmas->Length)
+          throw gcnew System::Exception("Arrays of directions and sigmas should be of the same length.");
+
+        int leap = width*height*sizeof(short), stride = width*sizeof(short), hop = sizeof(short);
+
+   
