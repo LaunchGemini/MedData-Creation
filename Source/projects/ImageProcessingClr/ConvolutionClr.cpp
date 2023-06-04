@@ -70,4 +70,22 @@ namespace InnerEye {
 
         int leap = width*height*sizeof(short), stride = width*sizeof(short), hop = sizeof(short);
 
-   
+        pin_ptr<short> buffer = &data[0];
+
+        try
+        {
+          for (int d = 0; d < directions->Length; d++)
+          {
+            createdataset::GaussianKernel1D kernel(sigmas[d]);
+            Direction direction = directions[d];
+            createdataset::convolve1d<short>(width, height, depth, (unsigned char*)buffer, leap, stride, hop, (int)direction, kernel.getData(), kernel.getRadius());
+          }
+        }
+        catch (std::exception& oops)
+        {
+          throw gcnew System::Exception(gcnew System::String(oops.what()));
+        }
+      }
+    }
+  }
+}
