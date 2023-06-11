@@ -47,4 +47,43 @@ namespace InnerEye.CreateDataset.Common.Models
             public InputOutputChannel(string inputChannelId, string outputChannelId, GeometricNormalizationChannelType channelType)
             {
                 InputChannelId = inputChannelId;
-                OutputChannelId = output
+                OutputChannelId = outputChannelId;
+                ChannelType = channelType;
+            }
+
+            public InputOutputChannel() { }
+        }
+
+        private int _medianFilterRadius;
+        private double[] _standardiseSpacings;
+
+        /// <summary>
+        /// Flag to determine if Geometric Normalization needs to be performed
+        /// </summary>
+        [JsonIgnore]
+        public bool DoGeometricNormalization { get => StandardiseSpacings != null; }
+
+        /// <summary>
+        /// [input channel, output channel, channel type] mappings for each of the channel to process
+        /// </summary>
+        public InputOutputChannel[] InputOutputChannels { get; set; }
+
+        /// <summary>
+        /// Ground truth channels to be loaded (assumed to have a byte datatype)
+        /// </summary>
+        [JsonIgnore]
+        public IEnumerable<InputOutputChannel> GroundTruthChannelsToLoad
+        {
+            get => GetChannelsToLoad(GeometricNormalizationChannelType.GroundTruth);
+        }
+
+        /// <summary>
+        /// Image channels to be loaded (assumed to have a short datatype)
+        /// </summary>
+        [JsonIgnore]
+        public IEnumerable<InputOutputChannel> ImageChannelsToLoad
+        {
+            get => GetChannelsToLoad(GeometricNormalizationChannelType.Image);
+        }
+
+        /// <summary
