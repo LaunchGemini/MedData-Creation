@@ -86,4 +86,38 @@ namespace InnerEye.CreateDataset.Common.Models
             get => GetChannelsToLoad(GeometricNormalizationChannelType.Image);
         }
 
-        /// <summary
+        /// <summary>
+        ///  Used to define the neighborhood of the cuboid filter of size [x/y/z - radius, x/y/z + radius].
+        ///  A radius of 1 will create a neighborhood of size 27 voxels.
+        ///  A radius of 0 will result in an identity operation
+        /// </summary>
+        public int MedianFilterRadius
+        {
+            get => _medianFilterRadius;
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentException($"Invalid median filter radius {value} provided, filter radius must be non-negative");
+                }
+
+                _medianFilterRadius = value;
+            }
+        }
+
+        /// <summary>
+        /// The spacing that the geometric normalization should produce, as a 3-dimensional array.
+        /// Any element of the spacing can be zero, in which case the relevant dimension will not
+        /// undergo a change of spacing.
+        /// For example, if the input image has spacing (0.5, 0.5, 7), and <see cref="StandardiseSpacings"/>
+        /// is set to (1, 1, 0), the output of geometric normalization will have spacing (1, 1, 7).
+        /// </summary>
+        [JsonRequired]
+        public double[] StandardiseSpacings
+        {
+            get => _standardiseSpacings;
+            set
+            {
+                if (value?.Length != 3)
+                {
+                    throw new
