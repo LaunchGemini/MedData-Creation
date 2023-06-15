@@ -120,4 +120,35 @@ namespace InnerEye.CreateDataset.Common.Models
             {
                 if (value?.Length != 3)
                 {
-                    throw new
+                    throw new ArgumentException("Spacing parameters must be an array of length 3", nameof(StandardiseSpacings));
+                }
+
+                if (value.Any(x => x < 0))
+                {
+                    throw new ArgumentException("Spacing parameters must be non-negative", nameof(StandardiseSpacings));
+                }
+
+                _standardiseSpacings = value;
+            }
+        }
+
+        /// <summary>
+        /// Helper method to parse raw channel configs
+        /// </summary>
+        private IEnumerable<InputOutputChannel> GetChannelsToLoad(GeometricNormalizationChannelType channelType)
+          => InputOutputChannels.Where(x => channelType == x.ChannelType);
+
+        /// <summary>
+        ///  Validator for the parameters required to perform Geometric Normalization
+        ///  
+        ///  Validity conditions: 
+        ///  1) InputOutputChannels must be defined and non-empty
+        ///  2) InputOutputChannels entries must be of length 3 and must not contain any null entries
+        ///  3) StandardiseSpacings must be provided
+        ///  4) InputOutputChannels must not contain any unknown GeometricNormalizationChannelType values
+        /// </summary>
+        public void Validate()
+        {
+            if (!(InputOutputChannels?.Any()).GetValueOrDefault())
+            {
+                throw new ArgumentException("InputOutputChannels cann
