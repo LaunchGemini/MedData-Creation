@@ -151,4 +151,18 @@ namespace InnerEye.CreateDataset.Common.Models
         {
             if (!(InputOutputChannels?.Any()).GetValueOrDefault())
             {
-                throw new ArgumentException("InputOutputChannels cann
+                throw new ArgumentException("InputOutputChannels cannot be null empty");
+            }
+
+            if (InputOutputChannels.Any(x => x == null || x.InputChannelId == null || x.OutputChannelId == null))
+            {
+                throw new ArgumentException("Invalid IO channel configuration found when parsing InputOutputChannels");
+            }
+
+            if (!DoGeometricNormalization)
+            {
+                throw new ArgumentException("StandardiseSpacings cannot be null");
+            }
+        }
+    }
+}
