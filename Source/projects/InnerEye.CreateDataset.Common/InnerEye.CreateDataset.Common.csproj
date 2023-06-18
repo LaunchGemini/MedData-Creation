@@ -65,4 +65,31 @@
     <Compile Include="DatasetReader.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="LocalFileSystem.cs" />
-    <Compile Include="GeometricNormalizationP
+    <Compile Include="GeometricNormalizationParameters.cs" />
+    <Compile Include="StatisticsCalculator.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StreamsFromFileSystem.cs" />
+    <Compile Include="VolumeIO.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\InnerEye.CreateDataset.Data\InnerEye.CreateDataset.Data.fsproj">
+      <Project>{1b389782-77ee-471d-ab4c-f5a10a8b2ffe}</Project>
+      <Name>InnerEye.CreateDataset.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InnerEye.CreateDataset.Math\InnerEye.CreateDataset.Math.csproj">
+      <Project>{d8e303da-8713-411d-a909-fe507f39a0ae}</Project>
+      <Name>InnerEye.CreateDataset.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InnerEye.CreateDataset.Volumes\InnerEye.CreateDataset.Volumes.csproj">
+      <Project>{12416238-4311-4d15-a2d9-4f3ed7771244}</Project>
+      <Name>InnerEye.CreateDataset.Volumes</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MedLib.IO\MedLib.IO.csproj">
+      <Project>{97046b3e-6de6-4a84-946d-17ba956411dd}</Project>
+      <Name>MedLib.IO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ImageProcessingClr\ImageProcessingClr.vcxproj">
+      <Project>{751b4413-935a-42ec-911c-206172a3171b}</Project>
+      <Name>ImageProcessingClr</Name>
+    </ProjectReference>
+  </ItemGroup>
