@@ -80,4 +80,34 @@
         /// Gets a stream that can be used to write to the file system, where the result
         /// will get the given file name.
         /// Throws an exception if the file system access is read-only.
-        /// Throws an exception if the file alread
+        /// Throws an exception if the file already exists, and the <see cref="AllowFileOverwrite"/>
+        /// property is false.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public virtual Stream GetStreamForWriting(string fileName)
+        {
+            ThrowIfReadOnly();
+            // Multiple threads can request read streams at the same time, that sometimes
+            // leads to IndexOutOfRangeExceptions.
+            lock (listLock)
+            {
+                _filesWritten.Add(fileName);
+            }
+            // Implement this is a virtual function such that implementations can re-use the read-only check
+            // and the bookkeeping. Returning null is not optimal, but I could not come up with a better solution.
+            return null;
+        }
+
+        /// <summary>
+        /// Writes a file from stream.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="fileName">Name of the file to be written</param>
+        public abstract void CopyFromStreamToFile(Stream stream, string fileName);
+
+        /// <summary>
+        /// Gets all file names that are available, where the file name
+        /// starts with the given prefix. Each of the returned files will start with that prefix.
+        /// The prefix does not need to be aligned in any way with a folder structure that the
+        /// underlying file system may implement. When
