@@ -177,4 +177,40 @@
                 var bytes = TextEncoding.GetBytes(text);
                 writeStream.Write(bytes, 0, bytes.Length);
             }
-      
+        }
+
+        /// <summary>
+        /// Writes text data to the file system.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="lines"></param>
+        public void WriteAllLines(string fileName, IEnumerable<string> lines)
+        {
+            using (var writeStream = GetStreamForWriting(fileName))
+            using (var textWriter = new StreamWriter(writeStream, TextEncoding, bufferSize: 1024, leaveOpen: true))
+            {
+                lines.ForEach(line => textWriter.WriteLine(line));
+            }
+        }
+
+        /// <summary>
+        /// Reads all text that is available in the file of given name.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public string ReadAllText(string fileName)
+        {
+            using (var stream = GetStreamForReading(fileName))
+            using (var reader = new StreamReader(stream, TextEncoding,
+                detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen: true))
+            {
+                return reader.ReadToEnd();
+            }
+        }
+
+        /// <summary>
+        /// Reads all text that is available in the file of given name, using lazy reading.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public IEnumerable<string> ReadA
