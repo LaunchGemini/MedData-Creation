@@ -110,4 +110,34 @@
         /// Gets all file names that are available, where the file name
         /// starts with the given prefix. Each of the returned files will start with that prefix.
         /// The prefix does not need to be aligned in any way with a folder structure that the
-        /// underlying file system may implement. When
+        /// underlying file system may implement. When the files live in a directory structure,
+        /// the returned file name will use DirectorySeparator as the sepator, independent of the
+        /// separator character that the underlying file system uses.
+        /// The file names returned must be such that they can directly be used in a GetStreamForReading
+        /// operation.
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <returns></returns>
+        public abstract IReadOnlyList<string> EnumerateFiles(string prefix);
+
+        /// <summary>
+        /// Gets the size in bytes of a specific file.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public abstract long GetFileLength(string fileName);
+
+        /// <summary>
+        /// Gets whether an input file of the given name exists.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public abstract bool FileExists(string fileName);
+
+        /// <summary>
+        /// Gets the URI for the file of the given name, including all relevant root folders if needed.
+        /// The URI should include any access tokens to allow read access, if needed. The file may or may not
+        /// exist already. Throws an ArgumentException if the filename is missing or an empty string.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <retu
