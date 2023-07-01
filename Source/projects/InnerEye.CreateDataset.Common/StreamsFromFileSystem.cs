@@ -140,4 +140,41 @@
         /// exist already. Throws an ArgumentException if the filename is missing or an empty string.
         /// </summary>
         /// <param name="fileName"></param>
-        /// <retu
+        /// <returns></returns>
+        public abstract string GetUri(string fileName);
+
+        /// <summary>
+        /// Gets the URI of the root folder or container that stores the files.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public abstract string GetUriForRoot();
+
+        /// <summary>
+        /// Deletes all files that are in the directory/container,
+        /// as well as the actual directory/container. Throws an exception if
+        /// the object is in read-only mode.
+        /// </summary>
+        public virtual void DeleteAll()
+        {
+            ThrowIfReadOnly();
+        }
+
+        /// <summary>
+        /// Gets the encoding that the IO abstraction uses for reading and writing text.
+        /// </summary>
+        public static readonly Encoding TextEncoding = Encoding.UTF8;
+
+        /// <summary>
+        /// Writes text data to the file system.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="text"></param>
+        public void WriteAllText(string fileName, string text)
+        {
+            using (var writeStream = GetStreamForWriting(fileName))
+            {
+                var bytes = TextEncoding.GetBytes(text);
+                writeStream.Write(bytes, 0, bytes.Length);
+            }
+      
