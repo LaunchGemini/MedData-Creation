@@ -213,4 +213,37 @@
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public IEnumerable<string> ReadA
+        public IEnumerable<string> ReadAllLines(string fileName)
+        {
+            using (var stream = GetStreamForReading(fileName))
+            using (var reader = new StreamReader(stream, TextEncoding,
+                detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen: true))
+            {
+                var line = reader.ReadLine();
+                while (line != null)
+                {
+                    yield return line;
+                    line = reader.ReadLine();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Saves a medical image using the given file name, by opening a write stream and then invoking the
+        /// given 'save' action to save to that stream.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fileName"></param>
+        /// <param name="image"></param>
+        /// <param name="save"></param>
+        private void SaveImage<T>(string fileName, Volume3D<T> image, Action<Stream, Volume3D<T>, NiftiCompression> save)
+        {
+            var compression = MedIO.GetNiftiCompressionOrFail(fileName);
+            using (var writeStream = GetStreamForWriting(fileName))
+            {
+                save(writeStream, image, compression);
+            }
+        }
+
+        /// <summary>
+        /// Writes a medical image to the file system, using the given
