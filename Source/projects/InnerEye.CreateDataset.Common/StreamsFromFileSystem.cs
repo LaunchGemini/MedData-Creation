@@ -246,4 +246,38 @@
         }
 
         /// <summary>
-        /// Writes a medical image to the file system, using the given
+        /// Writes a medical image to the file system, using the given file name.
+        /// Compression level will be decided based upon the file extension.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="image"></param>
+        public void SaveImage(string fileName, Volume3D<byte> image)
+        {
+            SaveImage(fileName, image, NiftiIO.WriteToStream);
+        }
+
+        /// <summary>
+        /// Writes a medical image to the file system, using the given file name.
+        /// Compression level will be decided based upon the file extension.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="image"></param>
+        public void SaveImage(string fileName, Volume3D<short> image)
+        {
+            SaveImage(fileName, image, NiftiIO.WriteToStream);
+        }
+
+        /// <summary>
+        /// Writes a medical image to the file system, using the given file name.
+        /// Compression level will be decided based upon the file extension.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="image"></param>
+        public void SaveImage(string fileName, Volume3D<float> image)
+        {
+            SaveImage(fileName, image, NiftiIO.WriteToStream);
+        }
+
+        /// <summary>
+        /// Loads a medical volume from a file system, by opening a stream for reading, and
+        /// then calling the given action to do 
