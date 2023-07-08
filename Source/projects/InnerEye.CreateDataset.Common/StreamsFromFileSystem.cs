@@ -344,4 +344,40 @@
             {
                 return path2;
             }
-            if (string.IsNullOrWhiteSpace(path2)
+            if (string.IsNullOrWhiteSpace(path2))
+            {
+                return path1;
+            }
+            return AddSeparatorAtEnd(path1) + path2.TrimStart(DirectorySeparator);
+        }
+
+        /// <summary>
+        /// Adds a directory separation character at the end of the path. If the path already ends with a 
+        /// (single) separator, it is not changed.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static string AddSeparatorAtEnd(string path)
+        {
+            return path.TrimEnd(DirectorySeparator) + DirectorySeparator;
+        }
+
+        /// <summary>
+        /// Replaces all occurrences of the standard Windows file system separator backslash
+        /// with the directory separator that the class is exposing.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public static string ReplaceSeparators(string fileName)
+        {
+            return fileName.Replace(Path.DirectorySeparatorChar, DirectorySeparator);
+        }
+
+        /// <summary>
+        /// If the given text starts with the prefix, returns the substring after the prefix.
+        /// Otherwise, returns the text unchanged.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="prefix"></param>
+        /// <returns></returns>
+    
