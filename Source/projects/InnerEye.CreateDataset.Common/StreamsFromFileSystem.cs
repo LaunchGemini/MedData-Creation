@@ -280,4 +280,33 @@
 
         /// <summary>
         /// Loads a medical volume from a file system, by opening a stream for reading, and
-        /// then calling the given action to do 
+        /// then calling the given action to do the actual loading from the stream.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fileName"></param>
+        /// <param name="loadAction"></param>
+        /// <returns></returns>
+        private Volume3D<T> LoadImage<T>(string fileName, Func<Stream, NiftiCompression, Volume3D<T>> loadAction)
+        {
+            var compression = MedIO.GetNiftiCompressionOrFail(fileName);
+            using (var readStream = GetStreamForReading(fileName))
+            {
+                return loadAction(readStream, compression);
+            }
+        }
+
+        /// <summary>
+        /// Loads a medical image from the file system. The image file is expected to contain a byte image.
+        /// An <see cref="InvalidDataException"/> is thrown if that is not the case.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="dataType"></param>
+        /// <returns></returns>
+        public Volume3D<byte> LoadImageInByteFormat(string fileName)
+        {
+            return LoadImage(fileName, NiftiIO.ReadNiftiInByteFormat);
+        }
+
+        /// <summary>
+        /// Loads a medical image from the file system. The image file is expected to contain an image
+        /// with pixel values in short format. An <see cref="InvalidDataException
