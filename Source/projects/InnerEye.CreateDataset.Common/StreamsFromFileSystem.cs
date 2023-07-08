@@ -309,4 +309,39 @@
 
         /// <summary>
         /// Loads a medical image from the file system. The image file is expected to contain an image
-        /// with pixel values in short format. An <see cref="InvalidDataException
+        /// with pixel values in short format. An <see cref="InvalidDataException"/> is thrown if that is not the case.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="dataType"></param>
+        /// <returns></returns>
+        public Volume3D<short> LoadImageInShortFormat(string fileName)
+        {
+            return LoadImage(fileName, NiftiIO.ReadNiftiInShortFormat);
+        }
+
+        /// <summary>
+        /// Loads a medical image from the file system. The image file is expected to contain an image
+        /// with pixel values in single precision floating point format. 
+        /// An <see cref="InvalidDataException"/> is thrown if that is not the case.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="dataType"></param>
+        /// <returns></returns>
+        public Volume3D<float> LoadImageInFloatFormat(string fileName)
+        {
+            return LoadImage(fileName, NiftiIO.ReadNiftiInFloatFormat);
+        }
+
+        /// <summary>
+        /// Joins two path strings via the directory separator.
+        /// </summary>
+        /// <param name="path1"></param>
+        /// <param name="path2"></param>
+        /// <returns></returns>
+        public static string JoinPath(string path1, string path2)
+        {
+            if (string.IsNullOrWhiteSpace(path1))
+            {
+                return path2;
+            }
+            if (string.IsNullOrWhiteSpace(path2)
