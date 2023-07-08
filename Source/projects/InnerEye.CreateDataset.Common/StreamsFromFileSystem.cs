@@ -380,4 +380,12 @@
         /// <param name="text"></param>
         /// <param name="prefix"></param>
         /// <returns></returns>
-    
+        public static string StripPrefix(string text, string prefix)
+        {
+            return
+                text.StartsWith(prefix, StringComparison.Ordinal)
+                ? text.Substring(prefix.Length)
+                : text;
+        }
+    }
+}
