@@ -39,4 +39,27 @@
         {
             // NB These fragments are defined in order of decreasing priorty.
             Tuple.Create("FRF", new PointF[] { new PointF(0, -0.5f), new PointF(0, 0.1f), new PointF(-0.9f, 1), new PointF(-1.5f, 1) }),
-            Tuple.Create("FLF", new PointF[] { new PointF(0, -0.5f), new PointF(0, 0.1f), new PointF(0.9f, 1), new P
+            Tuple.Create("FLF", new PointF[] { new PointF(0, -0.5f), new PointF(0, 0.1f), new PointF(0.9f, 1), new PointF(1.5f, 1) }),
+            Tuple.Create("RFL", new PointF[] { new PointF(0, -0.5f), new PointF(-2, 0.5f) }),
+            Tuple.Create("LFR", new PointF[] { new PointF(0, -0.5f), new PointF(2, 0.5f) }),
+            Tuple.Create("RL", new PointF[] { new PointF(0, -0.5f), new PointF(-1, 0.5f) }),
+            Tuple.Create("LR", new PointF[] { new PointF(0, -0.5f), new PointF(1, 0.5f) }),
+            Tuple.Create("R", new PointF[] { new PointF(0, -0.5f), new PointF(-0.5f, 0f) }),
+            Tuple.Create("L", new PointF[] { new PointF(0, -0.5f), new PointF(0.5f, 0f) })
+        };
+
+        /// <summary>
+        /// Simplify a contour defined by a string of moves.
+        /// </summary>
+        /// <param name="x0"></param>
+        /// <param name="d0"></param>
+        /// <param name="turns">String of characters in {F,R,L} defining a sequence of one unit long moves.</param>
+        /// <returns>Simplified, smoother polygon with fewer vertices.</returns>
+        public static PointF[] Simplify(PointInt x0, PointInt d0, string turns)
+        {
+            var isClosed = TraceContour(x0, d0, turns, out PointInt[] points, out PointInt[] directions);
+            var sequences = new PointF[turns.Length][];
+
+            foreach (var pattern in PatternToFragmentMap)
+            {
+                MatchFragments(turns, isClosed, pattern.Item1, pattern.Item2, sequence
