@@ -62,4 +62,36 @@
 
             foreach (var pattern in PatternToFragmentMap)
             {
-                MatchFragments(turns, isClosed, pattern.Item1, pattern.Item2, sequence
+                MatchFragments(turns, isClosed, pattern.Item1, pattern.Item2, sequences);
+            }
+
+            return ExpandFragments(points, directions, sequences);
+        }
+
+        /// <summary>
+        /// Walk around a contour defined by a sequence of one pixel long moves.
+        /// </summary>
+        /// <param name="x0">First vertex position.</param>
+        /// <param name="d0">Unit vector describing initial direction of motion.</param>
+        /// <param name="recipe">String with characters in {F,L,R} defining a seqeunce of moves required to build an open or closed polygon.</param>
+        /// <param name="points">Output polygon vertices</param>
+        /// <param name="directions">Output edge directions</param>
+        /// <returns></returns>
+        public static bool TraceContour(PointInt x0, PointInt d0, string recipe, out PointInt[] points, out PointInt[] directions)
+        {
+            points = new PointInt[recipe.Length + 1];
+            points[0] = x0;
+
+            directions = new PointInt[recipe.Length + 1];
+
+            directions[0] = d0;
+
+            var simplified = new List<PointInt>();
+            simplified.Add(x0);
+
+            var p = new PointInt(0, 0);
+
+            // we evaluate one more PointF than is necessary, to determine whether contour is properly closed
+            for (int i = 0; i < recipe.Length + 1; i++)
+            {
+                var d = recipe[i >= recipe.Length ? i - recip
