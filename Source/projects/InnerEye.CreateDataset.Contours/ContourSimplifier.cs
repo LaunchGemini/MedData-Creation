@@ -94,4 +94,52 @@
             // we evaluate one more PointF than is necessary, to determine whether contour is properly closed
             for (int i = 0; i < recipe.Length + 1; i++)
             {
-                var d = recipe[i >= recipe.Length ? i - recip
+                var d = recipe[i >= recipe.Length ? i - recipe.Length : i];
+
+                // identity
+                int r00 = 1;
+                int r01 = 0;
+                int r10 = 0;
+                int r11 = 1;
+
+                // left turn
+                if (d == 'L')
+                {
+                    r00 = 0;
+                    r01 = -1;
+                    r10 = 1;
+                    r11 = 0;
+                }
+
+                // right turn
+                else if (d == 'R')
+                {
+                    r00 = 0;
+                    r01 = 1;
+                    r10 = -1;
+                    r11 = 0;
+                }
+
+                // Update delta
+                d0 = new PointInt(r00 * d0.X + r01 * d0.Y, r10 * d0.X + r11 * d0.Y);
+                p = new PointInt(x0.X + d0.X, x0.Y + d0.Y);
+
+                if (i + 1 <= recipe.Length)
+                {
+                    points[i + 1] = p;
+                    directions[i + 1] = d0;
+                }
+
+                x0 = p;
+            }
+
+            // Test for a closed contour... Must start with the turn reference frame
+            // defined relative to the last edge and start and end at the same PointF.
+            return points[0].Equals(points[points.Length - 1]) && points[1].Equals(p);
+        }
+
+        /// <summary>
+        /// Removes repeated or intermediate points that are not necessary on a polygon
+        /// Without changing the shape
+        /// </summary>
+        /// <par
