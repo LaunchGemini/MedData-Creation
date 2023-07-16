@@ -186,4 +186,46 @@
             var direction = deduped[1].Subtract(deduped[0]);
             direction.Normalize();
 
-          
+            previousVertex = deduped[1];
+
+            for (int i = 2; i < deduped.Count; i++)
+            {
+                var delta = deduped[i].Subtract(previousVertex);
+
+                // component of delta perpendicular to direction
+                if (Math.Abs(delta.X * direction.Y - delta.Y * direction.X) <= 0)
+                {
+                    simplified.RemoveAt(simplified.Count - 1);
+                }
+
+                simplified.Add(deduped[i]);
+
+                previousVertex = deduped[i];
+                direction = delta;
+                direction.Normalize();
+            }
+
+            return simplified.ToArray();
+        }
+
+        private static void MatchFragments(string turns, bool isClosed, string pattern, PointF[] fragment, PointF[][] fragments)
+        {
+            Debug.Assert(fragments.Length == turns.Length, "The number of turn fragments and the length of the turn string must match.");
+
+            if (pattern.Length > turns.Length)
+            {
+                return;
+            }
+
+            var nullFragment = Array.Empty<PointF>();
+
+            if (isClosed)
+            {
+                turns += turns.Substring(0, pattern.Length - 1); // wrap around to allow pattern match at last character of turns
+            }
+
+            var indexPosition = turns.IndexOf(pattern, 0, StringComparison.InvariantCulture);
+
+            while (indexPosition != -1)
+            {
+                var 
