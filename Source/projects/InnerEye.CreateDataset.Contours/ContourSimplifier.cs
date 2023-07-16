@@ -228,4 +228,42 @@
 
             while (indexPosition != -1)
             {
-                var 
+                var alreadyMatched = false;
+
+                for (int i = indexPosition; i < indexPosition + pattern.Length; i++)
+                {
+                    if (fragments[i >= fragments.Length ? i - fragments.Length : i] != null)
+                    {
+                        alreadyMatched = true;
+                        continue;
+                    }
+                }
+
+                if (alreadyMatched == false)
+                {
+                    fragments[indexPosition] = fragment;
+
+                    for (int i = indexPosition + 1; i < indexPosition + pattern.Length; i++)
+                    {
+                        fragments[i >= fragments.Length ? i - fragments.Length : i] = nullFragment; // to mark a PointF that has been substituted
+                    }
+                }
+
+                indexPosition = turns.IndexOf(pattern, indexPosition + 1, StringComparison.InvariantCulture);
+            }
+        }
+
+        private static PointF[] ExpandFragments(PointInt[] points, PointInt[] directions, PointF[][] fragments)
+        {
+            var contour = new List<PointF>();
+
+            for (int i = 0; i < fragments.Length; i++)
+            {
+                if (fragments[i] != null && fragments[i].Length > 0)
+                {
+                    var d0 = directions[i];
+                    var d1 = new PointF(-d0.Y, d0.X);
+
+                    for (int j = 0; j < fragments[i].Length; j++)
+                    {
+                       
