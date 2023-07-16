@@ -142,4 +142,48 @@
         /// Removes repeated or intermediate points that are not necessary on a polygon
         /// Without changing the shape
         /// </summary>
-        /// <par
+        /// <param name="polygon"></param>
+        /// <returns></returns>
+        public static PointF[] RemoveRedundantPoints(PointF[] polygon)
+        {
+            if (polygon == null)
+            {
+                throw new ArgumentNullException(nameof(polygon), "The polygon is null");
+            }
+
+            if (polygon.Length <= 4)
+            {
+                return polygon;
+            }
+
+            // Remove conincident vertices
+            var deduped = new List<PointF>() { polygon[0] };
+
+            PointF previousVertex = polygon[0];
+
+            for (int i = 1; i < polygon.Length; i++)
+            {
+                if (polygon[i].Subtract(previousVertex).LengthSquared() > 0)
+                {
+                    deduped.Add(polygon[i]);
+                    previousVertex = polygon[i];
+                }
+            }
+
+            // If last is conincident with first, remove it too
+            if (deduped.Count > 1 && deduped.Last().Subtract(deduped.First()).LengthSquared() <= 0)
+            {
+                deduped.RemoveAt(deduped.Count - 1);
+            }
+
+            // Remove intermediate vertices in sequences of three or more colinear vertices
+            var simplified = new List<PointF>
+            {
+                deduped[0],
+                deduped[1]
+            };
+
+            var direction = deduped[1].Subtract(deduped[0]);
+            direction.Normalize();
+
+          
