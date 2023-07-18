@@ -266,4 +266,14 @@
 
                     for (int j = 0; j < fragments[i].Length; j++)
                     {
-                       
+                        contour.Add(new PointF(
+                            points[i].X + fragments[i][j].X * d1.X + fragments[i][j].Y * d0.X,
+                            points[i].Y + fragments[i][j].X * d1.Y + fragments[i][j].Y * d0.Y));
+                    }
+                }
+            }
+
+            return contour.ToArray();
+        }
+    }
+}
