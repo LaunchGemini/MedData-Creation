@@ -20,4 +20,6 @@
         /// <summary>
         /// The contour is first tracing pixel outsides, and then corners are smoothed.
         /// </summary>
-        S
+        Small
+    }
+}
