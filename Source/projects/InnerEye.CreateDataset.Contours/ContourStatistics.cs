@@ -28,4 +28,31 @@
 
         /// <summary>
         /// Gets the volume of the region enclosed by the contour, in cubic centimeters.
-   
+        /// </summary>
+        public double SizeInCubicCentimeters { get; }
+
+        /// <summary>
+        /// Gets the arithmetic mean of the voxel values in the region enclosed by the contour.
+        /// </summary>
+        public double VoxelValueMean { get; }
+
+        /// <summary>
+        /// Gets the standard deviation of the voxel values in the region enclosed by the contour.
+        /// </summary>
+        public double VoxelValueStandardDeviation { get; }
+
+        /// <summary>
+        /// Computes an instance of contour statistics, <see cref="ContourStatistics"/>, from those voxels
+        /// of the <paramref name="originalVolume"/> where the mask volume attains the foreground value.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="mask"></param>
+        /// <param name="foreground"></param>
+        /// <returns></returns>
+        public static ContourStatistics FromVolumeAndMask(ReadOnlyVolume3D<short> image, Volume3D<byte> mask, byte foreground = 1)
+        {
+            image = image ?? throw new ArgumentNullException(nameof(image));
+            mask = mask ?? throw new ArgumentNullException(nameof(mask));
+            if (mask.Length != image.Length)
+            {
+                throw new ArgumentException("Image and mask must have the same length", nameof(im
