@@ -46,4 +46,55 @@
                     return
                         _contoursBySliceDictionary.Count(
                             x => x.Value.Any(
-  
+                                c => c.Length > 0));
+                }
+            }
+        }
+
+        public IReadOnlyList<int> GetSlicesWithContours()
+        {
+            lock (_lock)
+            {
+                return _contoursBySliceDictionary
+                    .Where(x => x.Value.Any(c => c.Length > 0))
+                    .Select(x => x.Key)
+                    .ToList();
+            }
+        }
+
+        public IReadOnlyList<ContourPolygon> ContoursForSlice(int index)
+        {
+            lock (_lock)
+            {
+                return _contoursBySliceDictionary[index];
+            }
+        }
+
+        public IReadOnlyList<ContourPolygon> TryGetContoursForSlice(int index)
+        {
+            lock (_lock)
+            {
+                return _contoursBySliceDictionary.ContainsKey(index) ? ContoursForSlice(index) : null;
+            }
+        }
+
+        public IEnumerator<KeyValuePair<int, IReadOnlyList<ContourPolygon>>> GetEnumerator()
+        {
+            lock (_lock)
+            {
+                return _contoursBySliceDictionary.GetEnumerator();
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            lock (_lock)
+            {
+                return GetEnumerator();
+            }
+        }
+
+        public bool ContainsKey(int sliceIndex)
+        {
+            lock (_lock)
+      
