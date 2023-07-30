@@ -55,4 +55,36 @@
             mask = mask ?? throw new ArgumentNullException(nameof(mask));
             if (mask.Length != image.Length)
             {
-                throw new ArgumentException("Image and mask must have the same length", nameof(im
+                throw new ArgumentException("Image and mask must have the same length", nameof(image));
+            }
+
+            double mean = 0;
+            double variance = 0;
+            double sum = 0;
+            ulong count = 0;
+
+            // StreamingStatistics.MeanVariance
+            for (int i = 0; i < image.Length; i++)
+            {
+                if (mask[i] == foreground)
+                {
+                    count++;
+                    double xi = image[i];
+                    sum += xi;
+                    var diff = (count * xi) - sum;
+                    if (count > 1)
+                    {
+                        variance += (diff * diff) / (count * (count - 1));
+                    }
+
+                    mean += (xi - mean) / count;
+                }
+            }
+
+            var volumeSizeInCC = count * image.VoxelVolume / 1000d;
+            var standardDeviation = count == 0 ? 0 : Math.Sqrt(variance / count);
+
+            return new ContourStatistics(volumeSizeInCC, mean, standardDeviation);
+        }
+    }
+}
