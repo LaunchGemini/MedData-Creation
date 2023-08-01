@@ -97,4 +97,45 @@
         public bool ContainsKey(int sliceIndex)
         {
             lock (_lock)
-      
+            {
+                return _contoursBySliceDictionary.ContainsKey(sliceIndex);
+            }
+        }
+
+        public void Replace(ContoursPerSlice newContours)
+        {
+            lock (_lock)
+            {
+                _contoursBySliceDictionary.Clear();
+                if (newContours != null)
+                {
+                    foreach (var newContour in newContours)
+                    {
+                        if (newContour.Value.Count > 0)
+                        {
+                            _contoursBySliceDictionary[newContour.Key] = newContour.Value;
+                        }
+                        else
+                        {
+                            _contoursBySliceDictionary.Remove(newContour.Key);
+                        }
+                    }
+                }
+
+                CollectionChanged?.Invoke(
+                    this,
+                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            }
+        }
+
+        public void Append(ContoursPerSlice newContours)
+        {
+            lock (_lock)
+            {
+                if (newContours == null || !newContours.Any())
+                {
+                    Clear();
+                    return;
+                }
+
+                foreach (var newConto
