@@ -138,4 +138,46 @@
                     return;
                 }
 
-                foreach (var newConto
+                foreach (var newContour in newContours)
+                {
+                    if (newContour.Value.Count > 0)
+                    {
+                        _contoursBySliceDictionary[newContour.Key] = newContour.Value;
+                    }
+                    else
+                    {
+                        _contoursBySliceDictionary.Remove(newContour.Key);
+                    }
+                }
+
+                CollectionChanged?.Invoke(
+                    this,
+                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            }
+        }
+
+        public void Clear()
+        {
+            lock (_lock)
+            {
+                _contoursBySliceDictionary.Clear();
+                CollectionChanged?.Invoke(
+                    this,
+                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            }
+        }
+
+        /// <summary>
+        /// Gets the minimum and maximum slice index in the contour collection.
+        /// </summary>
+        /// <returns>The minimum and maximum slices.</returns>
+        public (int Min, int Max) GetMinMaxSlices()
+        {
+            var min = int.MaxValue;
+            var max = int.MinValue;
+            lock (_lock)
+            {
+                if (!this.Any())
+                {
+                    throw new InvalidOperationException("Can't extract minimum and maximum because no contours are stored.");
+ 
