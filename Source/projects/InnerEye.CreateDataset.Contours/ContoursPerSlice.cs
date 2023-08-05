@@ -180,4 +180,24 @@
                 if (!this.Any())
                 {
                     throw new InvalidOperationException("Can't extract minimum and maximum because no contours are stored.");
- 
+                }
+
+                foreach (var contour in _contoursBySliceDictionary)
+                {
+                    var sliceIndex = contour.Key;
+                    if (sliceIndex < min)
+                    {
+                        min = sliceIndex;
+                    }
+
+                    if (sliceIndex > max)
+                    {
+                        max = sliceIndex;
+                    }
+                }
+            }
+
+            return (min, max);
+        }
+    }
+}
