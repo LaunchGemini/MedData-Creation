@@ -39,4 +39,26 @@
         public List<PolygonPoints> Inner { get; }
 
         /// <summary>
-        /// Gets the number of pixels tha
+        /// Gets the number of pixels that make up the region described by the present object. The number of pixels
+        /// are the points that are on the outer rim, the points on the inner rim, and all points in between.
+        /// </summary>
+        public uint TotalPixels { get; private set; }
+
+        /// <summary>
+        /// Gets if the region has a non-empty inner rim.
+        /// </summary>
+        public bool HasInnerPolygon => Inner.Count > 0;
+
+        /// <summary>
+        /// Adds an inner contour to the present object. The inner contour should contain
+        /// the points on the inner rim of the region of interest (innermost points that are
+        /// still foreground).
+        /// </summary>
+        /// <param name="inner">The points on the inner rim of the region, surrounding any "holes".</param>
+        public void AddInnerContour(PolygonPoints inner)
+        {
+            Inner.Add(inner ?? throw new ArgumentNullException(nameof(inner)));
+            TotalPixels -= inner.VoxelCounts.Total;
+        }
+    }
+}
