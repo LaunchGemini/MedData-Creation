@@ -59,4 +59,23 @@
     <Compile Include="ExtractSlice.cs" />
     <Compile Include="FillPolygon.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <C
+    <Compile Include="InnerOuterPolygon.cs" />
+    <Compile Include="PointExtensions.cs" />
+    <Compile Include="PolygonHelpers.cs" />
+    <Compile Include="PolygonPoints.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ContourSmoothingType.cs" />
+    <Compile Include="SmoothPolygon.cs" />
+    <Compile Include="VoxelCounts.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\InnerEye.CreateDataset.Volumes\InnerEye.CreateDataset.Volumes.csproj">
+      <Project>{12416238-4311-4d15-a2d9-4f3ed7771244}</Project>
+      <Name>InnerEye.CreateDataset.Volumes</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
