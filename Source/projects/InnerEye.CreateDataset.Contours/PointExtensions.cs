@@ -39,4 +39,41 @@
         /// x1 * x2 + y1 + y2.
         /// </summary>
         /// <param name="p1"></param>
-        /// <pa
+        /// <param name="p2"></param>
+        /// <returns></returns>
+        public static float DotProduct(this PointF p1, PointF p2)
+            => p1.X * p2.X + p1.Y * p2.Y;
+
+        /// <summary>
+        /// Computes a point that is the component-wise multiplication of
+        /// the arguments with the given scale.
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="scale"></param>
+        /// <returns></returns>
+        public static PointF Multiply(this PointF p, float scale)
+            => new PointF(p.X * scale, p.Y * scale);
+
+        /// <summary>
+        /// Gets the sum of squares of the coordinates of the point
+        /// (effectively treating it as a vector rather than a point).
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public static float LengthSquared (this PointF p)
+        {
+            return p.X * p.X + p.Y * p.Y;
+        }
+
+        /// <summary>
+        /// Treating the point as a vector, gets a vector that has the same direction
+        /// as the argument but with length 1.
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public static PointF Normalize(this PointF p)
+        {
+            var length2 = p.LengthSquared();
+            if (length2 == 0)
+            {
+                throw new ArgumentException("The point given has both c
