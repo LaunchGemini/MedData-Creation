@@ -49,4 +49,33 @@
                     any = true;
                     var tempDistance = CalculateDistance(currentPosition, point);
                     if (tempDistance < distance)
-          
+                    {
+                        bestPoint = point;
+                        distance = tempDistance;
+                    }
+                }
+            }
+            closestPoint = Tuple.Create(distance, bestPoint);
+            return any;
+        }
+
+        /// <summary>
+        /// Computes the point in the polygon that is closest to the point given in <paramref name="currentPosition"/>.
+        /// This is legacy code for which no tests existed. After finding the closest point, some additional logic is applied,
+        /// based on how close polygon segments get to the point given in <paramref name="currentPosition"/>.
+        /// Returns false if the polygon is null or does not contain any points. 
+        /// </summary>
+        /// <param name="polygon"></param>
+        /// <param name="currentPosition"></param>
+        /// <param name="closestPoint"></param>
+        /// <returns></returns>
+        public static bool TryGetClosestPointOnPolygon(IReadOnlyList<PointF> polygon, PointF currentPosition, out Tuple<double, PointF> closestPoint)
+        {
+            if (polygon == null || polygon.Count == 0)
+            {
+                closestPoint = Tuple.Create(0d, currentPosition);
+                return false;
+            }
+
+            var currentPoint = polygon[0];
+            var distance = CalculateDistance(currentPoint, curr
