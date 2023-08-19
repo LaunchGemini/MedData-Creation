@@ -76,4 +76,20 @@
             var length2 = p.LengthSquared();
             if (length2 == 0)
             {
-                throw new ArgumentException("The point given has both c
+                throw new ArgumentException("The point given has both coordinates set to 0, and hence can't be normalized.");
+            }
+
+            var length = (float)Math.Sqrt(length2);
+            return new PointF(p.X / length, p.Y / length);
+        }
+
+        /// <summary>
+        /// Creates a new instance of <see cref="PointF"/> from the arguments.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public static PointF FromDouble(double x, double y)
+            => new PointF((float)x, (float)y);
+    }
+}
