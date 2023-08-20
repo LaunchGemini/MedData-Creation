@@ -78,4 +78,34 @@
             }
 
             var currentPoint = polygon[0];
-            var distance = CalculateDistance(currentPoint, curr
+            var distance = CalculateDistance(currentPoint, currentPosition);
+            var startEqualsFirst = polygon[0] == polygon[polygon.Count - 1];
+            if (polygon.Count == (startEqualsFirst ? 2 : 1))
+            {
+                closestPoint = Tuple.Create(distance, currentPoint);
+                return true;
+            }
+
+            var bestPoint = currentPoint;
+            var bestPointIndex = 0;
+            for (var i = 1; i < polygon.Count; i++)
+            {
+                currentPoint = polygon[i];
+                var tempDistance = CalculateDistance(currentPoint, currentPosition);
+                if (tempDistance < distance)
+                {
+                    bestPointIndex = i;
+                    bestPoint = currentPoint;
+                    distance = tempDistance;
+                }
+            }
+
+            var leftPointIndex = bestPointIndex - 1 >= 0 ? bestPointIndex - 1 : polygon.Count - (startEqualsFirst ? 2 : 1);
+            var rightPointIndex = bestPointIndex + 1 < polygon.Count ? bestPointIndex + 1 : (startEqualsFirst ? 1 : 0);
+
+            // Get the point left and right of the current position in the polygon
+            var leftPair = polygon[leftPointIndex];
+            var rightPair = polygon[rightPointIndex];
+
+            // Find the closest point on both line pairs to the current position
+            var closestPointOnLeftPair = GetClosestP
