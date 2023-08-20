@@ -108,4 +108,34 @@
             var rightPair = polygon[rightPointIndex];
 
             // Find the closest point on both line pairs to the current position
-            var closestPointOnLeftPair = GetClosestP
+            var closestPointOnLeftPair = GetClosestPointOnLine(leftPair, bestPoint, currentPosition);
+            var closestPointOnRightPair = GetClosestPointOnLine(rightPair, bestPoint, currentPosition);
+
+            // Now work out which point on the line pairs is closest to the current position
+            var leftDistance = CalculateDistance(closestPointOnLeftPair, currentPosition);
+            var rightDistance = CalculateDistance(closestPointOnRightPair, currentPosition);
+
+            closestPoint =
+                leftDistance < rightDistance
+                ? Tuple.Create(leftDistance, closestPointOnLeftPair)
+                : Tuple.Create(rightDistance, closestPointOnRightPair);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Computes the polygon that contains a point that is closest to <paramref name="currentPosition"/> in 
+        /// terms of Euclidean distance. The second return value is the closest point inside of that polygon.
+        /// </summary>
+        /// <param name="polygons"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public static Tuple<Point[], Point> GetClosestPolygonAndPointToPoint(IEnumerable<Point[]> polygons, PointF currentPosition)
+        {
+            if (polygons == null)
+            {
+                return null;
+            }
+
+            Point[] bestPolygon = null;
+            Point? bestPo
