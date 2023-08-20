@@ -138,4 +138,33 @@
             }
 
             Point[] bestPolygon = null;
-            Point? bestPo
+            Point? bestPoint = null;
+            var bestDistance = double.MaxValue;
+            foreach (var polygon in polygons)
+            {
+                if (TryGetClosestPointOnPolygon(polygon, currentPosition, out var closestPoint)
+                    && closestPoint.Item1 < bestDistance)
+                {
+                    bestPolygon = polygon;
+                    bestDistance = closestPoint.Item1;
+                    bestPoint = closestPoint.Item2;
+                }
+            }
+
+            return 
+                bestPolygon == null || bestPoint == null 
+                ? null 
+                : Tuple.Create(bestPolygon, bestPoint.Value);
+        }
+
+        /// <summary>
+        /// Computes the polygon that contains a point that is closest to <paramref name="currentPosition"/> in 
+        /// terms of Euclidean distance. The second return value is the closest point inside of that polygon.
+        /// This is legacy code for which no tests exist. Computing the polygon-to-point distances is done via
+        /// <see cref="TryGetClosestPointOnPolygon(IReadOnlyList{PointF}, PointF, out Tuple{double, PointF})"/>.
+        /// This method applies some additional non-obvious logic in the distance computation.
+        /// </summary>
+        /// <param name="contour"></param>
+        /// <param name="currentPosition"></param>
+        /// <returns></returns>
+        public static Tuple<ContourPolygon, P
