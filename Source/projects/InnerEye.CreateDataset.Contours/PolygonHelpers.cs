@@ -167,4 +167,42 @@
         /// <param name="contour"></param>
         /// <param name="currentPosition"></param>
         /// <returns></returns>
-        public static Tuple<ContourPolygon, P
+        public static Tuple<ContourPolygon, PointF> GetClosestContourAndPointToPoint(IReadOnlyList<ContourPolygon> contour, PointF currentPosition)
+        {
+            if (contour == null || contour.Count == 0)
+            {
+                return null;
+            }
+
+            ContourPolygon? bestContour = null;
+            PointF? bestPoint = null;
+
+            var bestDistance = double.MaxValue;
+
+            foreach (var currentContour in contour)
+            {
+                if (TryGetClosestPointOnPolygon(currentContour.ContourPoints, currentPosition, out var closestPoint) 
+                    && closestPoint.Item1 < bestDistance)
+                {
+                    bestContour = currentContour;
+                    bestDistance = closestPoint.Item1;
+                    bestPoint = closestPoint.Item2;
+                }
+            }
+
+            return 
+                bestContour == null || bestPoint == null 
+                ? null 
+                : Tuple.Create(bestContour.Value, bestPoint.Value);
+        }
+
+        private static PointF GetClosestPointOnLine(PointF start, PointF end, PointF p)
+        {
+            var vector = end.Subtract(start);
+            var length = vector.LengthSquared();
+            if (length == 0.0)
+            {
+                return start;
+            }
+
+            // Consider the line extending the se
