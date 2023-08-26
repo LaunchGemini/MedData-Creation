@@ -246,3 +246,452 @@
             {
                 result[insertAt++] = connectingPointsFromParentToChild[index - 1];
             }
+
+            // Finally the remaining elements from the parent.
+            if (insertPositionInParent < parent.Length - 1)
+            {
+                Insert(parent, insertPositionInParent + 1, parent.Length - insertPositionInParent - 1);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Smoothes a PointF polygon that contains an inner and an outer rim. Inner and outer rim are
+        /// smoothed separately, and then connected via a zero width "channel": The smoothed
+        /// contour will first follow the outer polygon, then go to the inner contour, follow
+        /// the inner contour, and then go back to the outer contour.
+        /// </summary>
+        /// <param name="polygon"></param>
+        /// <param name="smoothingFunction"></param>
+        /// <returns></returns>
+        private static PointF[] SmoothAndMerge(InnerOuterPolygon polygon, Func<IReadOnlyList<PointInt>, bool, PointF[]> smoothingFunction)
+        {
+            var result = smoothingFunction(polygon.Outer.Points, false);
+            foreach (var inner in polygon.Inner)
+            {
+                result = ConnectViaVerticalLine(result, smoothingFunction(inner.Points, true), inner.StartPointMinimumY);
+            }
+
+            return result;
+        }
+
+        private static PointF[] SmallSmoothPolygon(IReadOnlyList<PointInt> polygon, bool isCounterClockwise)
+        {
+            // The contour simplification code called below expects contours in a string format
+            // describing a sequence of unit moves (left, right, straight). The ideal place to
+            // compute such a string would be in the code for walking around the contour bounary.
+            // But to facilitate early integration, we'll do this here for now.
+            var perimeterPath = ClockwisePointsToExternalPathWindowsPoints(polygon, isCounterClockwise, 0.0f);
+            var perimeterPath_ = perimeterPath.Select(x => { return new PointInt((int)x.X, (int)x.Y); }).ToList();
+
+            PointInt start, initialDirection;
+
+            string turns;
+            ConvertPerimeterPointsToTurnString(perimeterPath_, out start, out initialDirection, out turns);
+
+            var simplified = ContourSimplifier.Simplify(start, initialDirection, turns);
+
+            for (int i = 0; i < simplified.Length; i++)
+            {
+                simplified[i] = new PointF(simplified[i].X - 0.5f, simplified[i].Y - 0.5f);
+            }
+
+            return simplified;
+        }
+
+        private static void ConvertPerimeterPointsToTurnString(
+            IReadOnlyList<PointInt> points, 
+            out PointInt start, 
+            out PointInt initialDirection, 
+            out string turns)
+        {
+            // a single pixel mask should induce four perimeter points
+            if (points.Count < 4)
+            {
+                throw new ArgumentException("Too few points, expected at least four.", nameof(points));
+            }
+
+            using (var stringWriter = new StringWriter())
+            {
+                var previous = points.Last();
+                var direction = new PointInt(points[0].X - previous.X, points[0].Y - previous.Y);
+
+                previous = points[0];
+
+                for (int i = 1; i <= points.Count; i++)
+                {
+                    var j = i >= points.Count ? i - points.Count : i;
+                    var delta = new PointInt(points[j].X - previous.X, points[j].Y - previous.Y);
+
+                    if (delta.X == direction.X && delta.Y == direction.Y)
+                    {
+                        stringWriter.Write(TurtleForward);
+                    }
+                    else if (delta.X == -direction.Y && delta.Y == direction.X)
+                    {
+                        stringWriter.Write(TurtleLeft);
+                    }
+                    else if (delta.X == direction.Y && delta.Y == -direction.X)
+                    {
+                        stringWriter.Write(TurtleRight);
+                    }
+                    else
+                    {
+                        // Contour has doubled back on itself
+                        throw new ArgumentException($"Degenerate contour: delta = {delta}, direction = {direction}", nameof(points));
+                    }
+
+                    previous = points[j];
+                    direction = delta;
+                }
+
+                turns = stringWriter.ToString();
+            }
+
+            start = points[0];
+            var last = points[points.Count - 1];
+
+            initialDirection = new PointInt(start.X - last.X, start.Y - last.Y);
+        }
+
+        /// <summary>
+        /// Takes a collection of clockwise or counter-clockwise ordered points and makes the PointF follow
+        /// the outer edge of the pixel.
+        /// This method assumes that there are no gaps between the points (i.e. (0,0) -> (0,2) would not be valid, you would need to have (0,0), (0,1), (0,2))
+        /// </summary>
+        /// <param name="points">The collection of points.</param>
+        /// <param name="shift">This parameter shifts the origin of the points. We do this because DICOM has the origin at the center of the pixel and we extract contours with the origin at the top left.</param>
+        /// <returns>The resulting outer edge clockwise ordered collection.</returns>
+        /// <param name="isCounterClockwise">If true, assume that the points are ordered counterclockwise
+        /// (used for outer contours). If false, assume the points are ordered counterclockwise (used for
+        /// inner contours).</param>
+        [SuppressMessage("Microsoft.Maintainability", "CA1502", Justification = "This is legacy code without tests, can't refactor at present")]
+        private static PointF[] ClockwisePointsToExternalPathWindowsPoints(
+            IReadOnlyList<PointInt> points,
+            bool isCounterClockwise,
+            float shift = -0.5f)
+        {
+            if (points == null || points.Count == 0)
+            {
+                return null;
+            }
+
+            var PointF = points[0];
+
+            // Round the X/Y PointF to the containing voxel
+            var currentPointX = PointF.X;
+            var currentPointY = PointF.Y;
+
+            var shiftX = false;
+            var shiftY = false;
+
+            var lastEqualsFirst = points[0] == points[points.Count - 1] && points.Count > 1;
+            var result = new List<PointF>();
+            var discardFirstSegments = 0;
+            var discardLastSegments = 0;
+
+            if (points.Count == (lastEqualsFirst ? 2 : 1))
+            {
+                result.Add(new PointF(currentPointX + shift, currentPointY + shift));
+                result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift));
+                result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift + 1));
+                result.Add(new PointF(currentPointX + shift, currentPointY + shift + 1));
+                return result.ToArray();
+            }
+
+            if (isCounterClockwise)
+            {
+                // To do CCW search, pretend that there is a PointF above (N) of the
+                // actual starting PointF. The CW contouring will go from that fake starting
+                // PointF down (direction S) to the actual starting PointF, and then turn direction E.
+                // This makes assumptions about how the search for inner contours works:
+                // We start from the top-left (lowest Y, lowest X) PointF that is background.
+                // By construction, there is a PointF of foreground above (at Y-1), which becomes the
+                // starting PointF for traversing the inner rim CCW. Furthermore, the PointF above
+                // the starting PointF will not be part of the inner rim.
+                // The following configurations are possible (X = 0, Y = 0 at top-left,
+                // F = fake start PointF, S = first PointF of contour, L = last PointF of contour
+                // 1 F 1 1 1 1
+                // ? S L ? ? ?
+                // or:
+                // 1 F 1 1 1 1
+                // ? S ? ? ? ?
+                // ? 0 L
+                // In both cases, walking from F to S will generate two vertical line segments, that will
+                // be discarded at the end.
+                discardFirstSegments = 2;
+                var fakeStart = new PointInt(points[0].X, points[0].Y - 1);
+                currentPointX = fakeStart.X;
+                currentPointY = fakeStart.Y;
+            }
+
+            var startPosition = isCounterClockwise ? 0 : 1;
+            var endPosition =
+                isCounterClockwise
+                ? points.Count
+                : points.Count + (lastEqualsFirst ? 0 : 1);
+
+            // The following code has been copied over unmodified from its original location in the
+            // InnerEye.CreateDataset.Volumes project, Contours folder.
+            for (var i = startPosition; i < endPosition; i++)
+            {
+                PointF = points[i >= points.Count ? i - points.Count : i];
+
+                // Round the X/Y PointF to the containing voxel
+                var pointX = PointF.X;
+                var pointY = PointF.Y;
+
+                var changeX = pointX - currentPointX;
+                var changeY = pointY - currentPointY;
+
+                // South East Diagonal
+                if (changeX == 1 && changeY == 1)
+                {
+                    if (shiftX && !shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift + 1));
+                    }
+                    else if (!shiftX & !shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift));
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift + 1));
+                    }
+                    else if (shiftY && !shiftX)
+                    {
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift));
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift));
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift + 1));
+                    }
+
+                    shiftX = true;
+                    shiftY = false;
+                }
+
+                // South West Diagonal
+                else if (changeX == -1 && changeY == 1)
+                {
+                    if (shiftX && shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift + 1));
+                    }
+                    else if (shiftX && !shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift + 1));
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift + 1));
+                    }
+                    else if (!shiftX && !shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift));
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift + 1));
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift + 1));
+                    }
+
+                    shiftY = true;
+                    shiftX = true;
+                }
+
+                // Nort West Diagonal
+                else if (changeX == -1 && changeY == -1)
+                {
+                    if (!shiftX & shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift));
+                    }
+                    else if (shiftX && shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift + 1));
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift));
+                    }
+                    else if (shiftX && !shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift + 1));
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift + 1));
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift));
+                    }
+
+                    shiftX = false;
+                    shiftY = true;
+                }
+
+                // North East Diagonal
+                else if (changeX == 1 && changeY == -1)
+                {
+                    if (!shiftX && !shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift));
+                    }
+                    else if (!shiftX & shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift));
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift));
+                    }
+                    else if (shiftX && shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift + 1));
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift));
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift));
+                    }
+
+                    shiftX = false;
+                    shiftY = false;
+                }
+
+                // West
+                else if (changeX == 1 && changeY == 0)
+                {
+                    if (!shiftX && !shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift));
+                    }
+
+                    if (!shiftX && shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift));
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift));
+                    }
+                    else if (shiftX && shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift + 1));
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift));
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift));
+                    }
+
+                    shiftX = true;
+                    shiftY = false;
+                }
+
+                // East
+                else if (changeX == -1 && changeY == 0)
+                {
+                    if (shiftX && shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift + 1));
+                    }
+
+                    if (shiftX && !shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift + 1));
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift + 1));
+                    }
+                    else if (!shiftX && !shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift));
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift + 1));
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift + 1));
+                    }
+
+                    shiftX = false;
+                    shiftY = true;
+                }
+
+                // South
+                else if (changeX == 0 && changeY == 1)
+                {
+                    if (shiftX && !shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift + 1));
+                    }
+
+                    if (!shiftX && !shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift));
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift + 1));
+                    }
+                    else if (!shiftX && shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift));
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift));
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift + 1));
+                    }
+
+                    shiftX = true;
+                    shiftY = true;
+                }
+
+                // North
+                else if (changeX == 0 && changeY == -1)
+                {
+                    if (!shiftX && shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift));
+                    }
+
+                    if (shiftX && shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift + 1));
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift));
+                    }
+                    else if (shiftX && !shiftY)
+                    {
+                        result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift + 1));
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift + 1));
+                        result.Add(new PointF(currentPointX + shift, currentPointY + shift));
+                    }
+
+                    shiftX = false;
+                    shiftY = false;
+                }
+
+                result.Add(new PointF(pointX + shift + (shiftX ? 1 : 0), pointY + shift + (shiftY ? 1 : 0)));
+
+                currentPointX = pointX;
+                currentPointY = pointY;
+            }
+
+            var distanceTolerance = 1e-2;
+            if (isCounterClockwise)
+            {
+                // Hacks to complete counterclockwise contour plotting: In one case, we need
+                // to insert an additional segment, and in some cases (not detectable by means of the
+                // variables shiftX and shiftY) remove surplus segments.
+                if (shiftX && shiftY)
+                {
+                    result.Add(new PointF(currentPointX + shift, currentPointY + shift + 1));
+                }
+
+                // If first and last PointF coincide, remove the last one.
+                var d0 = result[discardFirstSegments].Subtract(result[result.Count - 1]).LengthSquared();
+                if (Math.Abs(d0) < distanceTolerance)
+                {
+                    discardLastSegments = 1;
+                }
+            }
+            else
+            {
+                // Make the last PointF join up to the first
+                if (!shiftX && shiftY)
+                {
+                    result.Add(new PointF(currentPointX + shift, currentPointY + shift));
+                }
+
+                if (shiftX && shiftY)
+                {
+                    result.Add(new PointF(currentPointX + shift, currentPointY + shift + 1));
+                    result.Add(new PointF(currentPointX + shift, currentPointY + shift));
+                }
+                else if (shiftX && !shiftY)
+                {
+                    result.Add(new PointF(currentPointX + shift + 1, currentPointY + shift + 1));
+                    result.Add(new PointF(currentPointX + shift, currentPointY + shift + 1));
+                    result.Add(new PointF(currentPointX + shift, currentPointY + shift));
+                }
+            }
+
+            var take = result.Count - discardLastSegments;
+            var resultArray = result.Take(take).Skip(discardFirstSegments).ToArray();
+
+            // Measure the distance from the start of the first line segment to the end.
+            // This must be 1.
+            var firstPoint = resultArray[0];
+            var lastPoint = resultArray[resultArray.Length - 1];
+            var distance = firstPoint.Subtract(lastPoint).LengthSquared();
+            if (Math.Abs(1 - distance) > distanceTolerance)
+            {
+                throw new InvalidOperationException($"Unable to find a closed contour. The contour started at {firstPoint}, and ended at {lastPoint}, leaving a gap of {distance:0.000}.");
+            }
+
+            return resultArray;
+        }
+    }
+}
