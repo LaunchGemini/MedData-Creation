@@ -205,4 +205,22 @@
                 return start;
             }
 
-            // Consider the line extending the se
+            // Consider the line extending the segment, parameterized as v + t (w - v).
+            // We find projection of point p onto the line.
+            // It falls where t = [(p-v) . (w-v)] / |w-v|^2
+            var t = p.Subtract(start).DotProduct(vector) / length;
+            if (t < 0.0)
+            {
+                return start; // Beyond the 'v' end of the segment
+            }
+
+            if (t > 1.0)
+            {
+                return end;   // Beyond the 'w' end of the segment
+            }
+
+            // Projection falls on the segment
+            return start.Add(vector.Multiply(t));
+        }
+    }
+}
