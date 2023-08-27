@@ -51,4 +51,30 @@
             //}
 
             var dataLoader = new DatasetLoader(StreamsFromFileSystem.JoinPath(dataRoot.RootDirectory, options.DicomDirectory));
+            var datasetAsVolumeAndMetadata = dataLoader.LoadAllDicomSeries();
+            var datasetAsVolumes = datasetAsVolumeAndMetadata.SelectMany(itemsPerSubject =>
+                {
+                    if (AreDatasetItemsValid(itemsPerSubject, options.DiscardInvalidSubjects))
+                    {
+                        return
+                            new List<List<VolumeAndStructures>>() { itemsPerSubject
+                            .Select(item => VolumeAndStructures.FromMedicalVolume(item, isLowerCaseConversionEnabled: true, dropRepeats: true))
+                            .ToList() };
+                    }
+                    return new List<List<VolumeAndStructures>>();
+                });
+
+            var writer = new DatasetWriter(datasetRoot, NiftiCompression.GZip);
+            var message =
+                writer.WriteDatasetToFolder(datasetAsVolumes,
+                    itemsPerSubject => ConvertSingleSubject(itemsPerSubject, options));
+            var datasetCsvString = VolumeWriteInfo.BuildDatasetCsvFile(writer.WrittenVolumes());
+            writer.WriteText(DatasetReader.DatasetCsvFile, datasetCsvString);
+            var status = new StringBuilder(options.SettingsOverview());
+            status.AppendLine("Per-subject status information:");
+            status.AppendLine(message);
+            writer.WriteText(DatasetCreationStatusFile, status.ToString());
+        }
+
+        /// <summary>
    
