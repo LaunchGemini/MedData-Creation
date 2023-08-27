@@ -22,4 +22,20 @@
         public string DatasetFolder { get; set; }
 
         [Option('s', "statisticsFolder", Default="statistics", HelpText = "Name of subfolder to receive statistics files (must not already exist)")]
-        public string StatisticsFolde
+        public string StatisticsFolder { get; set; }
+
+        /// <summary>
+        /// Include "external" (if present) in the pairwise comparisons.
+        /// </summary>
+        [Option('e', "includePairwiseExternal", Default = false, HelpText = "Whether to calculate pairwise statistics involving the \"external\" structure (time consuming!)")]
+        public bool PairwiseExternal { get; set; }
+
+        [Option('a', "subjectsToAnalyze", Default = "", HelpText = "Comma-separated list of subject IDs and ranges to analyze, e.g. 3,13,17-20")]
+        public string SubjectsToAnalyze { get; set; }
+
+        /// <summary>
+        /// Creates a new command line option instance, with all properties set to their default values.
+        /// </summary>
+        public CommandlineAnalyzeDataset() { }
+    }
+}
