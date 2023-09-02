@@ -98,4 +98,27 @@
             }
             // By this point we should have at most one volume with structures attached. If we don't find one, we take the
             // first volume as the one that will eventually receive structures.
-            var mainVolume = volumes.FirstOrDefault(volume => volume.Structures.Count > 0) ?? volumes[0
+            var mainVolume = volumes.FirstOrDefault(volume => volume.Structures.Count > 0) ?? volumes[0];
+            var subjectId = mainVolume.Metadata.SubjectId;
+            var renamingOK = mainVolume.Rename(options.NameMappings, allowNameClashes: options.AllowNameClashes,
+                throwIfInvalid: !options.DiscardInvalidSubjects);
+            if (!renamingOK)
+            {
+                // then discard all the volumes
+                return new List<VolumeAndStructures>();
+            }
+            mainVolume.AddEmptyStructures(options.CreateIfMissing);
+            bool structuresAreGood = true;
+            if (options.GroundTruthDescendingPriority != null && options.GroundTruthDescendingPriority.Any())
+            {
+                var namesInPriorityOrder = options.GroundTruthDescendingPriority.ToArray();
+                var namesToRemove = MakeStructuresMutuallyExclusiveInPlace(mainVolume.Structures, namesInPriorityOrder, subjectId);
+                foreach (var name in namesToRemove)
+                {
+                    Trace.TraceInformation($"Subject {subjectId}: removing structure named {name}");
+                    mainVolume.Remove(name);
+                }
+                if (options.RequireAllGroundTruthStructures)
+                {
+                    var namesToFind = new HashSet<string>(namesInPriorityOrder.Select(name => name.TrimStart(new[] { '+' })));
+                    var namesPresent = mainVolume.Stru
