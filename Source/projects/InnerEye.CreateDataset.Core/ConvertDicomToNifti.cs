@@ -77,4 +77,25 @@
         }
 
         /// <summary>
-   
+        /// Performs all dataset creation options on the data for a single subject:
+        /// * Registration on a reference volume
+        /// * Renaming structures
+        /// * Making structures mutually exclusive
+        /// * Geometric normalization
+        /// * Compute derived structures
+        /// </summary>
+        /// <param name="itemsPerSubject">All volumes and their associated structures for the subject.</param>
+        /// <param name="options">The commandline options that guide dataset creation.</param>
+        /// <returns></returns>
+        public static IEnumerable<VolumeAndStructures> ConvertSingleSubject(IReadOnlyList<VolumeAndStructures> itemsPerSubject,
+            CommandlineCreateDataset options)
+        {
+            var volumes = RegisterSubjectVolumes(itemsPerSubject, options.RegisterVolumesOnReferenceChannel).ToList();
+            if (volumes.Count == 0)
+            {
+                // We silently drop a subject with no volumes at all, even if options.RequireAllGroundTruthStructures is set.
+                return volumes;
+            }
+            // By this point we should have at most one volume with structures attached. If we don't find one, we take the
+            // first volume as the one that will eventually receive structures.
+            var mainVolume = volumes.FirstOrDefault(volume => volume.Structures.Count > 0) ?? volumes[0
