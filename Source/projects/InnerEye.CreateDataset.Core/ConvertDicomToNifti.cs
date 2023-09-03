@@ -121,4 +121,34 @@
                 if (options.RequireAllGroundTruthStructures)
                 {
                     var namesToFind = new HashSet<string>(namesInPriorityOrder.Select(name => name.TrimStart(new[] { '+' })));
-                    var namesPresent = mainVolume.Stru
+                    var namesPresent = mainVolume.Structures.Select(structure => structure.Key).ToHashSet();
+                    var namesMissing = namesToFind.Except(namesPresent).ToList();
+                    if (!namesMissing.IsNullOrEmpty())
+                    {
+                        var message = $"Subject {subjectId}: Error: no structure(s) named " + string.Join(", ", namesMissing);
+                        if (options.DiscardInvalidSubjects)
+                        {
+                            Trace.TraceInformation(message);
+                            structuresAreGood = false;
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException(message);
+                        }
+                    }
+                }
+            }
+            if (!structuresAreGood)
+            {
+                // then discard all the volumes
+                return new List<VolumeAndStructures>();
+            }
+            var spacing = options.GeometricNormalizationSpacingMillimeters?.ToArray();
+            volumes = volumes.Select(volume => volume.GeometricNormalization(spacing)).ToList();
+            if (options.DerivedStructures != null)
+            {
+                options.DerivedStructures.ForEach(derived => AddDerivedStructures(volumes, derived));
+            }
+            Trace.TraceInformation($"Subject {subjectId}: has all required structures");
+            return volumes;
+        }
