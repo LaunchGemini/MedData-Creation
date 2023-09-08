@@ -152,3 +152,24 @@
             Trace.TraceInformation($"Subject {subjectId}: has all required structures");
             return volumes;
         }
+
+        /// <summary>
+        /// Performs consistency checks on the structures that are available for a subject. 
+        /// In particular, structure names must be unique after conversion to lower case, across
+        /// all channels for the subject. Returns true if no problems are found. If any
+        /// problems are found, either returns false (if discardInvalidSubjects is true) or throws an
+        /// <see cref="InvalidOperationException"/>. Details of the errors are output to Trace.
+        /// </summary>
+        /// <param name="itemsPerSubject">A list of channels for a single subject.</param>
+        /// <param name="discardInvalidSubjects">whether to drop problematic subjects (rather than throwing)</param>
+        public static bool AreDatasetItemsValid(IReadOnlyList<VolumeAndMetadata> itemsPerSubject, bool discardInvalidSubjects)
+        {
+            var errorMessages = new List<string>();
+            var warningMessages = new List<string>();
+            var text = new StringBuilder();
+            // Maps from a structure name in lower case to the series ID that contained that structure
+            var structureNamesLowerCase = new Dictionary<string, VolumeMetadata>();
+            string channelWithStructures = null;
+            foreach (var item in itemsPerSubject)
+            {
+                var contourNames = string.Join(", ", item.Volume.Struct.Contours.Sel
