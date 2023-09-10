@@ -172,4 +172,24 @@
             string channelWithStructures = null;
             foreach (var item in itemsPerSubject)
             {
-                var contourNames = string.Join(", ", item.Volume.Struct.Contours.Sel
+                var contourNames = string.Join(", ", item.Volume.Struct.Contours.Select(c => c.StructureSetRoi.RoiName));
+                text.AppendLine($"Subject {item.Metadata.SubjectId}: series {item.Metadata.SeriesId}, channel '{item.Metadata.Channel}': {contourNames}");
+                // We don't currently handle subjects that have structures attached to multiple different channels.
+                if (item.Volume.Struct.Contours.Count == 0)
+                {
+                    continue;
+                } else if (channelWithStructures != null)
+                {
+                    errorMessages.Append($"Series {item.Metadata.SeriesId} has structures on multiple channels: {channelWithStructures} and {item.Metadata.Channel}.");
+                } else
+                {
+                    channelWithStructures = item.Metadata.Channel;
+                }
+                foreach (var contour in item.Volume.Struct.Contours)
+                {
+                    var contourNameLowerCase = contour.StructureSetRoi.RoiName.ToLowerInvariant();
+                    if (structureNamesLowerCase.TryGetValue(contourNameLowerCase, out var otherVolume))
+                    {
+                        var thisSeries = item.Metadata.SeriesId;
+                        var otherSeries = otherVolume.SeriesId;
+                        var message = new StringBuilder($"Subject {item.Metadata.SubjectId}: after conversion to lower c
