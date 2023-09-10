@@ -225,4 +225,32 @@
         }
 
         /// <summary>
-        /// Computes a derived structure by a
+        /// Computes a derived structure by applying an operator as specified in <paramref name="derived"/>, and saves 
+        /// that to the first element of the argument <paramref name="itemsPerSubject"/>.
+        /// </summary>
+        /// <param name="itemsPerSubject"></param>
+        /// <param name="derived"></param>
+        public static void AddDerivedStructures(IReadOnlyList<VolumeAndStructures> itemsPerSubject, DerivedStructure derived)
+        {
+            Volume3D<byte> find(string name)
+            {
+                var result =
+                    itemsPerSubject
+                    .SelectMany(v => v.Structures)
+                    .Where(s => s.Key == name)
+                    .Select(v => v.Value)
+                    .SingleOrDefault();
+                if (result == null)
+                {
+                    throw new KeyNotFoundException($"There is no structure with name '{name}', which is required to compute the derived structure '{derived.Result}'");
+                }
+
+                return result;
+            }
+            var left = find(derived.LeftSide);
+            var right = find(derived.RightSide);
+            itemsPerSubject[0].Add(derived.Result, ComputeDerivedStructure(left, right, derived));
+        }
+
+        /// <summary>
+        /// Creates a derived structure, with the given left and righ
