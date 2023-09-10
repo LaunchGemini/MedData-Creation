@@ -253,4 +253,28 @@
         }
 
         /// <summary>
-        /// Creates a derived structure, with the given left and righ
+        /// Creates a derived structure, with the given left and right sides of the operator. The operator 
+        /// itself is consumed from <paramref name="derived"/>.Operator
+        /// </summary>
+        /// <param name="left">The binary mask that is the left side of the operator.</param>
+        /// <param name="right">The binary mask that is the right side of the operator.</param>
+        /// <param name="derived"></param>
+        /// <returns></returns>
+        public static Volume3D<byte> ComputeDerivedStructure(Volume3D<byte> left, Volume3D<byte> right, DerivedStructure derived)
+        {
+            var leftSize = Volume3DDimensions.Create(left);
+            var rightSize = Volume3DDimensions.Create(right);
+            if (!leftSize.Equals(rightSize))
+            {
+                throw new InvalidOperationException($"Structure for '{derived.LeftSide}' has size {leftSize}, but '{derived.RightSide}' has size {rightSize}");
+            }
+
+            Volume3D<byte> result;
+            switch (derived.Operator)
+            {
+                case DerivedStructureOperator.Except:
+                    result = left.MapIndexed(null, (leftValue, index) =>
+                        leftValue == ModelConstants.MaskBackgroundIntensity
+                        ? ModelConstants.MaskBackgroundIntensity
+                        : right[index] == ModelConstants.MaskBackgroundIntensity
+                        ? ModelCons
