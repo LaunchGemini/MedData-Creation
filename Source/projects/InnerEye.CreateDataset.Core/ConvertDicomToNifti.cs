@@ -192,4 +192,37 @@
                     {
                         var thisSeries = item.Metadata.SeriesId;
                         var otherSeries = otherVolume.SeriesId;
-                        var message = new StringBuilder($"Subject {item.Metadata.SubjectId}: after conversion to lower c
+                        var message = new StringBuilder($"Subject {item.Metadata.SubjectId}: after conversion to lower case, there is more than one structure with name '{contourNameLowerCase}'");
+                        if (otherSeries == thisSeries)
+                        {
+                            message.Append($" in series {thisSeries}");
+                        }
+                        else
+                        {
+                            message.Append($". Affected series are {thisSeries} and {otherSeries} ");
+                        }
+                        warningMessages.Add(message.ToString());
+                    }
+                    else
+                    {
+                        structureNamesLowerCase.Add(contourNameLowerCase, item.Metadata);
+                    }
+                }
+            }
+
+            Trace.TraceInformation(text.ToString());
+            warningMessages.ForEach(message => Trace.TraceWarning(message));
+            if (errorMessages.Count > 0)
+            {
+                errorMessages.ForEach(message => Trace.TraceError(message));
+                if (!discardInvalidSubjects)
+                {
+                    throw new InvalidOperationException("The dataset contains invalid structures. Inspect the console for details. First error: " + errorMessages.First());
+                }
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Computes a derived structure by a
