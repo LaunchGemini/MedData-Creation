@@ -316,4 +316,26 @@
         {
             // Filter out any names in the priority list that do not occur in the structure dictionary. Names starting
             // with "+" are automatically filtered out here.
-            var prioritySequenceToUse = structureNamesInDescendingPriority.Where(name => g
+            var prioritySequenceToUse = structureNamesInDescendingPriority.Where(name => groundTruthStructures.ContainsKey(name) || name == "*").ToList();
+            if (prioritySequenceToUse.Count > 0)
+            {
+                // Create an array of volumes in priority order.
+                var volumesInOrder = prioritySequenceToUse.Select(name => groundTruthStructures[name]).ToArray();
+                // Assume all volumes have same size
+                var volumeLength = volumesInOrder[0].Length;
+                // Record maskings-out so we can report them.
+                var maskingCounts = new int[volumesInOrder.Length - 1][];
+                for (int volumeIndex1 = 0; volumeIndex1 < volumesInOrder.Length - 1; volumeIndex1++)
+                {
+                    maskingCounts[volumeIndex1] = new int[volumesInOrder.Length];
+                }
+                for (int voxelIndex = 0; voxelIndex < volumeLength; voxelIndex++)
+                {
+                    // Find the first structure in the priority order that has a foreground voxel.
+                    // Make the rest of structures after that 0 for the current voxel.
+                    for (int volumeIndex1 = 0; volumeIndex1 < volumesInOrder.Length - 1; volumeIndex1++)
+                    {
+                        var volume = volumesInOrder[volumeIndex1];
+                        if (volume[voxelIndex] == ModelConstants.MaskForegroundIntensity)
+                        {
+                            for (int volumeIndex2 = volumeIndex1
