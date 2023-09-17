@@ -300,4 +300,20 @@
         /// Given structure names in descending priority order, create mutually exclusive masks such that at each voxel position,
         /// whenever a higher-priority structure has a foreground voxel, ensure that all lower-priority structures have background.
         /// The two sets of structure names do not have to be equal. If a structure name in the priority order is not present in
-        /// the volumes, it is ignored; conversely, if a structure has a name not present
+        /// the volumes, it is ignored; conversely, if a structure has a name not present in the priority order, it is not touched,
+        /// but its name is included in the returned result. If a structure name in the priority order is prefixed with "+", e.g.
+        /// "+external", then mutual exclusion is not enforced between that structure and any other, but the name is not included in
+        /// the result, so such structures are not deleted from the volume.
+        /// </summary>
+        /// <param name="groundTruthStructures">the set of ground truth structures to enforce mutual exclusion on</param>
+        /// <param name="structureNamesInDescendingPriority">Descending priority order for ground truth structures to be used to enforce
+        /// mutual exclusion in dataset creation</param>
+        /// <returns>The names of any structures in the volumes that do not occur in the
+        /// priority order</returns>
+        public static IEnumerable<string> MakeStructuresMutuallyExclusiveInPlace(
+            IReadOnlyDictionary<string, Volume3D<byte>> groundTruthStructures,
+            string[] structureNamesInDescendingPriority, int subjectId)
+        {
+            // Filter out any names in the priority list that do not occur in the structure dictionary. Names starting
+            // with "+" are automatically filtered out here.
+            var prioritySequenceToUse = structureNamesInDescendingPriority.Where(name => g
