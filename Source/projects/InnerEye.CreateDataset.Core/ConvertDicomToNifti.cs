@@ -363,4 +363,23 @@
                             {
                                 if (vol[i] != ModelConstants.MaskBackgroundIntensity)
                                 {
-         
+                                    total += 1;
+                                }
+                            }
+                            Trace.TraceInformation($"Subject {subjectId}: {count} voxels of {prioritySequenceToUse[volumeIndex2]} were masked out by {prioritySequenceToUse[volumeIndex1]}, leaving {total}");
+                        }
+                    }
+                }
+            }
+            // Augment the list of "good" structure names with any names that were prefixed with "+" in the original list.
+            prioritySequenceToUse.AddRange(structureNamesInDescendingPriority.Where(name => name.StartsWith("+")).Select(name => name.Substring(1)));
+            // Return any structure names not mentioned in the augmented list.
+            return groundTruthStructures.Keys.Where(name => !prioritySequenceToUse.Contains(name)).ToArray();
+        }
+
+        /// <summary>
+        /// Consumes a list of volumes for different imaging channels, all for the same subject. All the images
+        /// and structures will be registered against the reference volume given in <paramref name="registerOnChannel"/>,
+        /// and returned as instances of <see cref="Volume3D{T}"/>.
+        /// If no reference channel is given, the subject volumes are not registered.
+        /// If registration is carried, the first element of the result belongs
