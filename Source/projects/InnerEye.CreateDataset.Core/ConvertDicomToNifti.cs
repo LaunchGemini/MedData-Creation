@@ -277,4 +277,27 @@
                         leftValue == ModelConstants.MaskBackgroundIntensity
                         ? ModelConstants.MaskBackgroundIntensity
                         : right[index] == ModelConstants.MaskBackgroundIntensity
-                        ? ModelCons
+                        ? ModelConstants.MaskForegroundIntensity
+                        : ModelConstants.MaskBackgroundIntensity
+                    );
+                    break;
+                case DerivedStructureOperator.Union:
+                    result = left.MapIndexed(null, (leftValue, index) =>
+                        (leftValue != ModelConstants.MaskBackgroundIntensity
+                        || right[index] != ModelConstants.MaskBackgroundIntensity)
+                        ? ModelConstants.MaskForegroundIntensity
+                        : ModelConstants.MaskBackgroundIntensity
+                    );
+                    break;
+                default:
+                    throw new NotImplementedException($"There is no implementation for operator '{derived.Operator}'");
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Given structure names in descending priority order, create mutually exclusive masks such that at each voxel position,
+        /// whenever a higher-priority structure has a foreground voxel, ensure that all lower-priority structures have background.
+        /// The two sets of structure names do not have to be equal. If a structure name in the priority order is not present in
+        /// the volumes, it is ignored; conversely, if a structure has a name not present
