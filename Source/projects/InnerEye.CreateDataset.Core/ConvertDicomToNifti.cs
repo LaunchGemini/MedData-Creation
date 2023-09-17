@@ -338,4 +338,29 @@
                         var volume = volumesInOrder[volumeIndex1];
                         if (volume[voxelIndex] == ModelConstants.MaskForegroundIntensity)
                         {
-                            for (int volumeIndex2 = volumeIndex1
+                            for (int volumeIndex2 = volumeIndex1 + 1; volumeIndex2 < volumesInOrder.Length; volumeIndex2++)
+                            {
+                                if (volumesInOrder[volumeIndex2][voxelIndex] != ModelConstants.MaskBackgroundIntensity)
+                                {
+                                    volumesInOrder[volumeIndex2][voxelIndex] = ModelConstants.MaskBackgroundIntensity;
+                                    maskingCounts[volumeIndex1][volumeIndex2]++;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+                for (int volumeIndex1 = 0; volumeIndex1 < volumesInOrder.Length - 1; volumeIndex1++)
+                {
+                    for (int volumeIndex2 = volumeIndex1 + 1; volumeIndex2 < volumesInOrder.Length; volumeIndex2++)
+                    {
+                        var count = maskingCounts[volumeIndex1][volumeIndex2];
+                        if (count > 0)
+                        {
+                            var total = 0;
+                            var vol = volumesInOrder[volumeIndex2];
+                            for (int i = 0; i < vol.DimXY * vol.DimZ; i++)
+                            {
+                                if (vol[i] != ModelConstants.MaskBackgroundIntensity)
+                                {
+         
