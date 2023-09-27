@@ -382,4 +382,34 @@
         /// and structures will be registered against the reference volume given in <paramref name="registerOnChannel"/>,
         /// and returned as instances of <see cref="Volume3D{T}"/>.
         /// If no reference channel is given, the subject volumes are not registered.
-        /// If registration is carried, the first element of the result belongs
+        /// If registration is carried, the first element of the result belongs to the reference channel,
+        /// followed by all other channels.
+        /// </summary>
+        /// <param name="subjectVolumes">A list of medical volumes for different channels.</param>
+        /// <param name="registerOnChannel">The channel that should be used as the reference channel for registration.
+        /// Set to null or an empty string to not register at all.</param>
+        /// <returns></returns>
+        public static IReadOnlyList<VolumeAndStructures> RegisterSubjectVolumes(
+            IReadOnlyList<VolumeAndStructures> subjectVolumes,
+            string registerOnChannel)
+        {
+            if (subjectVolumes == null || subjectVolumes.Count == 0)
+            {
+                throw new ArgumentException("The subject data must be non-empty", nameof(subjectVolumes));
+            }
+
+            if (string.IsNullOrEmpty(registerOnChannel))
+            {
+                return subjectVolumes;
+            }
+
+            var perChannel = new Dictionary<string, VolumeAndStructures>();
+            foreach (var item in subjectVolumes)
+            {
+                var channel = item.Metadata.Channel;
+                if (perChannel.ContainsKey(channel))
+                {
+                    throw new ArgumentException($"Data contains multiple volumes for channel '{channel}'", nameof(subjectVolumes));
+                }
+
+                perChannel.A
