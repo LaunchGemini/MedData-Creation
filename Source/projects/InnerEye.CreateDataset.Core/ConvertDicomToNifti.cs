@@ -412,4 +412,33 @@
                     throw new ArgumentException($"Data contains multiple volumes for channel '{channel}'", nameof(subjectVolumes));
                 }
 
-                perChannel.A
+                perChannel.Add(channel, item);
+            }
+
+            if (!perChannel.ContainsKey(registerOnChannel))
+            {
+                throw new ArgumentException($"Data does not contain the reference channel '{registerOnChannel}'", nameof(subjectVolumes));
+            }
+
+            var reference = perChannel[registerOnChannel];
+            var otherChannels =
+                perChannel
+                .Where(keyValue => keyValue.Value.Metadata.Channel != registerOnChannel)
+                .Select(keyValue => keyValue.Value)
+                .ToList();
+            var registered = ResampleVolumesToReference(reference, otherChannels);
+            var result = new List<VolumeAndStructures>
+            {
+                perChannel[registerOnChannel]
+            };
+            result.AddRange(registered);
+            return result;
+        }
+
+        /// <summary>
+        /// Takes a list of volumes and structures per channel, and resamples them to match the geometry of the reference
+        /// volume. The metadata information for each channel is updated to contain information about resampling and the 
+        /// source series: If the channel provided is "flair", and the reference channel is "t1", then the output
+        /// will contain a channel called "flair_onto_t1". The names of anatomical structures will remain
+        /// as in the input, though.
+        /// The
