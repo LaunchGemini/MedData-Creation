@@ -441,4 +441,26 @@
         /// source series: If the channel provided is "flair", and the reference channel is "t1", then the output
         /// will contain a channel called "flair_onto_t1". The names of anatomical structures will remain
         /// as in the input, though.
-        /// The
+        /// The returned enumerable has as many items as there are in <paramref name="otherChannels"/>.
+        /// If resampling produces voxel values that are outside the value range of the input image, the offending
+        /// voxels are clipped to be at the input image range.
+        /// </summary>
+        /// <param name="reference">The reference volume. The returned volumes and structures will all have
+        /// the same geometry as the reference volume.</param>
+        /// <param name="otherChannels">Volumes and structure for different channels other than the reference channel.</param>
+        /// <param name="writeResultsToTempFolder">If true, the reference volume and the registration results
+        /// will be written in Nifti format to the user's temp folder.</param>
+        /// <returns></returns>
+        public static IEnumerable<VolumeAndStructures> ResampleVolumesToReference(VolumeAndStructures reference,
+            List<VolumeAndStructures> otherChannels,
+            bool writeResultsToTempFolder = false)
+        {
+            if (otherChannels.Count == 0)
+            {
+                yield break;
+            }
+
+            var subjectId = reference.Metadata.SubjectId;
+            var referenceProperties = Volume3DProperties.Create(reference.Volume);
+            var referenceChannel = reference.Metadata.Channel;
+            var tempFolder = Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}_subject{subject
