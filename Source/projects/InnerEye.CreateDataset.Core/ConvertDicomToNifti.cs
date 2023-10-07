@@ -463,4 +463,34 @@
             var subjectId = reference.Metadata.SubjectId;
             var referenceProperties = Volume3DProperties.Create(reference.Volume);
             var referenceChannel = reference.Metadata.Channel;
-            var tempFolder = Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}_subject{subject
+            var tempFolder = Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}_subject{subjectId}");
+
+            // SimpleItk only understands Nifti Gzip compression or uncompressed. Using uncompressed
+            // because it is faster to use.
+            var niftiExtension = MedIO.GetNiftiExtension(NiftiCompression.Uncompressed);
+            if (writeResultsToTempFolder)
+            {
+                Trace.TraceInformation($"Subject {subjectId}: writing temporary Nifti files to folder {tempFolder}");
+                Directory.CreateDirectory(tempFolder);
+            }
+            string CreateNiftiFileName(string channel) => Path.Combine(tempFolder, channel + niftiExtension);
+            void WriteIfNeeded(Image image, string channel)
+            {
+                if (writeResultsToTempFolder)
+                {
+                    var nifti = CreateNiftiFileName(referenceChannel);
+                    SimpleITK.WriteImage(image, nifti);
+                }
+            }
+            void CheckProperties(Volume3DProperties properties, string channel)
+            {
+                try
+                {
+                    Volume3DProperties.CheckAllPropertiesEqual(new[] { referenceProperties, properties });
+                }
+                catch (ArgumentException ex)
+                {
+                    throw new InvalidOperationException($"Registration for channel '{channel}' created size mismatch: {ex.Message}");
+                }
+            }
+            var refe
