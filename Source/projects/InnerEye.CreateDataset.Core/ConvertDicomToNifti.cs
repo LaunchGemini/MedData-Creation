@@ -493,4 +493,23 @@
                     throw new InvalidOperationException($"Registration for channel '{channel}' created size mismatch: {ex.Message}");
                 }
             }
-            var refe
+            var referenceImage = ItkImageFromManaged.FromVolume(reference.Volume);
+            PrintImageOrientation(referenceImage.Image, "Reference image for registration:");
+            WriteIfNeeded(referenceImage.Image, referenceChannel);
+            var interpolationForVolume = InterpolatorEnum.sitkBSpline;
+            var interpolationForStructures = InterpolatorEnum.sitkNearestNeighbor;
+            string ChannelSuffixFromMethod(InterpolatorEnum method) => "_" + method.ToString().Substring(4);
+            var knownChannels = new HashSet<string> { referenceChannel };
+            foreach (var item in otherChannels)
+            {
+                var channel = item.Metadata.Channel;
+                if (!knownChannels.Add(channel))
+                {
+                    throw new ArgumentException($"Subject {subjectId}: channel '{channel}' is present multiple times.", nameof(otherChannels));
+                }
+                Trace.TraceInformation($"Subject {subjectId}: starting to register volumes and structures for channel '{channel}'");
+                var image = ItkImageFromManaged.FromVolume(item.Volume);
+                var voxelRange = item.Volume.GetMinMax();
+                PrintImageOrientation(image.Image, "Subject {subjectId}: image orientation for this channel:");
+                WriteIfNeeded(image.Image, channel);
+                Trace.TraceInformation($"Subject {subjectId}: registering the scan");
