@@ -513,3 +513,21 @@
                 PrintImageOrientation(image.Image, "Subject {subjectId}: image orientation for this channel:");
                 WriteIfNeeded(image.Image, channel);
                 Trace.TraceInformation($"Subject {subjectId}: registering the scan");
+                var imageResampled = ResampleImage(referenceImage, image, interpolationForVolume);
+                WriteIfNeeded(imageResampled, channel + ChannelSuffixFromMethod(interpolationForVolume));
+                var volumeResampled = SimpleItkConverters.ImageToVolumeShort(imageResampled);
+                CheckProperties(Volume3DProperties.Create(volumeResampled), channel);
+                volumeResampled.ClipToRangeInPlace(voxelRange);
+                var structuresResampled = new Dictionary<string, Volume3D<byte>>();
+                foreach (var structure in item.Structures)
+                {
+                    var name = structure.Key;
+                    Trace.TraceInformation($"Subject {subjectId}: registering structure '{name}'");
+                    if (!knownChannels.Add(name))
+                    {
+                        throw new ArgumentException($"Subject {subjectId}: channel '{name}' is present multiple times.", nameof(otherChannels));
+                    }
+                    var maskImage = ItkImageFromManaged.FromVolume(structure.Value);
+                    var maskImageResampled = ResampleImage(referenceImage, maskImage, interpolationForStructures);
+                    WriteIfNeeded(maskImageResampled, name + ChannelSuffixFromMethod(interpolationForStructures));
+                    var maskResam
