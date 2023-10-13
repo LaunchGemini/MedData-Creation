@@ -530,4 +530,29 @@
                     var maskImage = ItkImageFromManaged.FromVolume(structure.Value);
                     var maskImageResampled = ResampleImage(referenceImage, maskImage, interpolationForStructures);
                     WriteIfNeeded(maskImageResampled, name + ChannelSuffixFromMethod(interpolationForStructures));
-                    var maskResam
+                    var maskResampled = SimpleItkConverters.ImageToVolumeByte(maskImageResampled);
+                    CheckProperties(Volume3DProperties.Create(maskResampled), channel);
+                    structuresResampled.Add(name, maskResampled);
+                }
+
+                var newChannelName = $"{item.Metadata.Channel}_onto_{referenceChannel}";
+                var updatedMetadata =
+                    item.Metadata
+                    .UpdateSeriesId($"Resampling on '{referenceChannel}' via '{interpolationForVolume}' and '{interpolationForStructures}' of ")
+                    .UpdateChannel(newChannelName);
+                yield return new VolumeAndStructures(volumeResampled, structuresResampled, updatedMetadata);
+            }
+        }
+
+        /// <summary>
+        /// Writes human readable information about the image to Trace, including a header line.
+        /// The information includes the voxel type, the origin vector and the orientation vector.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="loggingHeader"></param>
+        public static void PrintImageOrientation(Image image, string loggingHeader)
+        {
+            string PrintVector(VectorDouble vector) => $"({string.Join(", ", vector.Select(v => v.ToString("0.00")))})";
+            var text = new StringBuilder();
+            text.AppendLine(loggingHeader);
+  
