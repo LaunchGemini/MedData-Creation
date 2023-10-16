@@ -555,4 +555,35 @@
             string PrintVector(VectorDouble vector) => $"({string.Join(", ", vector.Select(v => v.ToString("0.00")))})";
             var text = new StringBuilder();
             text.AppendLine(loggingHeader);
-  
+            text.AppendLine($"Voxel type: {image.GetPixelIDTypeAsString()}");
+            text.AppendLine($"Origin {PrintVector(image.GetOrigin())}");
+            text.AppendLine($"Direction {PrintVector(image.GetDirection())}");
+            text.AppendLine($"Spacing {PrintVector(image.GetSpacing())}");
+            Trace.TraceInformation(text.ToString());
+        }
+
+        /// <summary>
+        /// For a 3-dimensional image, gets the 8 voxel values in the 8 corners of the image.
+        /// This is only implemented for images with pixel type Int16 (short) and UInt8 (byte).
+        /// </summary>
+        /// <param name="image"></param>
+        /// <returns></returns>
+        public static IEnumerable<double> ValuesInCorners(Image image)
+        {
+            Debug.Assert(image.GetDimension() == 3);
+            var size = image.GetSize();
+            var valuesInCorners = new List<double>();
+            Func<VectorUInt32, double> pixelGetter;
+            if (image.GetPixelID() == PixelIDValueEnum.sitkInt16)
+            {
+                pixelGetter = vector => image.GetPixelAsInt16(vector);
+            }
+            else
+            {
+                if (image.GetPixelID() == PixelIDValueEnum.sitkUInt8)
+                {
+                    pixelGetter = vector => image.GetPixelAsUInt8(vector);
+                }
+                else
+                {
+                    throw ne
