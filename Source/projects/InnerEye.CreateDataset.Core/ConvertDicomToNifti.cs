@@ -586,4 +586,32 @@
                 }
                 else
                 {
-                    throw ne
+                    throw new ArgumentException($"Unsupported pixel type {image.GetPixelIDTypeAsString()}", nameof(image));
+                }
+            }
+
+            foreach (var dim0 in new uint[] { 0, size[0] - 1 })
+            {
+                foreach (var dim1 in new uint[] { 0, size[1] - 1 })
+                {
+                    foreach (var dim2 in new uint[] { 0, size[2] - 1 })
+                    {
+                        var index = new VectorUInt32(new[] { dim0, dim1, dim2 });
+                        valuesInCorners.Add(pixelGetter(index));
+                    }
+                }
+            }
+            return valuesInCorners;
+        }
+
+        /// <summary>
+        /// Maps an image onto a reference image, and resamples the area of overlap to the geometry of the 
+        /// reference image. Areas where the reference image has voxels, but the <paramref name="otherImage"/> does 
+        /// not, will be filled with a default value taken from the 8 corners of the <paramref name="otherImage"/>.
+        /// </summary>
+        /// <param name="referenceImage">The reference image. The returned image will have the same geometry
+        /// as the reference.</param>
+        /// <param name="otherImage">The image to map onto the reference image.</param>
+        /// <param name="interpolationMethod">The SimpleITK interpolation method that should be used for resampling.</param>
+        /// <returns></returns>
+        public static
