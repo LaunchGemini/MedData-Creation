@@ -614,4 +614,26 @@
         /// <param name="otherImage">The image to map onto the reference image.</param>
         /// <param name="interpolationMethod">The SimpleITK interpolation method that should be used for resampling.</param>
         /// <returns></returns>
-        public static
+        public static Image ResampleImage(ItkImageFromManaged referenceImage, ItkImageFromManaged otherImage, InterpolatorEnum interpolationMethod)
+        {
+            var resampler = new ResampleImageFilter();
+            resampler.SetReferenceImage(referenceImage.Image);
+            resampler.SetInterpolator(interpolationMethod);
+            // When resampling a smaller image onto a larger one, gaps need to be filled
+            // with a default pixel value. A reasonable guess is that the corners of a typical
+            // scan represent air. Take the average of those, and use as the default fill value.
+            resampler.SetDefaultPixelValue(ValuesInCorners(otherImage.Image).Average());
+            return resampler.Execute(otherImage.Image);
+        }
+
+        /// <summary>
+        /// Writes the dataset metadata in the argument to Trace in human readable form, including
+        /// size of the dataset, channels, and SQL queries.
+        /// </summary>
+        /// <param name="dataset">The dataset to print out.</param>
+        //public static void PrintDatasetMetadata(AdminAPI.Client.Dataset dataset)
+        //{
+        //    var text = new StringBuilder();
+        //    text.AppendLine($"Dataset Name: {dataset.DatasetName}");
+        //    text.AppendLine($"Dataset created on {dataset.CreatedDateTime.ToUniversalTime().ToString("s")} UTC by {dataset.UserName}");
+   
