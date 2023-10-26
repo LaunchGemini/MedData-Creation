@@ -636,4 +636,32 @@
         //    var text = new StringBuilder();
         //    text.AppendLine($"Dataset Name: {dataset.DatasetName}");
         //    text.AppendLine($"Dataset created on {dataset.CreatedDateTime.ToUniversalTime().ToString("s")} UTC by {dataset.UserName}");
-   
+        //    var structures = dataset.UniqueStructureNames.ToList();
+        //    text.AppendLine($"Dataset contains {dataset.DatasetSize} entries with {structures.Count} unique structures: {string.Join(", ", structures)}");
+        //    foreach (var query in dataset.SqlQueries)
+        //    {
+        //        text.AppendLine($"Query to get data for channel '{query.ChannelName}':");
+        //        text.AppendLine(query.SqlQuery);
+        //    }
+        //    Trace.TraceInformation(text.ToString());
+
+        //    if (dataset.Warnings != null && dataset.Warnings.Count > 0)
+        //    {
+        //        text.Clear();
+        //        text.AppendLine($"When creating the dataset, a total of {dataset.Warnings.Count} warnings were written:");
+        //        foreach (var warning in dataset.Warnings)
+        //        {
+        //            text.AppendLine(warning);
+        //        }
+        //        Trace.TraceWarning(text.ToString());
+        //    }
+        //}
+
+        /// <summary>
+        /// Runs dataset creation as specified by the commandline options given.
+        /// </summary>
+        /// <param name="options"></param>
+        public static void CreateDataset(CommandlineCreateDataset options)
+        {
+            var dataRoot = new LocalFileSystem(options.DatasetRootDirectory, false);
+            var isDatasetFolderAvailable = dataRoot.DirectoryExists
