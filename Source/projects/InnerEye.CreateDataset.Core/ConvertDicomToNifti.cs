@@ -664,4 +664,23 @@
         public static void CreateDataset(CommandlineCreateDataset options)
         {
             var dataRoot = new LocalFileSystem(options.DatasetRootDirectory, false);
-            var isDatasetFolderAvailable = dataRoot.DirectoryExists
+            var isDatasetFolderAvailable = dataRoot.DirectoryExists(options.NiftiDirectory);
+
+            if (isDatasetFolderAvailable)
+            {
+                throw new InvalidOperationException($"There is already a dataset with name '{options.NiftiDirectory}' in the dataset directory.");
+            }
+            try
+            {
+                CreateDataset(dataRoot, options);
+            }
+            catch (Exception ex)
+            {
+                string error = $"Cannot convert dataset '{options.DicomDirectory}'. Ensure that the folder '{options.NiftiDirectory}' is deleted before re-trying! Error: {ex.Message}";
+                Trace.TraceError(error);
+                throw new InvalidOperationException(error, ex);
+            }
+
+        }
+    }
+}
