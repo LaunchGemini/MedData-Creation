@@ -41,4 +41,40 @@ namespace InnerEye.CreateDataset.Core
                 var volume = MedIO.LoadSingleDicomSeriesAsync(folder, acceptanceTest).Result;
                 var seriesId = getSeriesId(volume);
                 var subjectId = getSubjectId(volume);
-             
+                if (!volume.IsCT)
+                {
+                    throw new InvalidOperationException("Only CT supported");
+                }
+                var channel = "ct";
+                var id = subjectIdsToIndices.IndexOf(subjectId);
+                if (id == -1)
+                {
+                    subjectIdsToIndices.Add(subjectId);
+                    id = subjectIdsToIndices.Count() - 1;
+                }
+                var info = new VolumeMetadata(seriesId, id, channel);
+                subjectVolumes.Add(new VolumeAndMetadata(info, volume));
+                yield return subjectVolumes;
+            }
+        }
+
+        /// <summary>
+        /// Returns the series ID of the volume
+        /// </summary>
+        /// <param name="volume"></param>
+        private string getSeriesId(MedicalVolume volume)
+        {
+            return volume.Struct.Study.StudyInstanceUid;
+        }
+
+        /// <summary>
+        /// Returns the subject ID of the volume
+        /// </summary>
+        /// <param name="volume"></param>
+        private string getSubjectId(MedicalVolume volume)
+        {
+            return volume.Struct.Patient.Id;
+        }
+
+    }
+}
