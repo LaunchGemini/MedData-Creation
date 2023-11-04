@@ -38,4 +38,37 @@ namespace InnerEye.CreateDataset.Core
         public DatasetWriter(LocalFileSystem datasetRoot, NiftiCompression niftiCompression)
         {
             _datasetRoot = datasetRoot;
-            _niftiCompression = niftiCompr
+            _niftiCompression = niftiCompression;
+        }
+
+        /// <summary>
+        /// Writes text to a file.
+        /// </summary>
+        /// <param name="fileName">The file name to to write to within the dataset folder</param>
+        /// <param name="text">The text to write.</param>
+        public void WriteText(string fileName, string text)
+        {
+            _datasetRoot.WriteAllText(fileName, text);
+        }
+
+        /// <summary>
+        /// Writes a full dataset to the dataset folder.
+        /// datasets. Returns a human readable string with diagnostic information.
+        /// </summary>
+        /// <param name="dataset">The individual items of the dataset, one item per subject.</param>
+        public string WriteDatasetToFolder(IEnumerable<IReadOnlyList<VolumeAndStructures>> dataset,
+            Func<IReadOnlyList<VolumeAndStructures>, IEnumerable<VolumeAndStructures>> converter)
+        {
+            var foundStructures = new ConcurrentDictionary<string, int>();
+            var _counterLock = new object();
+            var subjectCount = 0;
+            Parallel.ForEach(
+                dataset,
+                new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                itemsPerSubject =>
+                {
+                    lock (_counterLock)
+                    {
+                        subjectCount++;
+                    }
+                    
