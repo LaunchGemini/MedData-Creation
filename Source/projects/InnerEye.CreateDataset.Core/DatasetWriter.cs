@@ -71,4 +71,36 @@ namespace InnerEye.CreateDataset.Core
                     {
                         subjectCount++;
                     }
-                    
+                    try
+                    {
+                        converter(itemsPerSubject)
+                        .ForEach(channel =>
+                        {
+                            WriteVolumeAndStructuresToFolder(channel);
+                            foreach (var structure in channel.Structures)
+                            {
+                                foundStructures.AddOrUpdate(structure.Key, 1, (_, y) => y + 1);
+                            }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        var subject = itemsPerSubject.First().Metadata.SubjectId;
+                        var series = itemsPerSubject.First().Metadata.SeriesId;
+                        throw new Exception($"Subject {subject} (series {series}) failed: {ex.Message}", ex);
+                    }
+                });
+
+            // Return a string with diagnostic information
+            var text = new StringBuilder();
+            foreach (var item in foundStructures)
+            {
+                text.AppendLine($"Structure '{item.Key}' was present in {item.Value} out of {subjectCount} (subject, channel) pairs.");
+            }
+            return text.ToString();
+        }
+
+        /// <summary>
+        /// Writes a single dataset item (scan and structures) to the dataset folder.
+        /// </summary>
+        /// <param name="volumeAndStructures">The d
