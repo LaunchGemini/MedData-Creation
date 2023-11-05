@@ -103,4 +103,28 @@ namespace InnerEye.CreateDataset.Core
         /// <summary>
         /// Writes a single dataset item (scan and structures) to the dataset folder.
         /// </summary>
-        /// <param name="volumeAndStructures">The d
+        /// <param name="volumeAndStructures">The dataset item to write.</param>
+        public void WriteVolumeAndStructuresToFolder(VolumeAndStructures volumeAndStructures)
+        {
+            // write the image volume 
+            WriteVolume(volumeAndStructures.Volume, volumeAndStructures.Metadata);
+
+            // for each of the ground truth structures associated with the image volume 
+            // clone the volume metadata and update the associated channel name with the GT structure name as defined in the metadata before writing
+            volumeAndStructures.Structures.ForEach(x =>
+            {
+                var meta = volumeAndStructures.Metadata.UpdateChannel(x.Key);
+                WriteVolume(x.Value, meta);
+            });
+        }
+
+        /// <summary>
+        /// Writes an instance of <see cref="Volume3D"/> to the dataset folder. The volume will
+        /// be written in Nifti format, with the compression level set by the dataset writer. The file name
+        /// will be automatically created based on the volume metadata. Returns the information about 
+        /// where and how the file was written.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="volume">The volume to write.</param>
+        /// <param name="volumeMetadata">The information about subject and channel to which the volume belongs.</param>
+       
