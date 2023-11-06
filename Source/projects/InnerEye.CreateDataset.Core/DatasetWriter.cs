@@ -127,4 +127,26 @@ namespace InnerEye.CreateDataset.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="volume">The volume to write.</param>
         /// <param name="volumeMetadata">The information about subject and channel to which the volume belongs.</param>
-       
+        /// <returns></returns>
+        public VolumeWriteInfo WriteVolume(Volume3D<short> volume, VolumeMetadata volumeMetadata)
+        {
+            var bytes = volume.SerializeToNiftiBytes(_niftiCompression);
+            return WriteVolumeAsBytes(bytes, volumeMetadata);
+        }
+
+        /// <summary>
+        /// Writes an instance of <see cref="Volume3D"/> to the dataset folder. The volume will
+        /// be written in Nifti format, with the compression level set by the dataset writer. The file name
+        /// will be automatically created based on the volume metadata. Returns the information about 
+        /// where and how the file was written.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="volume">The volume to write.</param>
+        /// <param name="volumeMetadata">The information about subject and channel to which the volume belongs.</param>
+        /// <param name="isEmptyVolume">If true, the volume is actually empty, and was created because no the
+        /// requested ground truth channel was not available for this subject.</param>
+        /// <returns></returns>
+        public VolumeWriteInfo WriteVolume(Volume3D<byte> volume, VolumeMetadata volumeMetadata)
+        {
+            var bytes = volume.SerializeToNiftiBytes(_niftiCompression);
+            return WriteVolumeAsBytes(byt
