@@ -149,4 +149,30 @@ namespace InnerEye.CreateDataset.Core
         public VolumeWriteInfo WriteVolume(Volume3D<byte> volume, VolumeMetadata volumeMetadata)
         {
             var bytes = volume.SerializeToNiftiBytes(_niftiCompression);
-            return WriteVolumeAsBytes(byt
+            return WriteVolumeAsBytes(bytes, volumeMetadata);
+        }
+
+        /// <summary>
+        /// Writes a <see cref="Volume3D{T}"/> instance to the dataset folder, when the volume
+        /// has already be converted to a byte array in Nifti format. The file name
+        /// will be automatically created based on the volume metadata. Returns the information about 
+        /// where and how the file was written.
+        /// </summary>
+        /// <param name="volume">The volume to write.</param>
+        /// <param name="volumeMetadata">The information about subject and channel to which the volume belongs.</param>
+        /// <returns></returns>
+        private VolumeWriteInfo WriteVolumeAsBytes(byte[] bytes, VolumeMetadata volumeMetadata)
+        {
+            var fileName = VolumeWriteInfo.CreateFileName(volumeMetadata, _niftiCompression);
+            var info = WriteBytes(fileName, bytes, volumeMetadata);
+            _writtenVolumes.Add(info);
+            return info;
+        }
+
+        /// <summary>
+        /// Writes a medical volume to the dataset folder.
+        /// </summary>
+        /// <param name="fileName">The file name to use. The folder prefix for the dataset will 
+        /// be added automatically.</param>
+        /// <param name="dataToUpload">The bytes to write.</param>
+        /// <param name="volumeMetadata">The information about subject and channel to which the v
