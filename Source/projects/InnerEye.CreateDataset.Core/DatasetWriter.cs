@@ -175,4 +175,34 @@ namespace InnerEye.CreateDataset.Core
         /// <param name="fileName">The file name to use. The folder prefix for the dataset will 
         /// be added automatically.</param>
         /// <param name="dataToUpload">The bytes to write.</param>
-        /// <param name="volumeMetadata">The information about subject and channel to which the v
+        /// <param name="volumeMetadata">The information about subject and channel to which the volume belongs.</param>
+        /// <returns></returns>
+        private VolumeWriteInfo WriteBytes(string fileName,
+            byte[] dataToUpload,
+            VolumeMetadata volumeMetadata)
+        {
+            WriteBytes(fileName, dataToUpload);
+            return new VolumeWriteInfo(volumeMetadata, fileName);
+        }
+
+        /// <summary>
+        /// Writes a byte array to a file.
+        /// </summary>
+        /// <param name="fileName">The file name to use. The folder prefix for the dataset will 
+        /// be added automatically.</param>
+        /// <param name="dataToUpload">The bytes to write.</param>
+        private void WriteBytes(string fileName, byte[] dataToUpload)
+        {
+            var filePath = StreamsFromFileSystem.JoinPath(_datasetRoot.RootDirectory, fileName);
+            LocalFileSystem.CreateDirectoryIfNeeded(filePath);
+            File.WriteAllBytes(filePath, dataToUpload);
+        }
+
+        /// <summary>
+        /// Gets the information about all instances of <see cref="Volume3D{T}"/> that were written
+        /// in the present object since its creation via <see cref="WriteVolumeAsBytes(byte[], VolumeMetadata)"/>
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<VolumeWriteInfo> WrittenVolumes() => _writtenVolumes.ToList();
+    }
+}
