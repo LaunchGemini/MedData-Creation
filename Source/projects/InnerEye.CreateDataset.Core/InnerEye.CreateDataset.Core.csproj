@@ -67,4 +67,38 @@
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\..\thirdparty\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
     </Reference>
-    <Reference In
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Commandline\CommandlineAnalyzeDataset.cs" />
+    <Compile Include="Commandline\CommandlineCreateDatasetRecipes.cs" />
+    <Compile Include="Commandline\CommandlineCreateDataset.cs" />
+    <Compile Include="Commandline\CommandlineShared.cs" />
+    <Compile Include="DatasetAnalysisFromConvertedDataset.cs" />
+    <Compile Include="ConvertDicomToNifti.cs" />
+    <Compile Include="DatasetLoader.cs" />
+    <Compile Include="DatasetWriter.cs" />
+    <Compile Include="GeometricNormalization.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimpleItkConverters.cs" />
+    <Compile Include="VolumeAndStructures.cs" />
+    <Compile Include="VolumeMetadata.cs" />
+    <Compile Include="VolumeWriteInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\InnerEye.CreateDataset.Common\InnerEye.CreateDataset.Common.csproj">
+      <Project>{8db64d15-3241-44d8-805d-cdfd7a5623a8}</Project>
+      <Name>InnerEye.CreateDataset.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InnerEye.
