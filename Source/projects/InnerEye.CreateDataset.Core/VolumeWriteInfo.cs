@@ -60,4 +60,30 @@
         /// <returns></returns>
         public string ToDatasetCsvLine()
         {
-            return $"{Metadat
+            return $"{Metadata.SubjectId}," +
+                $"{UploadPathRelativeToDatasetFolder}," +
+                $"{Metadata.Channel}," +
+                $"{Metadata.SeriesId}";
+        }
+
+        /// <summary>
+        /// Consumes a list of information about individual volumes that had been written to disk,
+        /// and turns them into the format used by the dataset reader.
+        /// Returns a multi line string with a column header and one line for each volume.
+        /// </summary>
+        /// <param name="files"></param>
+        /// <returns></returns>
+        public static string BuildDatasetCsvFile(IEnumerable<VolumeWriteInfo> files)
+        {
+            // The column header is discarded, its contents does not matter.
+            var headerLine = "subject,filePath,channel,seriesId";
+            var text = new StringBuilder();
+            text.AppendLine(headerLine);
+            foreach (var file in files)
+            {
+                text.AppendLine(file.ToDatasetCsvLine());
+            }
+            return text.ToString();
+        }
+    }
+}
