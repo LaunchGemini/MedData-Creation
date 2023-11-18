@@ -81,3 +81,27 @@
     /// Stores both a medical volume, and its associated metadata (subject, channel, etc.)
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    public class VolumeAndMetadata
+    {
+        /// <summary>
+        /// Creates a new instance of the class with the given properties.
+        /// </summary>
+        /// <param name="metadata"></param>
+        /// <param name="volume"></param>
+        public VolumeAndMetadata(VolumeMetadata metadata, MedicalVolume volume)
+        {
+            Metadata = metadata ?? throw new ArgumentNullException(nameof(metadata));
+            Volume = volume;
+        }
+
+        /// <summary>
+        /// Gets the volume metadata.
+        /// </summary>
+        public VolumeMetadata Metadata { get; }
+
+        /// <summary>
+        /// Gets the volume information.
+        /// </summary>
+        public MedicalVolume Volume { get; }
+    }
+}
