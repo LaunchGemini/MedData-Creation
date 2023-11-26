@@ -104,4 +104,28 @@ type Tuple3D =
         let equal dimension (x: double) (y: double) = 
             let diff = Math.Abs(x - y) 
             let isEqual = diff <= maximumAbsoluteDifference
-            if no
+            if not isEqual then 
+                sprintf "Absolute difference in %s%s is %f, but only %f is allowed" loggingPrefix dimension diff maximumAbsoluteDifference 
+                |> Trace.TraceWarning
+            isEqual
+        equal "X" this.X other.X && equal "Y" this.Y other.Y && equal "Z" this.Z other.Z
+
+    /// <summary>
+    /// Gets whether the point stored in the present object and the point in the argument
+    /// should be considered equal, when looking at componentwise abolute difference.
+    /// The function returns true if, along all 3 dimensions, the pairwise absolute
+    /// difference is below the given threshold value. If any of the dimensions has a
+    /// mismatch, detailed information is printed to Trace.
+    /// </summary>
+    /// <param name="other">The other tuple to which the present object should be compared.</param>
+    /// <param name="maximumAbsoluteDifference">The maximum allowed absolute difference along a dimension.</param>
+    member this.HasSmallAbsoluteDifference (other: Tuple3D, maximumAbsoluteDifference) =
+        this.HasSmallAbsoluteDifference(other, maximumAbsoluteDifference, String.Empty)
+
+    /// Converts the present object into an array of length 3, with the X, Y, Z components.
+    member this.toArray() = [| this.X; this.Y; this.Z |]
+
+    /// Creates an instance of Point3DWithSlack from an array of length 3.
+    static member fromArray a =
+        match a with
+        | nul
