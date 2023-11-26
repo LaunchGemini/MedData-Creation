@@ -85,4 +85,23 @@ type Tuple3D =
     /// mismatch, detailed information is printed to Trace.
     /// </summary>
     /// <param name="other">The other tuple to which the present object should be compared.</param>
-    /// <param name="maximumRelativeDifference">The maximu
+    /// <param name="maximumRelativeDifference">The maximum allowed relative difference along a dimension.</param>
+    member this.HasSmallRelativeDifference (other: Tuple3D, maximumRelativeDifference) =
+        this.HasSmallRelativeDifference(other, maximumRelativeDifference, String.Empty)
+
+    /// <summary>
+    /// Gets whether the point stored in the present object and the point in the argument
+    /// should be considered equal, when looking at componentwise abolute difference.
+    /// The function returns true if, along all 3 dimensions, the pairwise absolute
+    /// difference is below the given threshold value. If any of the dimensions has a
+    /// mismatch, detailed information is printed to Trace.
+    /// </summary>
+    /// <param name="other">The other tuple to which the present object should be compared.</param>
+    /// <param name="maximumAbsoluteDifference">The maximum allowed absolute difference along a dimension.</param>
+    /// <param name="loggingPrefix">If a dimension has differences over the allowed maximum,
+    /// print details to TraceWarning, with this string printed before the dimension.</param>
+    member this.HasSmallAbsoluteDifference (other: Tuple3D, maximumAbsoluteDifference, loggingPrefix) =
+        let equal dimension (x: double) (y: double) = 
+            let diff = Math.Abs(x - y) 
+            let isEqual = diff <= maximumAbsoluteDifference
+            if no
