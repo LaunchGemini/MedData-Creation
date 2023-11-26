@@ -63,4 +63,26 @@ type Tuple3D =
     /// <param name="other">The other tuple to which the present object should be compared.</param>
     /// <param name="maximumRelativeDifference">The maximum allowed relative difference along a dimension.</param>
     /// <param name="loggingPrefix">If a dimension has differences over the allowed maximum,
-    /// p
+    /// print details to TraceWarning, with this string printed before the dimension.</param>
+    member this.HasSmallRelativeDifference (other: Tuple3D, maximumRelativeDifference, loggingPrefix) =
+        let equal dimension (x: double) (y: double) = 
+            let diff =
+                match x with
+                | 0.0 -> Math.Abs y
+                | nonZeroX -> Math.Abs(1.0 - y / nonZeroX)
+            let isEqual = diff <= maximumRelativeDifference
+            if not isEqual then 
+                sprintf "Relative difference in %s%s is %f, but only %f is allowed" loggingPrefix dimension diff maximumRelativeDifference 
+                |> Trace.TraceWarning
+            isEqual
+        equal "X" this.X other.X && equal "Y" this.Y other.Y && equal "Z" this.Z other.Z
+
+    /// <summary>
+    /// Gets whether the point stored in the present object and the point in the argument
+    /// should be considered equal, when looking at componentwise relative difference.
+    /// The function returns true if, along all 3 dimensions, the pairwise relative
+    /// difference is below the given threshold value. If any of the dimensions has a
+    /// mismatch, detailed information is printed to Trace.
+    /// </summary>
+    /// <param name="other">The other tuple to which the present object should be compared.</param>
+    /// <param name="maximumRelativeDifference">The maximu
