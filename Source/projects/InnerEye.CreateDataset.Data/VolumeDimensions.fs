@@ -31,4 +31,36 @@ type Volume3DDimensions =
         { X = volume.DimX; Y = volume.DimY; Z = volume.DimZ }
 
     /// Returns true if the volume dimensions in the present object are strictly smaller in each dimension
-    /// than the v
+    /// than the volume dimensions given in the argument.
+    member this.IsStrictlySmallerThan (other: Volume3DDimensions) = 
+        this.X < other.X 
+        && this.Y < other.Y
+        && this.Z < other.Z
+   
+
+/// Stores a point as an (x, y, z) tuple, with an equality operation that uses relative difference.
+[<CLIMutableAttribute>]
+type Tuple3D = 
+    {
+        /// The component in X dimension.
+        X: double
+        /// The component in Y dimension.
+        Y: double
+        /// The component in Z dimension.
+        Z: double
+    }
+
+    override this.ToString() = 
+        sprintf "X = %g; Y = %g; Z = %g" this.X this.Y this.Z
+
+    /// <summary>
+    /// Gets whether the point stored in the present object and the point in the argument
+    /// should be considered equal, when looking at componentwise relative difference.
+    /// The function returns true if, along all 3 dimensions, the pairwise relative
+    /// difference is below the given threshold value. If any of the dimensions has a
+    /// mismatch, detailed information is printed to Trace.
+    /// </summary>
+    /// <param name="other">The other tuple to which the present object should be compared.</param>
+    /// <param name="maximumRelativeDifference">The maximum allowed relative difference along a dimension.</param>
+    /// <param name="loggingPrefix">If a dimension has differences over the allowed maximum,
+    /// p
