@@ -128,4 +128,38 @@ type Tuple3D =
     /// Creates an instance of Point3DWithSlack from an array of length 3.
     static member fromArray a =
         match a with
-        | nul
+        | null -> nullArg "a"
+        | [| x0; x1; x2 |] -> { X = x0; Y = x1; Z = x2 }
+        | _ -> invalidArg "a" "size mismatch"
+ 
+ /// 3D direction matrix for a Volume3D
+[<CLIMutableAttribute>]
+type Direction3D =
+    {
+        X0: Tuple3D
+        X1: Tuple3D
+        X2: Tuple3D
+    }
+
+    member this.toArray() = [this.X0.toArray(); this.X1.toArray(); this.X2.toArray()] |> Array.concat 
+    
+    static member fromArray a =
+        match a with
+        | null -> nullArg "a"
+        | [| x0; x1; x2; x3; x4; x5; x6; x7; x8; |] -> { X0 = {X = x0; Y=x1; Z=x2}; X1 = {X = x3; Y=x4; Z=x5}; X2 = {X = x6; Y=x7; Z=x8} }
+        | _ -> invalidArg "a" "size mismatch"
+
+    override this.ToString() = 
+        this.toArray()
+        |> Seq.map (fun value -> value.ToString())
+        |> String.concat " "
+        |> sprintf "[| %s |]"
+
+    /// Gets whether the direction stored in the present object and the direction in the argument
+    /// should be considered equal, allowing for a maximum absolute difference. The function
+    /// returns true if the pairwise absolute difference between elements of the two matrices
+    /// do not exceed the given threshold value.
+    member this.HasSmallAbsoluteDifference (other: Direction3D, maximumAbsoluteDifference) =
+        this.X0.HasSmallAbsoluteDifference(other.X0, maximumAbsoluteDifference, "X0.")
+        && this.X1.HasSmallAbsoluteDifference(other.X1, maximumAbsoluteDifference, "X1.")
+        && this.X2.HasSm
