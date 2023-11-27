@@ -162,4 +162,40 @@ type Direction3D =
     member this.HasSmallAbsoluteDifference (other: Direction3D, maximumAbsoluteDifference) =
         this.X0.HasSmallAbsoluteDifference(other.X0, maximumAbsoluteDifference, "X0.")
         && this.X1.HasSmallAbsoluteDifference(other.X1, maximumAbsoluteDifference, "X1.")
-        && this.X2.HasSm
+        && this.X2.HasSmallAbsoluteDifference(other.X2, maximumAbsoluteDifference, "X2.")
+        
+/// All the properties for a 3D volume without the voxel data
+[<CLIMutableAttribute>]
+type Volume3DProperties = 
+    {
+        /// The dimensions (size) of the volume.
+        Dim: Volume3DDimensions
+        /// The voxel spacing.
+        Spacing: Tuple3D
+        /// The origin of the coordinate system in which the volume lives.
+        Origin: Tuple3D
+        /// The direction of the coordinate system in which the volume lives.
+        Direction: Direction3D
+    }
+
+    override this.ToString() = 
+        sprintf "{ Dim = %s; Spacing = %s; Origin = %s; Direction = %s }"
+            (this.Dim.ToString())
+            (this.Spacing.ToString())
+            (this.Origin.ToString())
+            (this.Direction.ToString())
+
+    /// Creates an empty Volume3D with the properties stored in the present object.
+    member x.CreateVolume() = 
+        new Volume3D<_>(
+            x.Dim.X, x.Dim.Y, x.Dim.Z, 
+            x.Spacing.X, x.Spacing.Y, x.Spacing.Z, 
+            new Point3D(x.Origin.toArray()), 
+            new Matrix3(x.Direction.toArray())
+        )
+
+    /// Create Volume3DProperties from a Volume3D
+    static member Create(volume:Volume3D<_>) = 
+        {
+            Dim = { X = volume.DimX; Y = volume.DimY; Z = volume.DimZ}
+     
