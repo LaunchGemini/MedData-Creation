@@ -198,4 +198,28 @@ type Volume3DProperties =
     static member Create(volume:Volume3D<_>) = 
         {
             Dim = { X = volume.DimX; Y = volume.DimY; Z = volume.DimZ}
-     
+            Spacing = { X = volume.SpacingX; Y = volume.SpacingY; Z = volume.SpacingZ }
+            Origin = Tuple3D.fromArray volume.Origin.Data
+            Direction = Direction3D.fromArray volume.Direction.Data
+        }
+
+    /// The maximum relative difference allowed between components
+    /// of two points, such that they are still considered equal.
+    static member MaximumRelativeDifference = 1.0e-4
+
+    /// The maximum absolute difference allowed between elements of two origin tuples,
+    /// such that they are still considered equal.
+    static member MaximumAbsoluteDifferenceForOrigin = 1.0e-3
+
+    /// The maximum absolute difference allowed between elements of two transformation matrices,
+    /// such that they are still considered equal.
+    static member MaximumAbsoluteDifferenceForDirection = 1.0e-4
+
+    /// Gets whether the volume properties stored in the present object and 
+    /// the volume properties in the argument
+    /// should be considered equal, when allowing for small deviations when 
+    /// comparing floating point numbers.
+    /// Volume dimensions must match exactly. Volume spacing is compared
+    /// allowing for a maximum relative difference. Volume origin and direction are compared 
+    /// allowing for a maximum absolute difference.
+    member this.IsApproximatelyEqual (other: Volume3DProperties) =
