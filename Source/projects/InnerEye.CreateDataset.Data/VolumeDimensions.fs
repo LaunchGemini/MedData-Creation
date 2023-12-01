@@ -223,3 +223,29 @@ type Volume3DProperties =
     /// allowing for a maximum relative difference. Volume origin and direction are compared 
     /// allowing for a maximum absolute difference.
     member this.IsApproximatelyEqual (other: Volume3DProperties) =
+        this.Dim = other.Dim
+        && this.Spacing.HasSmallRelativeDifference(other.Spacing, Volume3DProperties.MaximumRelativeDifference, "Spacing.")
+        && this.Origin.HasSmallAbsoluteDifference(other.Origin, Volume3DProperties.MaximumAbsoluteDifferenceForOrigin, "Origin.")
+        && this.Direction.HasSmallAbsoluteDifference(other.Direction, Volume3DProperties.MaximumAbsoluteDifferenceForDirection)
+
+    /// Checks whether all volume properties given in the argument are the same,
+    /// using relative or absolute difference for all properties that are of datatype double.
+    /// If the properties are not considered equal, throw an ArgumentException. 
+    /// When given 0 or 1 volume, the function does nothing.
+    static member CheckAllPropertiesEqual (props: seq<Volume3DProperties>) =
+        match Seq.toList props with
+        | [] 
+        | [_] -> ()
+        | prop0 :: props ->
+            let firstNotEqual = 
+                props
+                |> Seq.tryFindIndex (fun prop -> 
+                    prop0.IsApproximatelyEqual prop
+                    |> not
+                )
+            match firstNotEqual with
+            | None -> ()
+            | Some index ->
+                let first = prop0.ToString()
+                let propI = props.[index].ToString()
+                let message = sprintf "The volumes do not have the same properties. The first volume has %s, but the volume at index %i has %s" first
