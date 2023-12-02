@@ -248,4 +248,23 @@ type Volume3DProperties =
             | Some index ->
                 let first = prop0.ToString()
                 let propI = props.[index].ToString()
-                let message = sprintf "The volumes do not have the same properties. The first volume has %s, but the volume at index %i has %s" first
+                let message = sprintf "The volumes do not have the same properties. The first volume has %s, but the volume at index %i has %s" first (index + 1) propI
+                ArgumentException message
+                |> raise
+
+    /// Checks whether all volume properties given in the argument are the same,
+    /// using relative or absolute difference for all properties that are of datatype double.
+    /// If the properties are not considered equal, throw an ArgumentException. 
+    /// When given 0 or 1 volume, the function does nothing.
+    static member CheckAllPropertiesEqual (volumes: seq<Volume3D<_>>) =
+        volumes 
+        |> Seq.map Volume3DProperties.Create
+        |> Volume3DProperties.CheckAllPropertiesEqual
+
+    /// Checks whether all volume properties given in the argument are the same,
+    /// using relative or absolute difference for all properties that are of datatype double.
+    /// If the properties are not considered equal, throw an ArgumentException. 
+    static member CheckAllPropertiesEqual (volume1: Volume3D<'T>, volume2: Volume3D<'U>) =
+        let prop1 = Volume3DProperties.Create volume1
+        let prop2 = Volume3DProperties.Create volume2
+        Volume3DProperties.CheckAllPropertiesEqual [prop1; prop2]
