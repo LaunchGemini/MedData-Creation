@@ -74,4 +74,32 @@
         /// </summary>
         private const short CtMinimumThreshold = -1000;
 
-    
+        /// <summary>
+        /// This is a maximum threshold value when the provided volume is CT. Any value greater than this
+        /// will be threshold to this value. This is to avoid picking the wrong peak when artifical values
+        /// have been used for background.
+        /// </summary>
+        private const short CtMaximumThreshold = 2000;
+
+        /// <summary>
+        /// The window for a CT image will be at least this percentage further away from the chosen level value.
+        /// </summary>
+        private const double CtWindowMinimumRestrictionPercentage = 0.025;
+
+        /// <summary>
+        /// The window for a CT image will be at least this percentage close to the chosen level value.
+        /// </summary>
+        private const double CtWindowMaximumRestrictionPercentage = 0.15;
+
+        /// <summary>
+        /// The start percentage of histogram values that will be inspected when chosing a level value.
+        /// </summary>
+        private const double MrMinimumPercentile = 0.25;
+
+        /// <summary>
+        /// The finish percentage of histogram values that will be inspected when chosing a level value.
+        /// </summary>
+        private const double MrMaximumPercentile = 0.38;
+
+        /// <summary>
+        /// For MR we create a histogram and 
