@@ -102,4 +102,25 @@
         private const double MrMaximumPercentile = 0.38;
 
         /// <summary>
-        /// For MR we create a histogram and 
+        /// For MR we create a histogram and find the lowest histogram values in the first X% to Y% of values.
+        /// The window is then set to be as far left as possible of the selected window value.
+        /// </summary>
+        /// <param name="volume">The volume to calculate the window/ level from.</param>
+        /// <param name="volumeSkip">
+        /// The number of items to skip over when computing the histogram (this is an optimisation to make the compute faster). 
+        /// If set to 0, the histogram will look at every voxel in the volume when computing the auto/ window level.
+        /// If set to 1, this histogram will look at every other voxel etc.
+        /// </param>
+        /// <returns>A tuple of the Window (item 1) and Level (item 2)</returns>
+        /// <exception cref="ArgumentNullException">The provided volume was null.</exception>
+        public static (int Window, int Level) ComputeMrAutoWindowLevel(short[] volume, uint volumeSkip = 5)
+        {
+            volume = volume ?? throw new ArgumentNullException(nameof(volume));
+            var stopwatch = Stopwatch.StartNew();
+
+            var minMax = FindMinMax(volume, volumeSkip);
+
+            // Create a histogram, and find the lowest histogram value in the first X% to Y% of values.
+            var levelKeyValue = 
+                CreateHistogram(volume, minMax, volumeSkip)
+                .Where(hist => hist.Index > MrMinimum
