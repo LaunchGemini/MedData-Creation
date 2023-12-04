@@ -123,4 +123,29 @@
             // Create a histogram, and find the lowest histogram value in the first X% to Y% of values.
             var levelKeyValue = 
                 CreateHistogram(volume, minMax, volumeSkip)
-                .Where(hist => hist.Index > MrMinimum
+                .Where(hist => hist.Index > MrMinimumPercentile * DefaultHistogramSizeDouble && hist.Index < MrMaximumPercentile * DefaultHistogramSizeDouble)
+                .OrderBy(hist => hist.Count)
+                .First();
+
+            // Calculate the chosen level value from the histogram key.
+            var minMaxDifference = minMax.Range();
+            var level = levelKeyValue.MinimumInclusive;
+
+            // For MR we create a wide window from the beginning of the voxel distribution to the level.
+            var window = (level - minMax.Minimum) * 2;
+
+            stopwatch.Stop();
+            Console.WriteLine($"[{nameof(ComputeMrAutoWindowLevel)}] {stopwatch.ElapsedMilliseconds} milliseconds - Level: {level} Window: {window}");
+
+            return (window, level);
+        }
+
+        /// <summary>
+        /// For CT we aim to find the highest peak right on the histogram for the level.
+        /// For the window we aim to the find lowest point left of the highest right peak within a restricted range.
+        /// </summary>
+        /// <param name="volume">The CT volume.</param>
+        /// <param name="volumeSkip">
+        /// The number of items to skip over when computing the histogram (this is an optimisation to make the compute faster). 
+        /// If set to 0, the histogram will look at every voxel in the volume when computing the auto/ window level.
+        /// If set to 1, this histogram will look at every other voxel etc.
