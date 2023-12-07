@@ -149,3 +149,28 @@
         /// The number of items to skip over when computing the histogram (this is an optimisation to make the compute faster). 
         /// If set to 0, the histogram will look at every voxel in the volume when computing the auto/ window level.
         /// If set to 1, this histogram will look at every other voxel etc.
+        /// </param>
+        /// <returns>A tuple of the Window (item 1) and Level (item 2)</returns>
+        /// <exception cref="ArgumentNullException">The provided volume was null.</exception>
+        public static (int Window, int Level) ComputeCtAutoWindowLevel(short[] volume, uint volumeSkip = 5)
+        {
+            volume = volume ?? throw new ArgumentNullException(nameof(volume));
+            var stopwatch = Stopwatch.StartNew();
+
+            // Compute min/ max and threshold values.
+            var minMax = FindMinMax(volume, volumeSkip);
+            minMax = MinMax.Create(Math.Max(minMax.Minimum, CtMinimumThreshold), Math.Min(minMax.Maximum, CtMaximumThreshold));
+
+            // Create a histogram, and order based on values (skipping over the first x% of values).
+            var ordered = 
+                CreateHistogram(volume, minMax, volumeSkip)
+                .Where(hist => hist.Index > CtMininmumPercentile * DefaultHistogramSizeDouble)
+                .OrderByDescending(hist => hist.Count)
+                .ToArray();
+
+            // We now attempt to pick the highest peak right that is greater than a third of the highest histogram number.
+            var levelKey =
+                ordered
+                .Where(x => x.Count > ordered[0].Count / 3)
+                .OrderByDescending(x => x.Index)
+  
