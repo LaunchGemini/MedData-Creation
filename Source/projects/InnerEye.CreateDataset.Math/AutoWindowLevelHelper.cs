@@ -203,4 +203,27 @@
         }
 
         /// <summary>
-        /// From a histogram, discard bins f
+        /// From a histogram, discard bins for high values, such that the total amount of probability mass
+        /// discarded does not exceed the value given in <paramref name="fractionOfValuesToDiscard"/>.
+        /// For example, if the value given is 0.03, the bins for high values totalling no more than 3% of the
+        /// total counts will be discarded. The remaining bins will be returned.
+        /// </summary>
+        /// <param name="histogram">The per-bin histogram. The histogram is expected to be sorted by bin position,
+        /// low values coming first.</param>
+        /// <param name="fractionOfValuesToDiscard">The total amount of probability mass to discard. Must be between
+        /// 0 and 1.</param>
+        /// <returns></returns>
+        public static HistogramBin[] TrimHighValues(HistogramBin[] histogram, double fractionOfValuesToDiscard)
+        {
+            histogram = histogram ?? throw new ArgumentNullException(nameof(histogram));
+            if (fractionOfValuesToDiscard< 0 || fractionOfValuesToDiscard >= 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(fractionOfValuesToDiscard), "The value must be in the range [0, 1].");
+            }
+
+            var totalCount = (double)histogram.Sum(bin => bin.Count);
+            var elementsToRetain = histogram.Length;
+            var massDiscarded = 0.0;
+            for (var index = histogram.Length - 1; index > 0; index--)
+            {
+           
