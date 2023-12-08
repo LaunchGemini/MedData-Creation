@@ -173,4 +173,34 @@
                 ordered
                 .Where(x => x.Count > ordered[0].Count / 3)
                 .OrderByDescending(x => x.Index)
-  
+                .FirstOrDefault();
+
+            // Calculate the chosen level value from the histogram key.
+            var level = (int)levelKey.MinimumInclusive;
+
+            // Create window restrictions as a percentage of the histogram size.
+            var windowMinimumRestriction = DefaultHistogramSizeDouble * CtWindowMinimumRestrictionPercentage;
+            var windowMaximumRestriction = DefaultHistogramSizeDouble * CtWindowMaximumRestrictionPercentage;
+
+            // Now find the lowest peak between the first item and current chosen level (note window value does not work on the top percentile).
+            var windowKeyOrdered = 
+                ordered
+                .Where(x => x.Index < levelKey.Index - windowMinimumRestriction && x.Index > levelKey.Index - windowMaximumRestriction)
+                .OrderBy(x => x.Count)
+                .ToArray();
+
+            // Check the window key exists and cacluate the window value.
+            var windowLeft =
+                windowKeyOrdered.Length > 0
+                ? windowKeyOrdered[0].MinimumInclusive
+                : minMax.Minimum;
+            var window = (level - windowLeft) * 2;
+
+            stopwatch.Stop();
+            Console.WriteLine($"[{nameof(ComputeCtAutoWindowLevel)}] {stopwatch.ElapsedMilliseconds} milliseconds - Level: {level} Window: {window}");
+
+            return (window, level);
+        }
+
+        /// <summary>
+        /// From a histogram, discard bins f
