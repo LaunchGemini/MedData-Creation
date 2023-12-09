@@ -250,4 +250,31 @@
         public static (int Window, int Level) ExponentialFitForMR(short[] volume, uint volumeSkip = 5)
         {
             volume = volume ?? throw new ArgumentNullException(nameof(volume));
-            var stopwatch = Stopwatch.S
+            var stopwatch = Stopwatch.StartNew();
+
+            // Compute min/ max and threshold values.
+            var minMax = FindMinMax(volume, volumeSkip);
+            var histogram = TrimHighValues(CreateHistogram(volume, minMax, volumeSkip), 0.03);
+            var histogramCounts = histogram.Select(bin => (double)bin.Count).ToArray();
+            var xRange = histogram.Select(bin => (double)bin.MinimumInclusive).ToArray();
+            // The original histogram tends to have a massive peak aroun 0 as there are lots of dark regions(air etc)
+            // Finding the first peak by fitting an exponential function
+            var bestTotalDiff = double.MaxValue;
+            var bestExpFunc = new double[xRange.Length];
+            var currentExpFunc = new double[xRange.Length];
+            var maxHistogramCount = histogram.Max(bin => bin.Count);
+            IEnumerable<double> Range(double min, double increment, double max)
+            {
+                var current = min;
+                while (current <= max)
+                {
+                    yield return current;
+                    current += increment;
+                }
+            }
+            void ComputeExponential(double scale, double gamma, double beta)
+            {
+                var beta2 = beta * beta;
+                for (var index = 0; index < currentExpFunc.Length; index++)
+                {
+                    currentExpFunc[index] = scale * Math.Exp(-Mat
