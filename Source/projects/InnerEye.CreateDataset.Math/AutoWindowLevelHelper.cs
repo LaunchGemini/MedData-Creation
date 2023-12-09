@@ -308,3 +308,39 @@
             var thresholdBin = -1;
             var thresholdExpFunc = maxHistogramCount * 0.01;
             for (var index = 0; index < bestExpFunc.Length; index++)
+            {
+                if (bestExpFunc[index] < thresholdExpFunc)
+                {
+                    thresholdBin = index;
+                    break;
+                }
+            }
+
+            if (thresholdBin < 0)
+            {
+                throw new InvalidOperationException("The fitted exponential never went below the threshold.");
+            }
+
+            Console.WriteLine($"[{nameof(ExponentialFitForMR)}] Removing histogram up to bin at {xRange[thresholdBin]:0.0}");
+
+            // Modify histogram counts in place to eliminate first peak
+            for (var index = 0; index <= thresholdBin; index++)
+            {
+                histogramCounts[index] = 0;
+            }
+
+            // Compute best Window / Level for image automatically
+            // by fitting a Gaussian to the transformed normalized histogram
+            var sumHist = histogramCounts.Sum();
+            var probHist = histogramCounts.Select(count => count / sumHist).ToArray();
+            var mu = 
+                probHist
+                .Zip(xRange, (prob, x) => prob * x)
+                .Sum();
+            var variance =
+                probHist
+                .Zip(xRange, (prob, x) =>
+                {
+                    var delta = x - mu;
+                    return delta * delta * prob;
+               
