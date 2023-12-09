@@ -226,4 +226,28 @@
             var massDiscarded = 0.0;
             for (var index = histogram.Length - 1; index > 0; index--)
             {
-           
+                var currentMass = histogram[index].Count / totalCount;
+                if (massDiscarded + currentMass < fractionOfValuesToDiscard)
+                {
+                    massDiscarded += currentMass;
+                    elementsToRetain--;
+                }
+            }
+            var elementsDiscarded = histogram.Length - elementsToRetain;
+            var oldMax = histogram[histogram.Length - 1].MinimumInclusive;
+            var newMax = histogram[elementsToRetain - 1].MinimumInclusive;
+            Console.WriteLine($"[{nameof(TrimHighValues)}] Discarded a total of {elementsDiscarded} bins, holding {massDiscarded:0.00%} of the total probability mass. Maximum bin started at {oldMax}, is now at {newMax}.");
+            return histogram.Take(elementsToRetain).ToArray();
+        }
+
+        /// <summary>
+        /// Estimates window and level for MR images, by fitting an exponential curve for the low 
+        /// values, discarding those, and computing mean and standard deviation from the rest.
+        /// </summary>
+        /// <param name="volume"></param>
+        /// <param name="volumeSkip"></param>
+        /// <returns></returns>
+        public static (int Window, int Level) ExponentialFitForMR(short[] volume, uint volumeSkip = 5)
+        {
+            volume = volume ?? throw new ArgumentNullException(nameof(volume));
+            var stopwatch = Stopwatch.S
