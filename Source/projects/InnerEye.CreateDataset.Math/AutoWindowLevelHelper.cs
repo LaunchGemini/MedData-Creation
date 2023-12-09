@@ -277,4 +277,34 @@
                 var beta2 = beta * beta;
                 for (var index = 0; index < currentExpFunc.Length; index++)
                 {
-                    currentExpFunc[index] = scale * Math.Exp(-Mat
+                    currentExpFunc[index] = scale * Math.Exp(-Math.Pow(xRange[index], gamma) / beta2);
+                }
+            }
+            // ignoring the first 2 bins in the error of fit computation as very noisy
+            var ignoreDelta = 2;
+            foreach (var scaleMultiplier in Range(0.9, 0.1, 1.1))
+            {
+                var scale = scaleMultiplier * maxHistogramCount;
+                foreach (var beta in Range(1, 0.5, 30))
+                {
+                    foreach (var gamma in Range(1, 0.05, 1.8))
+                    {
+                        ComputeExponential(scale, gamma, beta);
+                        var delta =
+                            histogramCounts
+                            .Zip(currentExpFunc, (count, exp) => Math.Abs(count - exp))
+                            .Skip(ignoreDelta)
+                            .Sum();
+                        if (delta < bestTotalDiff)
+                        {
+                            bestTotalDiff = delta;
+                            currentExpFunc.CopyTo(bestExpFunc);
+                        }
+                    }
+                }
+            }
+
+            // Now using the fitted exponential to find the point that separates the first from the second peak
+            var thresholdBin = -1;
+            var thresholdExpFunc = maxHistogramCount * 0.01;
+            for (var index = 0; index < bestExpFunc.Length; index++)
