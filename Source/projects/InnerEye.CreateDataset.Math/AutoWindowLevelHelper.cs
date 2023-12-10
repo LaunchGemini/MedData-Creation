@@ -343,4 +343,27 @@
                 {
                     var delta = x - mu;
                     return delta * delta * prob;
-               
+                })
+                .Sum();
+            var std = Math.Sqrt(variance);
+            // Antonio says that it is a little better to use the mode rather than the mean to set the Level.
+            // However, with trimming high values the mean appears to be more stable.
+            //var (maxIndex, _) = histogramCounts.ArgMax();
+            //var level0 = xRange[maxIndex];
+            var level0 = mu;
+            // inverse contrast, lower for higher contrast of the final image.
+            var inverseContrast = 1.7;
+            var window0 = 2 * inverseContrast * std;
+            Console.WriteLine($"[{nameof(ExponentialFitForMR)}] Mean: {mu:0.00} Standard deviation: {std:0.00}");
+            Console.WriteLine($"[{nameof(ExponentialFitForMR)}] Before bounds checking: Level: {level0:0.00} Window: {window0:0.00}");
+            var effectiveMin = (int)Math.Max(minMax.Minimum, level0 - window0 / 2);
+            var effectiveMax = (int)Math.Min(minMax.Maximum, level0 + window0 / 2);
+            var window = effectiveMax - effectiveMin;
+            var level = (effectiveMax + effectiveMin) / 2;
+            stopwatch.Stop();
+            Console.WriteLine($"[{nameof(ExponentialFitForMR)}] {stopwatch.ElapsedMilliseconds} milliseconds - Level: {level} Window: {window}");
+            return (window, level);
+        }
+
+        /// <summary>
+        /// Creates a histogram from the p
