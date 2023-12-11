@@ -366,4 +366,31 @@
         }
 
         /// <summary>
-        /// Creates a histogram from the p
+        /// Creates a histogram from the provided array. 
+        /// Note: the minimum/ maximum values can be thresholded and this will take this into consideration.
+        /// </summary>
+        /// <param name="volume">The volume array.</param>
+        /// <param name="minMax">The minimum or maximum values in the array or minimum/ maximum values that have been thresholded.</param>
+        /// <param name="volumeSkip">
+        /// The number of items to skip over when computing the histogram (this is an optimisation to make the compute faster). 
+        /// If set to 0, the histogram will look at every voxel when computing.
+        /// If set to 1, this histogram will look at every other voxel etc.
+        /// </param>
+        /// <returns>The dictionary histogram.</returns>
+        public static HistogramBin[] CreateHistogram(
+            short[] volume,
+            MinMax<short> minMax,
+            uint volumeSkip = 0,
+            int histogramSize = DefaultHistogramSize)
+        {
+            if (histogramSize < 1)
+            {
+                throw new ArgumentException("The histogram must have at least 1 bin.", nameof(histogramSize));
+            }
+
+            var histogram = new HistogramBin[histogramSize];
+            var range = (double)minMax.Range();
+            var binSize = range / histogramSize;
+            for (var binIndex = 0; binIndex < histogramSize; binIndex++)
+            {
+                var minimumInc
