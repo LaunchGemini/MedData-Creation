@@ -393,4 +393,38 @@
             var binSize = range / histogramSize;
             for (var binIndex = 0; binIndex < histogramSize; binIndex++)
             {
-                var minimumInc
+                var minimumInclusive = Math.Ceiling(minMax.Minimum + binIndex * binSize);
+                histogram[binIndex] = new HistogramBin(binIndex, (short)minimumInclusive);
+            }
+
+            if (range <= 0)
+            {
+                return histogram;
+            }
+
+            for (uint i = 0; i < volume.Length; i += volumeSkip + 1)
+            {
+                var binPosition = (volume[i] - minMax.Minimum) / binSize;
+                var binIndex =
+                    binPosition < 0
+                    ? 0
+                    : binPosition >= histogramSize
+                    ? histogramSize - 1
+                    : (int)binPosition;
+                histogram[binIndex].Count++;
+            }
+
+            return histogram;
+        }
+
+        /// <summary>
+        /// Finds the minimum and maximum values from a short array, possibly skipping some values to speed
+        /// up computation.
+        /// </summary>
+        /// <param name="array">The short array.</param>
+        /// <param name="volumeSkip">
+        /// The number of items to skip over when computing the minimum and maximum (this is an optimisation to make the computation faster). 
+        /// If set to 0, the minimum and maximum will look at every voxel when computing.
+        /// If set to 1, this minimum and maximum will look at every other voxel etc.
+        /// </param>
+        /// <returns>The tu
