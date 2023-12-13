@@ -427,4 +427,29 @@
         /// If set to 0, the minimum and maximum will look at every voxel when computing.
         /// If set to 1, this minimum and maximum will look at every other voxel etc.
         /// </param>
-        /// <returns>The tu
+        /// <returns>The tuple of min/ max shorts.</returns>
+        public static MinMax<short> FindMinMax(short[] array, uint volumeSkip)
+        {
+            var min = short.MaxValue;
+            var max = short.MinValue;
+            var current = short.MaxValue;
+
+            for (uint i = 0; i < array.Length; i += volumeSkip + 1)
+            {
+                current = array[i];
+
+                if (current < min)
+                {
+                    min = current;
+                }
+
+                if (current > max)
+                {
+                    max = current;
+                }
+            }
+
+            return MinMax.Create(min, max);
+        }
+    }
+}
