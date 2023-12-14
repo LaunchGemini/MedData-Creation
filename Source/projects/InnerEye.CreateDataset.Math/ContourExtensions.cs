@@ -37,4 +37,24 @@
             bool filterEmptyContours = true,
             Region3D<int> regionOfInterest = null,
             ContourSmoothingType axialSmoothingType = ContourSmoothingType.Small)
- 
+            => ExtractContours.ContoursWithHolesPerSlice(volume, foregroundId, sliceType, filterEmptyContours, regionOfInterest, axialSmoothingType);
+
+        /// <summary>
+        /// Extracts the contours around all voxel values in the volume that have the given foreground value.
+        /// All other voxel values (zero and anything that is not the foreground value) is treated as background.
+        /// Contour extraction will take account of holes and inserts, up to the default nesting level.
+        /// </summary>
+        /// <param name="volume"></param>
+        /// <param name="foregroundId">The voxel value that should be used as foreground in the contour search.</param>
+        /// <param name="smoothingType">The smoothing that should be applied when going from a point polygon to
+        /// a contour.</param>
+        /// <returns></returns>
+        public static IReadOnlyList<ContourPolygon> ContoursWithHoles(
+            this Volume2D<byte> volume,
+            byte foregroundId = 1,
+            ContourSmoothingType smoothingType = ContourSmoothingType.Small)
+            => ExtractContours.ContoursWithHoles(volume, foregroundId, smoothingType);
+
+        /// <summary>
+        /// Extracts the contours around all voxel values in the volume that have the given foreground value.
+        /// All other voxel values (zero and anything
