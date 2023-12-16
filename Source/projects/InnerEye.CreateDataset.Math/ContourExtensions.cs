@@ -57,4 +57,26 @@
 
         /// <summary>
         /// Extracts the contours around all voxel values in the volume that have the given foreground value.
-        /// All other voxel values (zero and anything
+        /// All other voxel values (zero and anything that is not the foreground value) is treated as background.
+        /// Contour extraction will not take account of holes, and hence only return the outermost
+        /// contour around a region of interest.
+        /// </summary>
+        /// <param name="volume"></param>
+        /// <param name="foregroundId">The voxel value that should be used as foreground in the contour search.</param>
+        /// <param name="smoothingType">The smoothing that should be applied when going from a point polygon to
+        /// a contour.</param>
+        /// <returns></returns>
+        public static IReadOnlyList<ContourPolygon> ContoursFilled(
+            this Volume2D<byte> volume,
+            byte foregroundId = 1,
+            ContourSmoothingType smoothingType = ContourSmoothingType.Small)
+            => ExtractContours.ContoursFilled(volume, foregroundId, smoothingType);
+
+        /// <summary>
+        /// Modifies the present volume by filling all points that fall inside of the given contours,
+        /// using the provided fill value. Contours are filled on axial slices.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="volume">The volume that should be modified.</param>
+        /// <param name="contours">The contours per axial slice.</param>
+        /// <param name="value">The value that should be used to fill all points that fal
