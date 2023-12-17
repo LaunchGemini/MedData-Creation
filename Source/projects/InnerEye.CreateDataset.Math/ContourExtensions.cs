@@ -134,4 +134,32 @@
                 refVolume3D.SpacingX,
                 refVolume3D.SpacingY,
                 refVolume3D.SpacingZ,
-               
+                refVolume3D.Origin,
+                refVolume3D.Direction,
+                refVolume3D.GetFullRegion());
+        }
+
+        /// <summary>
+        /// Creates a volume that has the same spacing and coordinate system as the reference volume,
+        /// and fills all points that fall inside of the contours in the present object with the
+        /// default foreground value. The returned volume has its size determined by the given region of interest.
+        /// Contour points are transformed using the region of interest.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="contours">The contours to use for filling.</param>
+        /// <param name="refVolume3D">The reference volume to copy spacing and coordinate system from.</param>
+        /// <param name="regionOfInterest"></param>
+        /// <returns></returns>
+        public static Volume3D<byte> ToVolume3D<T>(this ContoursPerSlice contours, Volume3D<T> refVolume3D, Region3D<int> regionOfInterest)
+        {
+            return contours.ToVolume3D(
+                refVolume3D.SpacingX,
+                refVolume3D.SpacingY,
+                refVolume3D.SpacingZ,
+                refVolume3D.Origin,
+                refVolume3D.Direction,
+                regionOfInterest);
+        }
+
+        /// <summary>
+        /// Creates the
