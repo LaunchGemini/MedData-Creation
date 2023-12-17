@@ -79,4 +79,31 @@
         /// <typeparam name="T"></typeparam>
         /// <param name="volume">The volume that should be modified.</param>
         /// <param name="contours">The contours per axial slice.</param>
-        /// <param name="value">The value that should be used to fill all points that fal
+        /// <param name="value">The value that should be used to fill all points that fall inside of
+        /// the given contours.</param>
+        public static void Fill<T>(this Volume3D<T> volume, ContoursPerSlice contours, T value)
+            => FillPolygon.FillContours(volume, contours, value);
+
+        /// <summary>
+        /// Modifies the present volume by filling all points that fall inside of the given contours,
+        /// using the provided fill value.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="volume">The volume that should be modified.</param>
+        /// <param name="contours">The contours that should be used for filling.</param>
+        /// <param name="value">The value that should be used to fill all points that fall inside of
+        /// any of the given contours.</param>
+        public static void Fill<T>(this Volume2D<T> volume, IEnumerable<ContourPolygon> contours, T value)
+            => FillPolygon.FillContours(volume, contours, value);
+
+        /// <summary>
+        /// Applies flood filling to all holes in all Z slices of the given volume.
+        /// </summary>
+        /// <param name="volume"></param>
+        /// <param name="foregroundId"></param>
+        /// <param name="backgroundId"></param>
+        public static void FillHoles(
+            this Volume3D<byte> volume,
+            byte foregroundId = ModelConstants.MaskForegroundIntensity,
+            byte backgroundId = ModelConstants.MaskBackgroundIntensity)
+            => FillPolygon.FloodFillH
