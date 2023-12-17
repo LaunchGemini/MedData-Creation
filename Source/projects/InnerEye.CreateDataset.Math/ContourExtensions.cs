@@ -106,4 +106,32 @@
             this Volume3D<byte> volume,
             byte foregroundId = ModelConstants.MaskForegroundIntensity,
             byte backgroundId = ModelConstants.MaskBackgroundIntensity)
-            => FillPolygon.FloodFillH
+            => FillPolygon.FloodFillHoles(volume, foregroundId, backgroundId);
+
+        /// <summary>
+        /// Applies flood filling to all holes in the given volume.
+        /// </summary>
+        /// <param name="volume"></param>
+        /// <param name="foregroundId"></param>
+        /// <param name="backgroundId"></param>
+        public static void FillHoles(
+            this Volume2D<byte> volume,
+            byte foregroundId = ModelConstants.MaskForegroundIntensity,
+            byte backgroundId = ModelConstants.MaskBackgroundIntensity)
+            => FillPolygon.FloodFillHoles(volume, foregroundId, backgroundId);
+
+        /// <summary>
+        /// Creates a volume that has the same size, spacing, and coordinate system as the reference volume,
+        /// and fills all points that fall inside of the contours in the present object with the default foreground value.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="contours">The contours to use for filling.</param>
+        /// <param name="refVolume3D">The reference volume to copy spacing and coordinate system from.</param>
+        /// <returns></returns>
+        public static Volume3D<byte> ToVolume3D<T>(this ContoursPerSlice contours, Volume3D<T> refVolume3D)
+        {
+            return contours.ToVolume3D(
+                refVolume3D.SpacingX,
+                refVolume3D.SpacingY,
+                refVolume3D.SpacingZ,
+               
