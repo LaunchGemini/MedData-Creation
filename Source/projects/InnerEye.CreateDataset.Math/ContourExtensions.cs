@@ -162,4 +162,26 @@
         }
 
         /// <summary>
-        /// Creates the
+        /// Creates the minimum 2D volume from the list of contours and the region of interest.
+        /// </summary>
+        /// <param name="contours">The contours by slice.</param>
+        /// <param name="spacingX">The X-dimension pixel spacing.</param>
+        /// <param name="spacingY">The Y-dimension pixel spacing.</param>
+        /// <param name="origin">The patient position origin.</param>
+        /// <param name="direction">The directional matrix.</param>
+        /// <param name="region">The region of interest.</param>
+        /// <returns>The minimum 2D volume.</returns>
+        public static Volume2D<byte> CreateVolume2D(this IReadOnlyList<ContourPolygon> contours, double spacingX, double spacingY, Point2D origin, Matrix2 direction, Region2D<int> region)
+        {
+            // Convert every point to within the region
+            var subContours = contours.Select(x =>
+                                new ContourPolygon(
+                                    x.ContourPoints.Select(
+                                        point => new PointF(point.X - region.MinimumX, point.Y - region.MinimumY)).ToArray(), 0)).ToList();
+
+            // Create 2D volume
+            var result = new Volume2D<byte>(region.MaximumX - region.MinimumX + 1, region.MaximumY - region.MinimumY + 1, spacingX, spacingY, origin, direction);
+            result.Fill(subContours, ModelConstants.MaskForegroundIntensity);
+
+            return result;
+      
