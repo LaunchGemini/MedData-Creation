@@ -184,4 +184,89 @@
             result.Fill(subContours, ModelConstants.MaskForegroundIntensity);
 
             return result;
-      
+        }
+
+        /// <summary>
+        /// Gets the region of interest from the collection of contours (one slice).
+        /// </summary>
+        /// <param name="contours">The collection of contours.</param>
+        /// <exception cref="ArgumentException">Returns an argument exception if the contours are null or do not contain any values.</exception>
+        /// <returns>The region of interest.</returns>
+        public static Region2D<double> GetRegion(this IReadOnlyList<ContourPolygon> contours)
+        {
+            if (contours == null || contours.Count == 0)
+            {
+                throw new ArgumentNullException(nameof(contours));
+            }
+
+            var minimumX = double.MaxValue;
+            var minimumY = double.MaxValue;
+
+            var maximumX = double.MinValue;
+            var maximumY = double.MinValue;
+
+            var foundPoint = false;
+
+            for (var i = 0; i < contours.Count; i++)
+            {
+                var contour = contours[i];
+
+                foreach (var point in contour.ContourPoints)
+                {
+                    foundPoint = true;
+
+                    if (point.X < minimumX)
+                    {
+                        minimumX = point.X;
+                    }
+
+                    if (point.Y < minimumY)
+                    {
+                        minimumY = point.Y;
+                    }
+
+                    if (point.X > maximumX)
+                    {
+                        maximumX = point.X;
+                    }
+
+                    if (point.Y > maximumY)
+                    {
+                        maximumY = point.Y;
+                    }
+                }
+            }
+
+            if (!foundPoint)
+            {
+                throw new ArgumentException("The contours do not contain points, hence no region can be extracted.", nameof(contours));
+            }
+
+            return new Region2D<double>(minimumX, minimumY, maximumX, maximumY);
+        }
+
+        /// <summary>
+        /// Gets the smallest cuboid region that full encloses all the per-slice contours in the present object.
+        /// </summary>
+        /// <param name="axialContours"></param>
+        /// <returns></returns>
+        public static Region3D<int> GetRegion(this ContoursPerSlice axialContours)
+        {
+            var minX = double.MaxValue;
+            var maxX = double.MinValue;
+            var minY = double.MaxValue;
+            var maxY = double.MinValue;
+            var minZ = int.MaxValue;
+            var maxZ = int.MinValue;
+
+            foreach (var contours in axialContours)
+            {
+                if (contours.Value.Count == 0)
+                {
+                    continue;
+                }
+
+                if (contours.Key < minZ)
+                {
+                    minZ = contours.Key;
+            
