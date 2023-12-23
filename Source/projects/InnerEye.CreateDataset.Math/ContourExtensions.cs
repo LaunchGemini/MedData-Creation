@@ -311,4 +311,34 @@
             maxY = maxY == double.MinValue ? 0 : maxY;
             maxZ = maxZ == int.MinValue ? 0 : maxZ;
 
-            return new Region3D<int>((int)Math.Floor(minX), (int)Math.Floor(minY), minZ, (int)Math.Ceiling(maxX), (int)Math.Ceiling(ma
+            return new Region3D<int>((int)Math.Floor(minX), (int)Math.Floor(minY), minZ, (int)Math.Ceiling(maxX), (int)Math.Ceiling(maxY), maxZ);
+        }
+
+        /// <summary>
+        /// Fills the contour using high accuracy (point in polygon testing).
+        /// </summary>
+        /// <typeparam name="T">The volume type.</typeparam>
+        /// <param name="volume">The volume.</param>
+        /// <param name="contourPoints">The points that defines the contour we are filling.</param>
+        /// <param name="region">The value we will mark in the volume when a point is within the contour.</param>
+        /// <returns>The number of points filled.</returns>
+        public static int FillContour<T>(this Volume2D<T> volume, PointF[] contourPoints, T value)
+        {
+            return FillPolygon.Fill(contourPoints, volume.Array, volume.DimX, volume.DimY, 0, 0, value);
+        }
+
+        private static Volume3D<byte> ToVolume3D(
+            this ContoursPerSlice contours,
+            double spacingX,
+            double spacingY,
+            double spacingZ,
+            Point3D origin,
+            Matrix3 direction,
+            Region3D<int> roi)
+        {
+            ContoursPerSlice subContours = new ContoursPerSlice(
+                contours.Where(x => x.Value != null).Select(
+                    contour =>
+                        new KeyValuePair<int, IReadOnlyList<ContourPolygon>>(
+                            contour.Key - roi.MinimumZ,
+                          
