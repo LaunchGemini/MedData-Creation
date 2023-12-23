@@ -269,4 +269,46 @@
                 if (contours.Key < minZ)
                 {
                     minZ = contours.Key;
-            
+                }
+
+                if (contours.Key > maxZ)
+                {
+                    maxZ = contours.Key;
+                }
+
+                foreach (var contour in contours.Value)
+                {
+                    foreach (var point in contour.ContourPoints)
+                    {
+                        if (point.X < minX)
+                        {
+                            minX = point.X;
+                        }
+
+                        if (point.X > maxX)
+                        {
+                            maxX = point.X;
+                        }
+
+                        if (point.Y < minY)
+                        {
+                            minY = point.Y;
+                        }
+
+                        if (point.Y > maxY)
+                        {
+                            maxY = point.Y;
+                        }
+                    }
+                }
+            }
+
+            minX = minX == double.MaxValue ? 0 : minX;
+            minY = minY == double.MaxValue ? 0 : minY;
+            minZ = minZ == int.MaxValue ? 0 : minZ;
+
+            maxX = maxX == double.MinValue ? 0 : maxX;
+            maxY = maxY == double.MinValue ? 0 : maxY;
+            maxZ = maxZ == int.MinValue ? 0 : maxZ;
+
+            return new Region3D<int>((int)Math.Floor(minX), (int)Math.Floor(minY), minZ, (int)Math.Ceiling(maxX), (int)Math.Ceiling(ma
