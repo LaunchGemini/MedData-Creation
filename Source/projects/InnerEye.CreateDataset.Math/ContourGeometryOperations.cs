@@ -47,4 +47,10 @@
 
             Parallel.For(0, volume1.Length, i =>
             {
-                volume1[i] = volume1[i] > 0 && volume2[i] == 0 ? ModelConstants.MaskForegroundIntensit
+                volume1[i] = volume1[i] > 0 && volume2[i] == 0 ? ModelConstants.MaskForegroundIntensity : ModelConstants.MaskBackgroundIntensity;
+            });
+
+            return volume1;
+        }
+    }
+}
