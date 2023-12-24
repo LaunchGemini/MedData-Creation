@@ -341,4 +341,17 @@
                     contour =>
                         new KeyValuePair<int, IReadOnlyList<ContourPolygon>>(
                             contour.Key - roi.MinimumZ,
-                          
+                            contour.Value.Select(x =>
+                                new ContourPolygon(
+                                    x.ContourPoints.Select(
+                                        point => new PointF(point.X - roi.MinimumX, point.Y - roi.MinimumY)).ToArray(), 0))
+                                .ToList())).ToDictionary(x => x.Key, y => y.Value));
+
+            var result = new Volume3D<byte>(roi.MaximumX - roi.MinimumX + 1, roi.MaximumY - roi.MinimumY + 1, roi.MaximumZ - roi.MinimumZ + 1, spacingX, spacingY, spacingZ, origin, direction);
+
+            result.Fill(subContours, ModelConstants.MaskForegroundIntensity);
+
+            return result;
+        }
+    }
+}
