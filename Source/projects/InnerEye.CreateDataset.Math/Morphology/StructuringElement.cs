@@ -33,4 +33,22 @@ namespace InnerEye.CreateDataset.Math.Morphology
         protected HashSet<(int x, int y, int z)> SurfacePointsRelativeToAbsoluteCenter { get; }
 
         public StructuringElement(int xNumberOfPixels, int yNumberOfPixels, int zNumberOfPixels)
- 
+        {
+            // Prepare the SE mask
+            Mask = CreateMask(xNumberOfPixels, yNumberOfPixels, zNumberOfPixels);
+            AbsoluteMaskCenter = (Mask.DimX / 2, Mask.DimY / 2, Mask.DimZ / 2);
+            SurfacePointsRelativeToAbsoluteCenter = ExtractSurfacePointsRelativeToAbsoluteCenter();
+        }
+
+        /// <summary>
+        /// For a given point in absolute coordinate space of an input volume, this function paints all of the points centered at the provided x,y,z coordinates
+        /// that fall inside structuring element mask with the label value, taking into account a restriction volume
+        ///
+        /// <param name="input">Volume to paint</param>
+        /// <param name="restriction">This is to stop the volume growing outside a region. E.g. dilating a structure and stoping it from growing outside the skin</param>
+        /// <param name="label">Value to paint</param>
+        /// <param name="x">x-coordinate of the point to center the structuring element on</param>
+        /// <param name="y">y-coordinate of the point to center the structuring element on</param>
+        /// <param name="z">z-coordinate of the point to center the structuring element on</param>
+        /// </summary>
+        public void PaintAllForegroundPointsOntoVolume(Volume3D<byte> input, Volume3D<byte> restriction, byte label
