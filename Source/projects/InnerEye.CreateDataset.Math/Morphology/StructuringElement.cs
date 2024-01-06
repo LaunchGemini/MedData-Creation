@@ -51,4 +51,28 @@ namespace InnerEye.CreateDataset.Math.Morphology
         /// <param name="y">y-coordinate of the point to center the structuring element on</param>
         /// <param name="z">z-coordinate of the point to center the structuring element on</param>
         /// </summary>
-        public void PaintAllForegroundPointsOntoVolume(Volume3D<byte> input, Volume3D<byte> restriction, byte label
+        public void PaintAllForegroundPointsOntoVolume(Volume3D<byte> input, Volume3D<byte> restriction, byte label, int x, int y, int z)
+        {
+            Mask.IterateSlices(p =>
+            {
+                if (Mask[p.x, p.y, p.z] == ModelConstants.MaskForegroundIntensity)
+                {
+                    // convert absolute mask points to relative points used to offset the input absolute points on the input volume
+                    int maskPointOffsetFromMaskCenterX = p.x - AbsoluteMaskCenter.x;
+                    int maskPointOffsetFromMaskCenterY = p.y - AbsoluteMaskCenter.y;
+                    int maskPointOffsetFromMaskCenterZ = p.z - AbsoluteMaskCenter.z;
+                    // map the relative mask points to absolute coordinates on the results volume for painting
+                    int resultOffsetX = x + maskPointOffsetFromMaskCenterX;
+                    int resultOffsetY = y + maskPointOffsetFromMaskCenterY;
+                    int resultOffsetZ = z + maskPointOffsetFromMaskCenterZ;
+
+                    PaintPointOntoVolume(input, restriction, label, resultOffsetX, resultOffsetY, resultOffsetZ);
+                }
+            });
+        }
+
+        /// <summary>
+        /// For a given point in absolute coordinate space of an input volume, this function paints all of the surface points centered at the provided x, y, z coordinates
+        /// of structuring element mask with the label value, taking into account a restriction volume
+        ///
+        /// <param name="input">Volu
