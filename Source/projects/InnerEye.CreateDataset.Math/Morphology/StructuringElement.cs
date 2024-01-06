@@ -95,4 +95,32 @@ namespace InnerEye.CreateDataset.Math.Morphology
             }
         }
 
-        private void PaintPointOntoVolume(Volume3D<byte> input, Volume3D<byte> restriction, byte label, int x, int 
+        private void PaintPointOntoVolume(Volume3D<byte> input, Volume3D<byte> restriction, byte label, int x, int y, int z)
+        {
+            // check the point TO be painted is in bounds of the output buffer
+            if (input.IsValid(x, y, z) && VoxelIsNotRestricted(restriction, x, y, z))
+            {
+                input[x, y, z] = label;
+            }
+        }
+
+        /// <summary>
+        /// Check to test if a given voxel is restricted from painting
+        /// </summary>
+        private static bool VoxelIsNotRestricted(Volume3D<byte> restriction, int x, int y, int z)
+            => restriction == null || restriction[x, y, z] == ModelConstants.MaskForegroundIntensity;
+
+        private Volume3D<byte> CreateMask(int xNumberOfPixels, int yNumberOfPixels, int zNumberOfPixels)
+        {
+            // Create mask with diameter ([x,y,z]NumberOfPixels * 2) + 1 to hold the elllipsoid
+            var mask = new Volume3D<byte>(
+                (xNumberOfPixels * 2) + 1,
+                (yNumberOfPixels * 2) + 1,
+                (zNumberOfPixels * 2) + 1,
+                1, 1, 1);
+
+            // Calculate the dimensions of the ellipsoid
+            long xNumberOfPixelsSquared = xNumberOfPixels * xNumberOfPixels;
+            xNumberOfPixelsSquared = xNumberOfPixelsSquared > 0 ? xNumberOfPixelsSquared : 1;
+            long yNumberOfPixelsSquared = yNumberOfPixels * yNumberOfPixels;
+            yNumberOf
