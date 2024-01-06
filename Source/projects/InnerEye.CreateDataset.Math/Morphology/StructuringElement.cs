@@ -123,4 +123,24 @@ namespace InnerEye.CreateDataset.Math.Morphology
             long xNumberOfPixelsSquared = xNumberOfPixels * xNumberOfPixels;
             xNumberOfPixelsSquared = xNumberOfPixelsSquared > 0 ? xNumberOfPixelsSquared : 1;
             long yNumberOfPixelsSquared = yNumberOfPixels * yNumberOfPixels;
-            yNumberOf
+            yNumberOfPixelsSquared = yNumberOfPixelsSquared > 0 ? yNumberOfPixelsSquared : 1;
+            long zNumberOfPixelsSquared = zNumberOfPixels * zNumberOfPixels;
+            zNumberOfPixelsSquared = zNumberOfPixelsSquared > 0 ? zNumberOfPixelsSquared : 1;
+            long xyzNumberOfPixelsSquared = xNumberOfPixelsSquared * yNumberOfPixelsSquared * zNumberOfPixelsSquared;
+            long xyNumberOfPixelsSquared = xNumberOfPixelsSquared * yNumberOfPixelsSquared;
+            long yzNumberOfPixelsSquared = yNumberOfPixelsSquared * zNumberOfPixelsSquared;
+            long xzNumberOfPixelsSquared = xNumberOfPixelsSquared * zNumberOfPixelsSquared;
+
+            // Traverse the cuboid formed by the radius range to extract an ellipsoid
+            for (var z = -zNumberOfPixels; z <= zNumberOfPixels; z++)
+            {
+                for (var y = -yNumberOfPixels; y <= yNumberOfPixels; y++)
+                {
+                    for (var x = -xNumberOfPixels; x <= xNumberOfPixels; x++)
+                    {
+                        // Offset by the radius to map from a negative range to a positive one
+                        int maskOffsetX = x + xNumberOfPixels;
+                        int maskOffsetY = y + yNumberOfPixels;
+                        int maskOffsetZ = z + zNumberOfPixels;
+
+                        // x^2 / 
