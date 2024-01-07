@@ -1,0 +1,44 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+
+<# Func<string,string,string> Cast = (string type, string variable) => { 
+			if(type=="float"||type=="double")
+            {
+				return "("+type+")"+variable;
+            }
+			else
+            {
+				return "("+type+")Math.Round("+variable+")";
+			}
+ }; #>
+
+/*
+	==> AUTO GENERATED FILE, edit ResamplingExtensions.tt instead <==
+*/
+namespace InnerEye.CreateDataset.Math
+{
+	using System;
+	using InnerEye.CreateDataset.Volumes;
+
+	public static class ResamplingExtensions
+	{
+	<#
+		var types = new string[] {"double", "float", "int", "short", "byte"};
+		foreach (var T in types) 
+        {
+	#>
+
+        // Expects pixel coordinates.
+        private static <#=T#> Linear(this Volume3D<<#=T#>> input, double pixelX, double pixelY, double pixelZ, <#=T#> outsideValue)
+        {
+            int xx = (int)pixelX;
+            int yy = (int)pixelY;
+            int zz = (int)pixelZ;
+
+            double x2 = pixelX - xx, y2 = pixelY - yy, z2 = pixelZ - zz;
+
+            // local copi
