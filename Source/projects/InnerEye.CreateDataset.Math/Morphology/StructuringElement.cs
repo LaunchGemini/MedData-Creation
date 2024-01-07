@@ -143,4 +143,31 @@ namespace InnerEye.CreateDataset.Math.Morphology
                         int maskOffsetY = y + yNumberOfPixels;
                         int maskOffsetZ = z + zNumberOfPixels;
 
-                        // x^2 / 
+                        // x^2 / a^2 + y^2 / b^2 <=1 points inside an ellipse
+                        // we use equivalent equation that doesnt require divisions
+                        if (((x * x) * yzNumberOfPixelsSquared
+                                    + (y * y) * xzNumberOfPixelsSquared
+                                    + (z * z) * xyNumberOfPixelsSquared) <= xyzNumberOfPixelsSquared)
+                        {
+                            mask[maskOffsetX, maskOffsetY, maskOffsetZ] = ModelConstants.MaskForegroundIntensity;
+                        }
+                    }
+                }
+            }
+            return mask;
+        }
+
+        private HashSet<(int x, int y, int z)> ExtractSurfacePointsRelativeToAbsoluteCenter()
+        {
+            var points = new HashSet<(int, int, int)>();
+            Mask.IterateSlices(p =>
+            {
+                if (Mask.IsSurfacePoint(p.x, p.y, p.z, traverseX: true, traverseY: true, traverseZ: true))
+                {
+                    points.Add((p.x - AbsoluteMaskCenter.x, p.y - AbsoluteMaskCenter.y, p.z - AbsoluteMaskCenter.z));
+                }
+            });
+            return points;
+        }
+    }
+}
