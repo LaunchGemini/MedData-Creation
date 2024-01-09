@@ -41,4 +41,32 @@ namespace InnerEye.CreateDataset.Math
 
             double x2 = pixelX - xx, y2 = pixelY - yy, z2 = pixelZ - zz;
 
-            // local copi
+            // local copies to help the compiler in subsequent optimizations
+            var dimX = input.DimX;
+            var dimY = input.DimY;
+            var dimZ = input.DimZ;
+            var dimXY = input.DimXY;
+
+            // boundary check
+            if (pixelX < 0 || pixelY < 0 || pixelZ < 0 || pixelX >= dimX - 1 || pixelY >= dimY - 1 || pixelZ >= dimZ - 1)
+            {
+                return input.LinearOutside(pixelX, pixelY, pixelZ, outsideValue);
+            }
+
+            // everything is inside
+            int ind = xx + yy * dimX + zz * dimXY;
+            var interpolation =
+                  input[ind] * (1.0 - x2) * (1.0 - y2) * (1.0 - z2)
+                + input[ind + 1] * x2 * (1.0 - y2) * (1.0 - z2)
+                + input[ind + dimX] * (1.0 - x2) * y2 * (1.0 - z2)
+                + input[ind + dimXY] * (1.0 - x2) * (1.0 - y2) * z2
+                + input[ind + 1 + dimXY] * x2 * (1.0 - y2) * z2
+                + input[ind + dimX + dimXY] * (1.0 - x2) * y2 * z2
+                + input[ind + 1 + dimX] * x2 * y2 * (1.0 - z2)
+                + input[ind + 1 + dimX + dimXY] * x2 * y2 * z2;
+			return <#=Cast(T,"interpolation")#>;
+        }
+
+        private static void AdjustXyz(this Volume3D<<#=T#>> input, double pixelX, double pixelY, double pixelZ,
+            ref double x2, ref int xx,
+            ref double y2, r
