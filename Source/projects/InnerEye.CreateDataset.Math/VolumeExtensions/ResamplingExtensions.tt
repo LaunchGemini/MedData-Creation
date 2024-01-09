@@ -69,4 +69,48 @@ namespace InnerEye.CreateDataset.Math
 
         private static void AdjustXyz(this Volume3D<<#=T#>> input, double pixelX, double pixelY, double pixelZ,
             ref double x2, ref int xx,
-            ref double y2, r
+            ref double y2, ref int yy,
+            ref double z2, ref int zz)
+        {
+            if (pixelX < 0)
+            {
+                x2 = 0;
+                xx = 0;
+            }
+            else if (pixelX > input.DimX - 1)
+            {
+                x2 = 0;
+            }
+
+            if (pixelY < 0)
+            {
+                y2 = 0;
+                yy = 0;
+            }
+            else if (pixelY > input.DimY - 1)
+            {
+                y2 = 0;
+            }
+
+            if (pixelZ < 0)
+            {
+                z2 = 0;
+                zz = 0;
+            }
+            else if (pixelZ > input.DimZ - 1)
+            {
+                z2 = 0;
+            }
+        }
+
+		/// <summary>
+		/// Creates a new volume of the given size, using linear interpolation to create the voxels in the new volume.
+		/// </summary>
+        public static Volume3D<<#=T#>> ResampleLinear(this Volume3D<<#=T#>> input, int dimX, int dimY, int dimZ)
+        {
+            double spacingX = input.SpacingX * (input.DimX - 1) / (dimX - 1);
+            double spacingY = input.SpacingY * (input.DimY - 1) / (dimY - 1);
+            double spacingZ = input.SpacingZ * (input.DimZ - 1) / (dimZ - 1);
+			// When using linear resampling, the default value will not be used, can hence set to a default.
+			var outsideValue = default(<#=T#>);
+            var output = new Volume3D<<#
