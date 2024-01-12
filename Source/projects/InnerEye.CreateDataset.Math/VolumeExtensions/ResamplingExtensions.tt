@@ -145,4 +145,42 @@ namespace InnerEye.CreateDataset.Math
             // check all cases where at least one of the x2,y2,z2 values is 0, but not all are 0.
             value += input.ValueAdjustment(x2, y2, z2, index);
 
-            return  <#=Cast(T,
+            return  <#=Cast(T,"value")#>;
+        }
+
+        private static double ValueAdjustment(this Volume3D<<#=T#>> input, double x2, double y2, double z2, int index)
+        {
+            if (x2 == 0 && y2 == 0 && z2 != 0)
+            {
+                // 0 0 1
+                return input[index + input.DimXY] * z2;
+            }
+            if (x2 == 0 && y2 != 0 && z2 == 0)
+            {
+                // 0 1 0
+                return input[index + input.DimX] * y2;
+            }
+            if (x2 != 0 && y2 == 0 && z2 == 0)
+            {
+                // 1 0 0
+                return input[index + 1] * x2;
+            }
+            if (x2 == 0 && y2 != 0 && z2 != 0)
+            {
+                // 0 1 1
+                return input[index + input.DimX + input.DimXY] * y2 * z2
+                    + input[index + input.DimX] * y2 * (1.0 - z2)
+                    + input[index + input.DimXY] * (1.0 - y2) * z2;
+            }
+            if (x2 != 0 && y2 == 0 && z2 != 0)
+            {
+                // 1 0 1
+                return input[index + 1 + input.DimXY] * x2 * z2
+                    + input[index + 1] * x2 * (1.0 - z2)
+                    + input[index + input.DimXY] * (1.0 - x2) * z2;
+            }
+            if (x2 != 0 && y2 != 0 && z2 == 0)
+            {
+                // 1 1 0
+                return input[index + 1 + input.DimX] * x2 * y2
+                    + input[index + input.Dim
