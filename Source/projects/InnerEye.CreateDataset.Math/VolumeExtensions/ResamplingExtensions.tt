@@ -183,4 +183,13 @@ namespace InnerEye.CreateDataset.Math
             {
                 // 1 1 0
                 return input[index + 1 + input.DimX] * x2 * y2
-                    + input[index + input.Dim
+                    + input[index + input.DimX] * (1.0 - x2) * y2
+                    + input[index + 1] * x2 * (1.0 - y2);
+            }
+            return 0;
+        }
+       	<#}#>
+
+       
+    }
+}
