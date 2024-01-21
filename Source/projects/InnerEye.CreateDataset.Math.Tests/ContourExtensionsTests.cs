@@ -34,4 +34,40 @@
                 {
                     new PointF(5, 10),
                     new PointF(12, 45),
-                    new P
+                    new PointF(1, 23),
+                    new PointF(12, 44),
+                    new PointF(15, 48),
+                },
+                0),
+                new ContourPolygon(new PointF[]
+                {
+                    new PointF(5, 10),
+                    new PointF(12, 45),
+                },
+                0)
+            };
+
+            var region = contours.GetRegion();
+
+            Assert.AreEqual(1, region.MinimumX);
+            Assert.AreEqual(2, region.MinimumY);
+            Assert.AreEqual(234, region.MaximumX);
+            Assert.AreEqual(48, region.MaximumY);
+
+            Assert.Throws<ArgumentNullException>(() => new List<ContourPolygon>().GetRegion());
+        }
+
+        [Description("Tests that getting min/ max slices returns the correct result.")]
+        [Test]
+        public void GetMinMaxSlicesTest()
+        {
+            var contoursBySlice = new Contours.ContoursPerSlice(new Dictionary<int, IReadOnlyList<ContourPolygon>>()
+            {
+                { 5, new List<ContourPolygon>() },
+                { 7, new List<ContourPolygon>() },
+                { 10, new List<ContourPolygon>() },
+                { 15, new List<ContourPolygon>() },
+                { 6, new List<ContourPolygon>() },
+                { 8, new List<ContourPolygon>() },
+                { 12, new List<ContourPolygon>() },
+                { 90, new List<ContourPolygon>() },
