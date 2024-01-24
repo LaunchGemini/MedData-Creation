@@ -71,3 +71,25 @@
                 { 8, new List<ContourPolygon>() },
                 { 12, new List<ContourPolygon>() },
                 { 90, new List<ContourPolygon>() },
+            });
+
+            var minMax = contoursBySlice.GetMinMaxSlices();
+
+            Assert.AreEqual(5, minMax.Min);
+            Assert.AreEqual(90, minMax.Max);
+        }
+
+        [Description("Tests that getting min/ max intensities of a volume3d returns correct values")]
+        [Test]
+        public void GetMinMaxOfVolume3D()
+        {
+            var array = Enumerable.Range(0, 100).Select(x => (short)x).ToArray();
+            var volume = new Volume3D<short>(array, array.Length, 1, 1, 1, 1, 1);
+
+            var minMax = volume.GetMinMax();
+
+            Assert.AreEqual(0, minMax.Minimum);
+            Assert.AreEqual(99, minMax.Maximum);
+        }
+    }
+}
