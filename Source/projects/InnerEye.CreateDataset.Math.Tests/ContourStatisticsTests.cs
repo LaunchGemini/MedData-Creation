@@ -62,4 +62,39 @@
            {
                 0, 0, 0,
                 0, 0, 0,
- 
+                0, 0, 0
+           };
+
+            var contourVolume = CreateVolume(contourVolumeArray, 3, 3, 1);
+
+            var stats = ContourStatistics.FromVolumeAndMask(new ReadOnlyVolume3D<short>(volume), contourVolume);
+
+            Assert.AreEqual(0, stats.VoxelValueMean);
+            Assert.AreEqual(0, stats.VoxelValueStandardDeviation);
+            Assert.AreEqual(0, stats.SizeInCubicCentimeters);
+        }
+
+        [Test()]
+        public void HugeContour()
+        {
+            var dimX = 256;
+            var dimY = 256;
+            var dimZ = 512;
+            var totalSize = dimX * dimY * dimZ;
+            var volumeArray = Enumerable.Range(0, totalSize).Select(x => (short)(x % 2 == 0 ? 0 : 20)).ToArray();
+
+            var volume = CreateVolume(volumeArray, dimX, dimY, 512);
+
+            var contourVolumeArray = Enumerable.Range(0, totalSize).Select(x => (byte)1).ToArray();
+
+            var contourVolume = CreateVolume(contourVolumeArray, dimX, dimY, 512);
+
+            var stats = ContourStatistics.FromVolumeAndMask(new ReadOnlyVolume3D<short>(volume), contourVolume);
+
+            Assert.AreEqual(10, stats.VoxelValueMean);
+            Assert.AreEqual(10, stats.VoxelValueStandardDeviation);
+            Assert.AreEqual(totalSize / 1000d, stats.SizeInCubicCentimeters);
+        }
+
+    }
+}
