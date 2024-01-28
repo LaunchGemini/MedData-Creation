@@ -31,4 +31,43 @@
             var contours = mask2d.ContoursWithHoles();
             mask2d.Fill(contours, (byte)1);
 
-            var contourMask = new InnerEye.CreateDataset.Vol
+            var contourMask = new InnerEye.CreateDataset.Volumes.Volume2D<byte>(image.Width, image.Height, 1, 1, new Point2D(), Matrix2.CreateIdentity());
+
+            foreach (var point in contours.SelectMany(x => x.ContourPoints))
+            {
+                var index = contourMask.GetIndex((int)point.X, (int)point.Y);
+                contourMask[index] = 1;
+            }
+
+            var distanceMap = contourMask.EuclideanDistance();
+#if DEBUG
+            PrintByteArray(distanceMap.Array, image.Width, image.Height, resultPath);
+#endif
+        }
+
+        public static void PrintByteArray(float[] img, int dimX, int dimY, string resultPath)
+        {
+            Bitmap plane = new Bitmap(dimX, dimY);
+
+            for (int y = 0; y < dimY; y++)
+            {
+                for (int x = 0; x < dimX; x++)
+                {
+                    var index = x + y * dimX;
+                    var colorValue = (int)img[index] == 1 ? 255 : 0;
+                    plane.SetPixel(x, y, Color.FromArgb(colorValue, colorValue, colorValue));
+                }
+            }
+
+            plane.Save(resultPath);
+        }
+
+        public static byte[] ImageToByte(Bitmap img)
+        {
+            var array = new byte[img.Width * img.Height];
+
+            for (int y = 0; y < img.Height; y++)
+            {
+                for (int x = 0; x < img.Width; x++)
+                {
+                    // Get the color of a pixel wit
