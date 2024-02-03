@@ -70,4 +70,14 @@
             {
                 for (int x = 0; x < img.Width; x++)
                 {
-                    // Get the color of a pixel wit
+                    // Get the color of a pixel within myBitmap.
+                    Color pixelColor = img.GetPixel(x, y);
+                    var index = x + y * img.Width;
+                    array[index] = (byte)(pixelColor.R == 0 ? 1 : 0);
+                }
+            }
+
+            return array;
+        }
+    }
+}
