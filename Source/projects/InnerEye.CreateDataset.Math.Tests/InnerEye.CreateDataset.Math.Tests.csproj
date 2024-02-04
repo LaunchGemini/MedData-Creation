@@ -86,4 +86,31 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestData\DilateTest1\result.png">
-      <CopyToOutputDirectory>Pr
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\DilateTest1\triangle.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\ErodeTest1\result.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\ErodeTest1\resultErode1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\ErodeTest1\triangle.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\LoadTest1\triangle.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CreateDataset.TestHelpers\CreateDataset.TestHelpers.csproj">
+      <Project>{9255769c-41f4-47f9-a8e2-97b18d0971f5}</Project>
+      <Name>CreateDataset.TestHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InnerEye.CreateDataset.Common\InnerEye.CreateDataset.Common.csproj">
+      <Project>{8db64d15-3241-44d8-805d-cdfd7a5623a8}</Project>
+      <Name>InnerEye.CreateDataset.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InnerEye.CreateDataset.Contours\InnerEye.Creat
