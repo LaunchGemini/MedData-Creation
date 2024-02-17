@@ -103,4 +103,27 @@
             var expectedForegroundEdgePoints = new List<(int x, int y, int z)>();
             volumeWithOnlyBoundaryAsFG.IterateSlices(p =>
             {
-                if (volumeWithOnly
+                if (volumeWithOnlyBoundaryAsFG.IsEdgeVoxel(p.x, p.y, p.z))
+                {
+                    volumeWithOnlyBoundaryAsFG[p.x, p.y, p.z] = Volumes.ModelConstants.MaskForegroundIntensity;
+                    expectedForegroundEdgePoints.Add(p);
+                }
+            });
+            CollectionAssert.AreEqual(expectedForegroundEdgePoints, ExtractSurfacePoints(volumeWithOnlyBoundaryAsFG));
+
+            // check that only voxels that contain a BG voxel in their 1-connectivity neighborhood are considered as surface points
+            var volumeWithNonSurfacePointVoxels = new Volume3D<byte>(5, 5, 5);
+            var volumeWithNonSurfacePointVoxelsCenter = (x: volumeWithNonSurfacePointVoxels.DimX / 2, y: volumeWithNonSurfacePointVoxels.DimY / 2, z: volumeWithNonSurfacePointVoxels.DimZ / 2);
+            var expectedNonEdgeSurfacePoints = new List<(int x, int y, int z)>();
+
+            volumeWithNonSurfacePointVoxels.IterateSlices(p =>
+            {
+                if (!volumeWithNonSurfacePointVoxels.IsEdgeVoxel(p.x, p.y, p.z))
+                {
+                    volumeWithNonSurfacePointVoxels[p.x, p.y, p.z] = Volumes.ModelConstants.MaskForegroundIntensity;
+                    // the center voxel in this instance should not be a surface point
+                    if (!p.Equals(volumeWithNonSurfacePointVoxelsCenter))
+                    {
+                        expectedNonEdgeSurfacePoints.Add(p);
+                    }
+                }
