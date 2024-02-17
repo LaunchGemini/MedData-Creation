@@ -74,4 +74,33 @@
 
             var volume = MedIO.LoadNiftiAsShort(BaseFolder + @"\ParentVolume.nii.gz");
 
-            var structu
+            var structure1Contour = structure1.ContoursWithHolesPerSlice();
+            var structure2Contour = structure2.ContoursWithHolesPerSlice();
+
+            var volumeResult = structure1Contour.GeometryUnion(structure2Contour, volume);
+
+            var actualVolumeResult = MedIO.LoadNiftiAsByte(BaseFolder + @"\Structure1UnionStructure2.nii.gz");
+
+            Assert.AreEqual(volumeResult.Length, actualVolumeResult.Length);
+
+            for (var i = 0; i < actualVolumeResult.Length; i++)
+            {
+                Assert.AreEqual(volumeResult[i], actualVolumeResult[i]);
+            }
+        }
+
+        [Test]
+        public void SurfacePointExtractionTest()
+        {
+            // check empty volume has no surface points
+            Assert.IsFalse(ExtractSurfacePoints(new Volume3D<byte>(1, 1, 1)).Any());
+
+            // check that a single voxel volume has a trivial surface point 
+            Assert.IsTrue(ExtractSurfacePoints(new Volume3D<byte>(new byte[] { 1 }, 1, 1, 1, 1, 1, 1)).Count() == 1);
+
+            // check that all boundary points are considered as surface points
+            var volumeWithOnlyBoundaryAsFG = new Volume3D<byte>(3, 3, 3);
+            var expectedForegroundEdgePoints = new List<(int x, int y, int z)>();
+            volumeWithOnlyBoundaryAsFG.IterateSlices(p =>
+            {
+                if (volumeWithOnly
