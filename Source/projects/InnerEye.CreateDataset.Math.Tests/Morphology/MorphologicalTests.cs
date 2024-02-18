@@ -127,3 +127,21 @@
                         expectedNonEdgeSurfacePoints.Add(p);
                     }
                 }
+            });
+            CollectionAssert.AreEqual(expectedNonEdgeSurfacePoints, ExtractSurfacePoints(volumeWithNonSurfacePointVoxels));
+        }
+
+        private List<(int x, int y, int z)> ExtractSurfacePoints(Volume3D<byte> volume)
+        {
+            var surfacePoints = new List<(int x, int y, int z)>();
+            volume.IterateSlices(p =>
+            {
+                if (volume.IsSurfacePoint(p.x, p.y, p.z, true, true, true))
+                {
+                    surfacePoints.Add(p);
+                }
+            });
+            return surfacePoints;
+        }
+    }
+}
