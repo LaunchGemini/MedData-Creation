@@ -44,4 +44,28 @@
             Assert.AreEqual(expectedReduction, output.Array.Sum(), $"{output.Array.Sum()}");
         }
 
-        private static void PrintToPng(Volume3D<int> output, st
+        private static void PrintToPng(Volume3D<int> output, string name)
+        {
+#if DEBUG
+            var outputByte = output.CreateSameSize<byte>();
+            for (int i = 0; i < outputByte.Length; i++)
+            {
+                outputByte[i] = (byte)output[i];
+            }
+
+            for (int i = 0; i < output.DimZ; i++)
+            {
+                outputByte.Slice(Volumes.SliceType.Axial, 1).SaveBrushVolumeToPng($@"C:\temp\{i}{name}.png");
+            }
+#endif
+        }
+
+        private void FillHalf(Volume3D<int> volume)
+        {
+            for (int i = 0; i < volume.Length; i = i + 2)
+            {
+                volume[i] = 3;
+            }
+        }
+    }
+}
