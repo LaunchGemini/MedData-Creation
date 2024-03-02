@@ -232,3 +232,38 @@ namespace InnerEye.CreateDataset.Volumes
             }
 
             if (deduped.Count > 1 && (deduped.Last() - deduped.First()).Length <= 0) // if last is conincident with first, remove it too
+            {
+                deduped.RemoveAt(deduped.Count - 1);
+            }
+
+            // Remove intermediate vertices in sequences of three or more colinear vertices
+            var simplified = new List<Point>();
+
+            simplified.Add(deduped[0]);
+            simplified.Add(deduped[1]);
+
+            var direction = deduped[1] - deduped[0];
+            direction.Normalize();
+
+            previousVertex = deduped[1];
+
+            for (int i = 2; i < deduped.Count; i++)
+            {
+                Vector delta = deduped[i] - previousVertex;
+
+                if (Math.Abs((delta.X * direction.Y - delta.Y * direction.X)) <= 0) // component of delta perpendicular to direction
+                {
+                    simplified.RemoveAt(simplified.Count - 1);
+                }
+
+                simplified.Add(deduped[i]);
+
+                previousVertex = deduped[i];
+                direction = delta;
+                direction.Normalize();
+            }
+
+            return simplified.ToArray();
+        }
+    }
+}
