@@ -19,3 +19,21 @@ namespace InnerEye.Tests.Common
             catch (Exception ex)
             {
                 if (expectedMessage != "")
+                {
+                    Assert.AreEqual(expectedMessage, ex.Message);
+                }
+                Assert.AreEqual(typeof(T), ex.GetType());
+                return;
+            }
+
+            if (typeof(T).Equals(new Exception().GetType()))
+            {
+                Assert.Fail("Expected exception but no exception was thrown.");
+            }
+            else
+            {
+                Assert.Fail(string.Format("Expected exception of type {0} but no exception was thrown.", typeof(T)));
+            }
+        }
+    }
+}
