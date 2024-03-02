@@ -35,4 +35,30 @@ namespace InnerEye.CreateDataset.Volumes
 
         public override bool Equals(object obj)
         {
-            return obj != null && Equals
+            return obj != null && Equals((Contour)obj);
+        }
+
+        public static bool operator ==(Contour c1, Contour c2)
+        {
+            return c1.Equals(c2);
+        }
+
+        public static bool operator !=(Contour c1, Contour c2)
+        {
+            return !c1.Equals(c2);
+        }
+        
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ContourPoints.Aggregate(19, (current, foo) => current * 31 + foo.GetHashCode());
+            }
+        }
+
+        public object ToList()
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
