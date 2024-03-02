@@ -32,3 +32,25 @@
                     {
                         foreach (var err in errs)
                         {
+                            Console.Error.WriteLine(err.Tag);
+                        }
+                    }
+
+                    RunTask<CommandlineShared>(null, action);
+                    Environment.Exit(-1);
+                });
+        }
+
+        private static void RunTask<T>(T options, 
+            Action<T> action)
+            where T: CommandlineShared
+        {
+            if (options != null)
+            {
+                options.Validate();
+            }
+            action(options);
+            return;
+        }
+    }
+}
