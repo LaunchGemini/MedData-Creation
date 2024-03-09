@@ -155,4 +155,35 @@
                 }
             }
 
-            return bestPolygon == n
+            return bestPolygon == null ? null : Tuple.Create(bestPolygon, bestPoint);
+        }
+
+        public static Tuple<Contour, Point> GetClosestContourAndPointToPoint(IList<Contour> contour, Point point)
+        {
+            if (contour == null || contour.Count == 0)
+            {
+                return null;
+            }
+
+            var bestContour = new Contour();
+            var bestPoint = new Point();
+
+            var bestDistance = double.MaxValue;
+
+            foreach (var currentContour in contour)
+            {
+                Tuple<double, Point> closestPoint;
+
+                if(TryGetClosestPointOnPolygon(currentContour.ContourPoints, point, out closestPoint) && closestPoint.Item1 < bestDistance)
+                { 
+                    bestContour = currentContour;
+
+                    bestDistance = closestPoint.Item1;
+                    bestPoint = closestPoint.Item2;
+                }
+            }
+
+            return Tuple.Create(bestContour, bestPoint);
+        }
+    }
+}
