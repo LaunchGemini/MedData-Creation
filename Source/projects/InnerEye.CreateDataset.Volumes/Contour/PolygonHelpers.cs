@@ -85,4 +85,32 @@
             var leftPointIndex = bestPointIndex - 1 >= 0 ? bestPointIndex - 1 : polygon.Length - (startEqualsFirst ? 2 : 1);
             var rightPointIndex = bestPointIndex + 1 < polygon.Length ? bestPointIndex + 1 : (startEqualsFirst ? 1 : 0);
 
-            // Get the point left and right
+            // Get the point left and right of the current position in the polygon
+            var leftPair = polygon[leftPointIndex];
+            var rightPair = polygon[rightPointIndex];
+
+            // Find the closest point on both line pairs to the current position
+            var closestPointOnLeftPair = GetClosestPointOnLine(leftPair, bestPoint, currentPosition);
+            var closestPointOnRightPair = GetClosestPointOnLine(rightPair, bestPoint, currentPosition);
+
+            // Now work out which point on the line pairs is closest to the current position
+            var leftDistance = CalculateDistance(closestPointOnLeftPair.X, closestPointOnLeftPair.Y, currentPosition.X, currentPosition.Y);
+            var rightDistance = CalculateDistance(closestPointOnRightPair.X, closestPointOnRightPair.Y, currentPosition.X, currentPosition.Y);
+
+            closestPoint = leftDistance < rightDistance ? Tuple.Create(leftDistance, closestPointOnLeftPair) : Tuple.Create(rightDistance, closestPointOnRightPair);
+
+            return true;
+        }
+        
+        private static Point GetClosestPointOnLine(Point start, Point end, Point p)
+        {
+            var vector = end - start;
+            var length = vector.LengthSquared;
+
+            if (length == 0.0)
+            {
+                return start;
+            }
+            
+            // Consider the line extending the segment, parameterized as v + t (w - v).
+            // W
