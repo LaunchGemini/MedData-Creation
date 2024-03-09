@@ -113,4 +113,46 @@
             }
             
             // Consider the line extending the segment, parameterized as v + t (w - v).
-            // W
+            // We find projection of point p onto the line. 
+            // It falls where t = [(p-v) . (w-v)] / |w-v|^2
+            var t = (p - start) * vector / length;
+
+            if (t < 0.0)
+            {
+                return start; // Beyond the 'v' end of the segment
+            }
+            else if (t > 1.0)
+            {
+                return end;   // Beyond the 'w' end of the segment
+            }
+
+            // Projection falls on the segment
+            return start + t * vector;
+        }
+
+        public static Tuple<System.Drawing.Point[], System.Drawing.Point> GetClosestPolygonAndPointToPoint(IList<System.Drawing.Point[]> polygons, Point point)
+        {
+            if (polygons == null || polygons.Count == 0)
+            {
+                return null;
+            }
+
+            System.Drawing.Point[] bestPolygon = null;
+            System.Drawing.Point bestPoint = new System.Drawing.Point();
+
+            var bestDistance = double.MaxValue;
+
+            foreach (var polygon in polygons)
+            {
+                Tuple<double, System.Drawing.Point> closestPoint;
+
+                if (TryGetClosestPointOnPolygon(polygon, point, out closestPoint) && closestPoint.Item1 < bestDistance)
+                { 
+                    bestPolygon = polygon;
+
+                    bestDistance = closestPoint.Item1;
+                    bestPoint = closestPoint.Item2;
+                }
+            }
+
+            return bestPolygon == n
