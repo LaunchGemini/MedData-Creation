@@ -52,4 +52,36 @@
     <Compile Include="Contour\ContoursBySlice.cs" />
     <Compile Include="Contour\ContourSimplifier.cs" />
     <Compile Include="Contour\ContourStats.cs" />
-    <Compile Include="Contour\Extrac
+    <Compile Include="Contour\ExtractPolygonHelpers.cs" />
+    <Compile Include="Contour\FillPolygonHelpers.cs" />
+    <Compile Include="Contour\PolygonHelpers.cs" />
+    <Compile Include="Contour\SmoothPolygonHelpers.cs" />
+    <Compile Include="ModelConstants.cs" />
+    <Compile Include="Contour\Contour.cs" />
+    <Compile Include="Matrix2.cs" />
+    <Compile Include="Matrix3.cs" />
+    <Compile Include="Matrix4.cs" />
+    <Compile Include="MinMax.cs" />
+    <Compile Include="Point2D.cs" />
+    <Compile Include="Point3D.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadOnlyVolume2D.cs" />
+    <Compile Include="ReadOnlyVolume3D.cs" />
+    <Compile Include="Region2D.cs" />
+    <Compile Include="Region3D.cs" />
+    <Compile Include="SliceType.cs" />
+    <Compile Include="SmoothingType.cs" />
+    <Compile Include="Transform3.cs" />
+    <Compile Include="VolumeTransform.cs" />
+    <Compile Include="Volume.cs" />
+    <Compile Include="Volume2D.cs" />
+    <Compile Include="Volume3D.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Targe
