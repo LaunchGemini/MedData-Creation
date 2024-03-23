@@ -58,4 +58,10 @@ namespace InnerEye.CreateDataset.Volumes
                 result.Data[i * 4 + 0] = a.Data[0] * b.Data[i * 4 + 0] + a.Data[4] * b.Data[i * 4 + 1] + a.Data[8] * b.Data[i * 4 + 2] + a.Data[12] * b.Data[i * 4 + 3];
                 result.Data[i * 4 + 1] = a.Data[1] * b.Data[i * 4 + 0] + a.Data[5] * b.Data[i * 4 + 1] + a.Data[9] * b.Data[i * 4 + 2] + a.Data[13] * b.Data[i * 4 + 3];
                 result.Data[i * 4 + 2] = a.Data[2] * b.Data[i * 4 + 0] + a.Data[6] * b.Data[i * 4 + 1] + a.Data[10] * b.Data[i * 4 + 2] + a.Data[14] * b.Data[i * 4 + 3];
-                result.Data[i * 4 + 3] = a.Data[3] * b.Data[i * 4 + 0] + a.Data[7] * b.Data[i * 4 + 1] + a.Data[11] * b.Data[i * 4 + 2] + a.D
+                result.Data[i * 4 + 3] = a.Data[3] * b.Data[i * 4 + 0] + a.Data[7] * b.Data[i * 4 + 1] + a.Data[11] * b.Data[i * 4 + 2] + a.Data[15] * b.Data[i * 4 + 3];
+            }
+
+            return result;
+        }
+    }
+}
