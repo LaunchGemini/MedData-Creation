@@ -133,4 +133,48 @@ namespace InnerEye.CreateDataset.Volumes
                 a.X*matrix[2] + a.Y*matrix[5] + a.Z*matrix[8]);
         }
 
-        public static 
+        public static Point3D operator *(Matrix4 transform, Point3D a)
+        {
+            var matrix = transform.Data;
+            var output = new Point3D(
+                a.X*matrix[0] + a.Y*matrix[4] + a.Z*matrix[8] + matrix[12],
+                a.X*matrix[1] + a.Y*matrix[5] + a.Z*matrix[9] + matrix[13],
+                a.X*matrix[2] + a.Y*matrix[6] + a.Z*matrix[10] + matrix[14]);
+
+            var w = a.X * matrix[3] + a.Y * matrix[7] + a.Z * matrix[11] + matrix[15];
+
+            if (w != 0)
+            {
+                output.X /= w; output.Y /= w; output.Z /= w;
+            }
+
+            return output;
+        }
+
+        public static double DotProd(Point3D a, Point3D b)
+        {
+            return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+        }
+
+        public static Point3D CrossProd(Point3D a, Point3D b)
+        {
+            return new Point3D(
+                a.Y*b.Z - a.Z*b.Y,
+                -(a.X*b.Z - a.Z*b.X),
+                a.X*b.Y - a.Y*b.X );
+        }
+
+        public void Clear()
+        {
+            X = 0;
+            Y = 0;
+            Z = 0;
+        }
+
+        /// <summary>
+        /// Gets the Euclidean norm (square root of the sum of squares) of the vector.
+        /// </summary>
+        /// <returns></returns>
+        public double Norm()
+        {
+            return Math.Sqrt(X 
