@@ -88,4 +88,49 @@ namespace InnerEye.CreateDataset.Volumes
             return new Point3D(-a.X, -a.Y, -a.Z); 
         }
 
-        public static Point3D operato
+        public static Point3D operator +(Point3D a, Point3D b)
+        {
+            return new Point3D(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+        }
+
+        public static Point3D operator -(Point3D a, Point3D b)
+        {
+            return new Point3D(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        }
+
+        public static Point3D operator *(Point3D a, Point3D b)
+        {
+            return new Point3D(a.X * b.X, a.Y * b.Y, a.Z * b.Z);
+        }
+
+        public static Point3D operator /(Point3D a, Point3D b)
+        {
+            return new Point3D(a.X / b.X, a.Y / b.Y, a.Z / b.Z);
+        }
+
+        public static Point3D operator *(Point3D a, double factor)
+        {
+            return new Point3D(a.X * factor, a.Y * factor, a.Z * factor);
+        }
+
+        public static Point3D operator *(double factor, Point3D a)
+        {
+            return new Point3D(a.X * factor, a.Y * factor, a.Z * factor);
+        }
+
+        public static Point3D operator /(Point3D a, double factor)
+        {
+            return new Point3D(a.X / factor, a.Y / factor, a.Z / factor);
+        }
+
+        public static Point3D operator *(Matrix3 transform, Point3D a)
+        {
+            var matrix = transform.Data;
+
+            return new Point3D(
+                a.X*matrix[0] + a.Y*matrix[3] + a.Z*matrix[6],
+                a.X*matrix[1] + a.Y*matrix[4] + a.Z*matrix[7],
+                a.X*matrix[2] + a.Y*matrix[5] + a.Z*matrix[8]);
+        }
+
+        public static 
