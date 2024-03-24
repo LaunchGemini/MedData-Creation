@@ -177,4 +177,17 @@ namespace InnerEye.CreateDataset.Volumes
         /// <returns></returns>
         public double Norm()
         {
-            return Math.Sqrt(X 
+            return Math.Sqrt(X * X + Y * Y + Z * Z);
+        }
+
+        public double SquareNorm()
+        {
+            return X * X + Y * Y + Z * Z;
+        }
+
+        public override string ToString()
+        {
+            return $"x={X},y={Y},z={Z}";
+        }
+    }
+}
