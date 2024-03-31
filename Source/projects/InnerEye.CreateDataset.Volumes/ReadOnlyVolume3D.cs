@@ -6,15 +6,14 @@
 ﻿namespace InnerEye.CreateDataset.Volumes
 {
     using System;
-
     /// <summary>
-    /// This class wraps the Volume2D so it cannot be written to the array. No data is copied or duplicated
+    /// This class wraps the Volume3D so it cannot be written to the array. No data is copied or duplicated
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ReadOnlyVolume2D<T> : Volume2D<T>
+    public class ReadOnlyVolume3D<T> : Volume3D<T>
     {
-        public ReadOnlyVolume2D(Volume2D<T> volume2d)
-                : base(volume2d.Array, volume2d.DimX, volume2d.DimY, volume2d.SpacingX, volume2d.SpacingY, volume2d.Origin, volume2d.Direction)
+        public ReadOnlyVolume3D(Volume3D<T> volume3D)
+                : base(volume3D.Array, volume3D.DimX, volume3D.DimY, volume3D.DimZ, volume3D.SpacingX, volume3D.SpacingY, volume3D.SpacingZ, volume3D.Origin, volume3D.Direction)
         {
         }
 
