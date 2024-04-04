@@ -9,4 +9,47 @@ using System.Collections.Generic;
 namespace InnerEye.CreateDataset.Volumes
 {
     /// <summary>
-    /// Represents a region a 3-dimensional space, given 
+    /// Represents a region a 3-dimensional space, given by the minimum and maximum values
+    /// along each coordinate. Minimum and maximum are meant to be inclusive.
+    /// </summary>
+    [DebuggerDisplay("({MinimumX}, {MaximumX}) ({MinimumY}, {MaximumY}) ({MinimumZ}, {MaximumZ})")]
+    public class Region3D<T>
+    {
+        /// <summary>
+        /// Creates a new instance of Region3D, with all properties set to the respective arguments.
+        /// </summary>
+        /// <param name="minimumX"></param>
+        /// <param name="minimumY"></param>
+        /// <param name="minimumZ"></param>
+        /// <param name="maximumX"></param>
+        /// <param name="maximumY"></param>
+        /// <param name="maximumZ"></param>
+        public Region3D(T minimumX, T minimumY, T minimumZ, T maximumX, T maximumY, T maximumZ)
+        {
+            MinimumX = minimumX;
+            MinimumY = minimumY;
+            MinimumZ = minimumZ;
+            MaximumX = maximumX;
+            MaximumY = maximumY;
+            MaximumZ = maximumZ;
+        }
+
+        public T MinimumX { get; }
+
+        public T MinimumY { get; }
+
+        public T MinimumZ { get; }
+
+        public T MaximumX { get; }
+
+        public T MaximumY { get; }
+
+        public T MaximumZ { get; }
+
+        /// <summary>
+        /// Creates a full copy of the present object.
+        /// </summary>
+        /// <returns></returns>
+        public Region3D<T> Clone()
+        {
+   
