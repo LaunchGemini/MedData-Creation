@@ -83,4 +83,20 @@ namespace InnerEye.CreateDataset.Volumes
         }
 
         /// <summary>
-        /// Creates a copy of the pre
+        /// Creates a copy of the present object, and overwrites the minimum and maximum Z 
+        /// values with the arguments.
+        /// </summary>
+        /// <param name="minimumZ"></param>
+        /// <param name="maximumZ"></param>
+        /// <returns></returns>
+        public Region3D<T> OverrideZ(T minimumZ, T maximumZ)
+        {
+            return new Region3D<T>(MinimumX, MinimumY, minimumZ, MaximumX, MaximumY, maximumZ);
+        }
+
+        public override string ToString()
+        {
+            return $"({MinimumX}, {MaximumX}) ({MinimumY}, {MaximumY}) ({MinimumZ}, {MaximumZ})";
+        }
+    }
+}
