@@ -52,4 +52,35 @@ namespace InnerEye.CreateDataset.Volumes
         /// <returns></returns>
         public Region3D<T> Clone()
         {
-   
+            return new Region3D<T>(MinimumX, MinimumY, MinimumZ, MaximumX, MaximumY, MaximumZ);
+        }
+
+        public override bool Equals(object obj)
+        {
+            var d = obj as Region3D<T>;
+            var comparator = EqualityComparer<T>.Default;
+            return d != null &&
+                   comparator.Equals(MinimumX, d.MinimumX) &&
+                   comparator.Equals(MinimumY, d.MinimumY) &&
+                   comparator.Equals(MinimumZ, d.MinimumZ) &&
+                   comparator.Equals(MaximumX, d.MaximumX) &&
+                   comparator.Equals(MaximumY, d.MaximumY) &&
+                   comparator.Equals(MaximumZ, d.MaximumZ);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -436642110;
+            var prime = -1521134295;
+            var comparator = EqualityComparer<T>.Default;
+            hashCode = hashCode * prime + comparator.GetHashCode(MinimumX);
+            hashCode = hashCode * prime + comparator.GetHashCode(MinimumY);
+            hashCode = hashCode * prime + comparator.GetHashCode(MinimumZ);
+            hashCode = hashCode * prime + comparator.GetHashCode(MaximumX);
+            hashCode = hashCode * prime + comparator.GetHashCode(MaximumY);
+            hashCode = hashCode * prime + comparator.GetHashCode(MaximumZ);
+            return hashCode;
+        }
+
+        /// <summary>
+        /// Creates a copy of the pre
