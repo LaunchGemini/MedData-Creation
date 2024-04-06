@@ -22,4 +22,8 @@ namespace InnerEye.CreateDataset.Volumes
         Coronal,
 
         /// <summary>
-        /// The sagittal YZ
+        /// The sagittal YZ plane.
+        /// </summary>
+        Sagittal,
+    }
+}
