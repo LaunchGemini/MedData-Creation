@@ -251,3 +251,23 @@ namespace InnerEye.CreateDataset.Volumes
         /// Gets whether a voxel at the given coordinates is on the boundary of the 
         /// volume on any side.
         /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <returns></returns>
+        public bool IsEdgeVoxel(int x, int y, int z)
+        {
+            // x,y,z = 0 are the bottom voxels in each dimension and x,y,z = dim - 1 are the top voxels in each dimension
+            return x == 0 || x == DimX - 1 || y == 0 || y == DimY - 1 || z == 0 || z == DimZ - 1;
+        }
+
+        /// <summary>
+        /// Creates a short human readable string that will be displayed in the VS debugger.
+        /// </summary>
+        /// <returns></returns>
+        public string DebuggerDisplay()
+        {
+            return $"Size {DimX} x {DimY} x {DimZ}, spacing {SpacingX:0.00} x {SpacingY:0.00} x {SpacingZ:0.00}";
+        }
+    }
+}
