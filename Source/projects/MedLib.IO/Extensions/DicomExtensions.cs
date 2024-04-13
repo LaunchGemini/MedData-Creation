@@ -22,4 +22,32 @@
 
         public static string GetStringOrEmpty(this DicomDataset ds, DicomTag tag)
         {
-            return ds.GetSingleValueOrDefaul
+            return ds.GetSingleValueOrDefault(tag, string.Empty);
+        }
+
+        /// <summary>
+        /// In general DICOM values have an even byte length when serialized. fo-dicom correctly adds a padding value to those VRs 
+        /// requiring a pad byte. However the actual padding value used by other implementations can vary, often 0x00 is used instead
+        /// of 0x20 (specificed as the padding byte in DICOM), fo-dicom will not remove these on deserialization. We add this method
+        /// so users can selectively remove erroneous trailing white space characters and preserve the validity of our output dicom. 
+        /// Use with caution, it is only valid for all VRs encoded as character strings BUT NOT VR UI (Unique Identifier) types. 
+        /// </summary>
+        /// <see cref="ftp://dicom.nema.org/medical/DICOM/2013/output/chtml/part05/sect_6.2.html"/>
+        /// <param name="ds"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static string GetTrimmedStringOrEmpty(this DicomDataset ds, DicomTag tag)
+        {
+            return DicomTrim(ds.GetStringOrEmpty(tag));
+        }
+
+        public static string DicomTrim(string s)
+        {
+            return s.Trim('\0').Trim();
+        }
+
+        /// <summary>
+        /// Returns the value of the tag within the given dataset. Throws an exception if the tag was not present or if the
+        /// tag value cannot be converted to type T.
+        /// </summary>
+        /// <typeparam name="T">The expected re
