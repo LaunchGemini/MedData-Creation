@@ -50,4 +50,20 @@
         /// Returns the value of the tag within the given dataset. Throws an exception if the tag was not present or if the
         /// tag value cannot be converted to type T.
         /// </summary>
-        /// <typeparam name="T">The expected re
+        /// <typeparam name="T">The expected return type of the DICOM attribute.</typeparam>
+        /// <param name="dataset">The DICOM dataset you wish to extract the tag from</param>
+        /// <param name="tag">The tag you wish to extract from the dataset</param>
+        /// <param name="i">For multivalue tags, specify the ith element to return</param>
+        /// <returns>The required DICOM attribute as type T.</returns>
+        /// <exception cref="ArgumentException">The dataset did not contain the expected tag or the DICOM tag does not have a value at index 'i'.</exception>
+        /// <exception cref="ArgumentNullException">The DICOM dataset or DICOM tag provided was null.</exception>
+        /// <exception cref="InvalidCastException">The DICOM tag could not be converted into the expected type.</exception>
+        public static T GetRequiredDicomAttribute<T>(this DicomDataset dataset, DicomTag tag, uint i = 0)
+        {
+            dataset = dataset ?? throw new ArgumentNullException(nameof(dataset));
+            tag = tag ?? throw new ArgumentNullException(nameof(tag));
+
+            // Attempt to find the expected tag in the DICOM dataset.
+            if (!(dataset.FirstOrDefault(x => x.Tag == tag) is DicomElement dicomElement))
+            {
+                throw new ArgumentException($"The DICOM dataset does not contain the required attribute: {t
