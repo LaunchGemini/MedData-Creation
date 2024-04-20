@@ -66,4 +66,34 @@
             // Attempt to find the expected tag in the DICOM dataset.
             if (!(dataset.FirstOrDefault(x => x.Tag == tag) is DicomElement dicomElement))
             {
-                throw new ArgumentException($"The DICOM dataset does not contain the required attribute: {t
+                throw new ArgumentException($"The DICOM dataset does not contain the required attribute: {tag}.");
+            }
+
+            if (i >= dicomElement.Count)
+            {
+                throw new ArgumentException($"The DICOM tag {tag} only has {dicomElement.Count} parts. Expected to get value at index {i}.");
+            }
+
+            try
+            {
+                // Attempt to cast the i(th) element to the expected return type.
+                return dicomElement.Get<T>((int)i);
+            }
+            catch (Exception)
+            {
+                throw new InvalidCastException($"The attribute: {tag} could not be converted to the expected type: {typeof(T)}.");
+            }
+        }
+
+        /// <summary>
+        /// Converts a set of application contours into DICOM RT objects ready for serialization
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="axialContours">The axial contours you wish to convert</param>
+        /// <param name="identifiers">The set of identifiers, 1 for each slice in parentVolume</param>
+        /// <param name="volumeTransform">The volume transform.</param>
+        /// <returns></returns>
+        public static List<DicomRTContourItem> ToDicomRtContours(
+            this InnerEye.CreateDataset.Contours.ContoursPerSlice axialContours, IReadOnlyList<DicomIdentifiers> identifiers, VolumeTransform volumeTransform)
+        {
+         
