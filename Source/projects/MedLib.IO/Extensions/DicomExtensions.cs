@@ -124,4 +124,36 @@
                 if (identifier == null)
                 {
                     throw new Exception("Invalid contour or image identifiers");
-   
+                }
+
+                // Reference the slice containing these contours by SopInstance UID
+                var sopCommonInstance = identifier.Image.SopCommon;
+                var contourImageSeq = new List<DicomRTContourImageItem>()
+                {
+                    new DicomRTContourImageItem(sopCommonInstance.SopClassUid, sopCommonInstance.SopInstanceUid)
+                };
+
+                // Iterate through the contour objects on this slice. 
+                foreach (var contour in tuple.Value)
+                {
+                    // Convert the pixel based contour into the DICOM reference coordinate system and flatten to an arry of doubles.
+                    var allpoints = contour.ContourPoints.SelectMany(
+                        p => (volumeTransform.DataToDicom * new Point3D(p.X, p.Y, z)).Data).ToArray();
+                    
+                    resultList.Add(new DicomRTContourItem(
+                        allpoints,
+                        contour.Length,
+                        ClosedPlanarString,
+                        contourImageSeq));
+                }
+            }
+
+            return resultList;
+        }
+
+        /// <summary>
+        /// Return true if and only if the DicomDataset has the RT Structure set SOPClassUID
+        /// </summary>
+        /// <param name="dcmset"></param>
+        /// <returns></returns>
+        p
