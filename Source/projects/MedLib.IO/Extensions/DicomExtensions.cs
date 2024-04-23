@@ -96,4 +96,32 @@
         public static List<DicomRTContourItem> ToDicomRtContours(
             this InnerEye.CreateDataset.Contours.ContoursPerSlice axialContours, IReadOnlyList<DicomIdentifiers> identifiers, VolumeTransform volumeTransform)
         {
-         
+            if (identifiers == null || identifiers.Count == 0)
+            {
+                throw new ArgumentException(nameof(identifiers), "The identifiers cannot be null or empty");
+            }
+
+            if (volumeTransform == null)
+            {
+                throw new ArgumentException(nameof(volumeTransform), "The volume cannot be null or empty");
+            }
+
+            var resultList = new List<DicomRTContourItem>();
+
+            var tolerance = volumeTransform.SpacingZ / 2;
+
+            // Iterate through the sets of contours per slice
+            foreach (var tuple in axialContours)
+            {
+                // For this slice, compute the z-axis coordinate in the DICOM reference coordinate system 
+                var z = tuple.Key;
+                var zAxisPhysicalCoordinate = (volumeTransform.DataToDicom * new Point3D(0, 0, z)).Z;
+
+                // Locate the DICOM identifier containing this slice. Note that for non-axial volumes this is not the right test
+                // but is sufficient for Axial volumes accepted in the FDA version. 
+                var identifier = identifiers.FirstOrDefault(x => Math.Abs(x.Image.ImagePositionPatient.Z - zAxisPhysicalCoordinate) < tolerance);
+
+                if (identifier == null)
+                {
+                    throw new Exception("Invalid contour or image identifiers");
+   
