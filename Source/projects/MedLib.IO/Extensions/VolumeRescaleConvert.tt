@@ -1,0 +1,11 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ output extension=".cs" #>
+namespace MedLib.IO.Extensions
+{
+	using System;
+	using System.IO;
+    using static MedLib.IO.NiftiIO;
+
+	/// <summary>
+	/// Static methods to convert arrays of {byte, short, float, UInt16} encoded as byte arrays to {byte, short, float, UInt16} applying

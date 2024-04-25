@@ -156,4 +156,17 @@
         /// </summary>
         /// <param name="dcmset"></param>
         /// <returns></returns>
-        p
+        public static bool IsRTStructure(this DicomDataset dcmset)
+        {
+            return dcmset.GetSingleValueOrDefault(DicomTag.SOPClassUID, EmptyUid) == DicomUID.RTStructureSetStorage;
+        }
+
+        /// <summary>
+        /// Returns an empty DICOM uid.
+        /// </summary>
+        public static DicomUID EmptyUid
+        {
+            get { return new DicomUID(string.Empty, string.Empty, DicomUidType.Unknown); }
+        }
+    }
+}
