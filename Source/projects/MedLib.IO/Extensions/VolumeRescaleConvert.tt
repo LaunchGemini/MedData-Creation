@@ -38,4 +38,43 @@ namespace MedLib.IO.Extensions
 			return (startIndex, endIndex) =>
 			{
 				fixed (byte* pSrc = srcBytes)
-			
+				fixed (<#=T.Type#>* pDest = output)
+				{
+					<#=T.Type#>* pDestEnd = pDest + endIndex;
+					<#=T.Type#>* pDestPtr = pDest + startIndex;
+#pragma warning disable IDE0004 // Remove Unnecessary Cast
+					<#=Y#>* pSrcPtr = (<#=Y#>*)pSrc + startIndex;
+#pragma warning restore IDE0004 // Remove Unnecessary Cast
+					for (; pDestPtr <= pDestEnd; pDestPtr++, pSrcPtr++)
+					{
+						var v = *pSrcPtr * slope + intercept;
+						<#=T.Round#>;
+						*pDestPtr =<#=T.Convert#>;
+					}
+				}
+			};
+		}
+<#}}#>
+
+<#
+	foreach( var Y in srcTypes ) {
+#>
+
+		/// <summary>
+		/// Helper method to pick an appropriate conversion function from the above based on the data type encoded in srcData
+		/// </summary>
+		public static Action<int, int> BatchConvert(NiftiInternal.Nifti1Datatype srcDataType, byte[] srcData, <#=Y#>[] output, float slope, float intercept)
+        {
+            switch (srcDataType)
+            {
+                case NiftiInternal.Nifti1Datatype.DT_UNSIGNED_CHAR:
+                    {
+                        return Convertbyte(srcData, output, slope, intercept);
+                    }
+                case NiftiInternal.Nifti1Datatype.DT_SIGNED_SHORT:
+                    {
+                        return Convertshort(srcData, output, slope, intercept);
+                    }
+                case NiftiInternal.Nifti1Datatype.DT_FLOAT:
+                    {
+                      
