@@ -77,4 +77,18 @@ namespace MedLib.IO.Extensions
                     }
                 case NiftiInternal.Nifti1Datatype.DT_FLOAT:
                     {
-                      
+                        return Convertfloat(srcData, output, slope, intercept);
+                    }
+                case NiftiInternal.Nifti1Datatype.DT_UINT16:
+                    {
+                        return Convertushort(srcData, output, slope, intercept);
+                    }
+                default:
+                    {
+                        throw new InvalidDataException($"BatchConvert: format {srcDataType} is not presently supported.");
+                    }
+            }
+        }
+<#}#>
+    }
+}
