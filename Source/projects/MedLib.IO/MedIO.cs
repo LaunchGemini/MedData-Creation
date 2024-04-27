@@ -166,3 +166,40 @@
         /// <summary>
         /// Expects path to point to a folder containing exactly 1 volume.
         /// </summary>
+        /// <param name="path"></param>
+        /// <param name="acceptanceTests"></param>
+        /// <returns></returns>
+        public static async Task<MedicalVolume> LoadSingleDicomSeriesAsync(string path, IVolumeGeometricAcceptanceTest acceptanceTests)
+        {
+            var attributes = File.GetAttributes(path);
+
+            if ((attributes & FileAttributes.Directory) != FileAttributes.Directory)
+            {
+                throw new ArgumentException("Folder path was expected.");
+            }
+
+            var results = await LoadAllDicomSeriesInFolderAsync(path, acceptanceTests);
+
+            if (results.Count != 1)
+            {
+                throw new Exception("Folder contained multiple series.");
+            }
+
+            if (results[0].Error != null)
+            {
+                throw new Exception("Error loading DICOM series.", results[0].Error);
+            }
+
+            return results[0].Volume;
+        }
+
+        /// <summary>
+        /// Loads a medical volume from a Nifti file. The <see cref="MedicalVolume.Volume"/> property
+        /// will be set to the volume in the Nifti file, the RT structures will be empty, empty
+        /// Dicom identifiers.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static MedicalVolume LoadMedicalVolumeFromNifti(string path)
+        {
+           
