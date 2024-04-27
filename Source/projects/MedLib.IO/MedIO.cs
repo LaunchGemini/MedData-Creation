@@ -94,4 +94,41 @@
         /// return null.
         /// </summary>
         /// <param name="path"></param>
-    
+        /// <returns></returns>
+        public static NiftiCompression? GetNiftiCompression(string path)
+        {
+            if (path.EndsWith(GZipCompressedNiftiSuffix))
+            {
+                return NiftiCompression.GZip;
+            }
+            if (path.EndsWith(LZ4CompressedNiftiSuffix))
+            {
+                return NiftiCompression.LZ4;
+            }
+            if (path.EndsWith(UncompressedNiftiSuffix))
+            {
+                return NiftiCompression.Uncompressed;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Returns true if the given file name identifies a Nifti file, either compressed 
+        /// or uncompressed.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public static bool IsNiftiFile(string fileName)
+        {
+            var compression = GetNiftiCompression(fileName);
+            return compression != null;
+        }
+
+        /// <summary>
+        /// Gets the type of compression that was applied to the given Nifti file,
+        /// by looking at the file extension.
+        /// If the given file name is neither a compressed nor an uncompressed Nifti file,
+        /// an <see cref="ArgumentException"/> is thrown.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns><
