@@ -131,4 +131,38 @@
         /// an <see cref="ArgumentException"/> is thrown.
         /// </summary>
         /// <param name="path"></param>
-        /// <returns><
+        /// <returns></returns>
+        public static NiftiCompression GetNiftiCompressionOrFail(string path)
+        {
+            var compression = GetNiftiCompression(path);
+            if (compression == null)
+            {
+                throw new ArgumentException($"NIFTI filenames must end with '{UncompressedNiftiSuffix}' or '{GZipCompressedNiftiSuffix}' or '{LZ4CompressedNiftiSuffix}' (case sensitive), but got: {path}");
+            }
+            return compression.Value;
+        }
+
+        /// <summary>
+        /// Gets the extension that a Nifti file should have when using the compression format
+        /// given in the argument.
+        /// </summary>
+        /// <param name="compression"></param>
+        /// <returns></returns>
+        public static string GetNiftiExtension(NiftiCompression compression)
+        {
+            switch (compression)
+            {
+                case NiftiCompression.GZip:
+                    return GZipCompressedNiftiSuffix;
+                case NiftiCompression.LZ4:
+                    return LZ4CompressedNiftiSuffix;
+                case NiftiCompression.Uncompressed:
+                    return UncompressedNiftiSuffix;
+                default:
+                    throw new ArgumentException($"Unsupported compression {compression}", nameof(compression));
+            }
+        }
+
+        /// <summary>
+        /// Expects path to point to a folder containing exactly 1 volume.
+        /// </summary>
