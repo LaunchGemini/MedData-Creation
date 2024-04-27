@@ -60,4 +60,38 @@
         /// <summary>
         /// The suffix for files that contain uncompressed Nifti data.
         /// </summary>
- 
+        public const string UncompressedNiftiSuffix = ".nii";
+
+        /// <summary>
+        /// The suffix for files that contain GZIP compressed Nifti data.
+        /// </summary>
+        public const string GZipCompressedNiftiSuffix = UncompressedNiftiSuffix + ".gz";
+
+        /// <summary>
+        /// The suffix for files that contain LZ4 compressed Nifti data.
+        /// </summary>
+        public const string LZ4CompressedNiftiSuffix = UncompressedNiftiSuffix + ".lz4";
+
+        /// <summary>
+        /// The suffix for files that contain uncompressed HDF5 data.
+        /// </summary>
+        public const string UncompressedHDF5Suffix = ".h5";
+
+        /// <summary>
+        /// The suffix for files that contain GZIP compressed HDF5 data.
+        /// </summary>
+        public const string GZipCompressedHDF5Suffix = UncompressedHDF5Suffix + ".gz";
+
+        /// <summary>
+        /// The suffix for files that contain SZIP compressed HDF5 data.
+        /// </summary>
+        public const string SZipCompressedHDF5Suffix = UncompressedHDF5Suffix + ".sz";
+
+        /// <summary>
+        /// Gets the type of compression that was applied to the given Nifti file,
+        /// by looking at the file extension.
+        /// If the given file name is neither a compressed nor an uncompressed Nifti file,
+        /// return null.
+        /// </summary>
+        /// <param name="path"></param>
+    
