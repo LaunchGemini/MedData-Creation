@@ -202,4 +202,39 @@
         /// <returns></returns>
         public static MedicalVolume LoadMedicalVolumeFromNifti(string path)
         {
-           
+            var volume = LoadNiftiAsShort(path);
+
+            return new MedicalVolume(
+                volume,
+                new DicomIdentifiers[0],
+                new[] { path },
+                RadiotherapyStruct.CreateDefault(new[] { DicomIdentifiers.CreateEmpty() }));
+        }
+
+        /// <summary>
+        /// Loads a medical volume from a Nifti file. The <see cref="MedicalVolume.Volume"/> property
+        /// will be set to the volume in the Nifti file, the RT structures will be empty, empty
+        /// Dicom identifiers.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static async Task<MedicalVolume> LoadMedicalVolumeFromNiftiAsync(string path)
+        {
+            return await Task.Run(() => LoadMedicalVolumeFromNifti(path));
+        }
+
+        public static Tuple<RadiotherapyStruct, string> LoadStruct(string rtfile, Transform3 dicomToData, string studyUId, string seriesUId)
+        {
+            try
+            {
+                var file = DicomFile.Open(rtfile);
+                return RtStructReader.LoadContours(file.Dataset, dicomToData, seriesUId, studyUId, true);
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException($"RT file {rtfile} cannot be loaded - {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Analyse all D
