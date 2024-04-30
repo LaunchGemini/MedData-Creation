@@ -237,4 +237,22 @@
         }
 
         /// <summary>
-        /// Analyse all D
+        /// Analyse all DICOM files in the given folder and attempt to construct a volume for the given seriesUID
+        /// </summary>
+        /// <param name="pathFolder">The absolute path to the folder containing the DICOM files</param>
+        /// <param name="seriesUID">The DICOM Series UID you wish to load</param>
+        /// <param name="acceptanceTests">An implementation of IVolumeGeometricAcceptanceTest defining the geometric constraints of your application</param>
+        /// <param name="loadStructuresIfExists">True if rt-structures identified in the folder and referencing seriesUID should be loaded</param>
+        /// <param name="supportLossyCodecs">If you wish to accept lossy encodings of image pixel data</param>
+        /// <returns></returns>
+        public static async Task<VolumeLoaderResult> LoadDicomSeriesInFolderAsync(
+            string pathFolder, string seriesUID, IVolumeGeometricAcceptanceTest acceptanceTests, bool loadStructuresIfExists = true, bool supportLossyCodecs = true)
+        {
+            var dfc = await DicomFileSystemSource.Build(pathFolder);
+            var pSeriesUID = DicomUID.Parse(seriesUID);
+
+            return LoadDicomSeries(dfc, pSeriesUID, acceptanceTests, loadStructuresIfExists, supportLossyCodecs);
+        }
+
+        /// <summary>
+        /// Analyse all DICOM files in the given folder and attempt to construct all volumes for CT
