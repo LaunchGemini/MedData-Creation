@@ -255,4 +255,24 @@
         }
 
         /// <summary>
-        /// Analyse all DICOM files in the given folder and attempt to construct all volumes for CT
+        /// Analyse all DICOM files in the given folder and attempt to construct all volumes for CT and MR series therein.
+        /// </summary>
+        /// <param name="pathFolder">The absolute path to the folder containing the DICOM files</param>
+        /// <param name="acceptanceTests">An implementation of IVolumeGeometricAcceptanceTest defining the geometric constraints of your application</param>
+        /// <param name="loadStructuresIfExists">True if rt-structures identified in the folder and referencing a volume should be loaded</param>
+        /// <param name="supportLossyCodecs">If you wish to accept lossy encodings of image pixel data</param>
+        /// <returns>A list of volume loading results for the specified folder</returns>
+        public static async Task<IList<VolumeLoaderResult>> LoadAllDicomSeriesInFolderAsync(
+            string pathFolder, IVolumeGeometricAcceptanceTest acceptanceTests, bool loadStructuresIfExists = true, bool supportLossyCodecs = true)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            var dfc = await DicomFileSystemSource.Build(pathFolder);
+            stopwatch.Stop();
+            Trace.TraceInformation($"Analysing folder structure took: {stopwatch.ElapsedMilliseconds} ms");
+
+            return LoadAllDicomSeries(dfc, acceptanceTests, loadStructuresIfExists, supportLossyCodecs);
+        }
+
+        /// <summary>
+        /// Attempt to load all volume for all CT and MR image series within the given DicomFolderContents
+        /// </summary
