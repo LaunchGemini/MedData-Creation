@@ -275,4 +275,30 @@
 
         /// <summary>
         /// Attempt to load all volume for all CT and MR image series within the given DicomFolderContents
-        /// </summary
+        /// </summary>
+        /// <param name="dfc">A pre-built description of DICOM contents within a particular folder</param>
+        /// <param name="acceptanceTests">An implementation of IVolumeGeometricAcceptanceTest defining the geometric constraints of your application</param>
+        /// <param name="loadStructuresIfExists">True if rt-structures identified in the folder and referencing a volume should be loaded</param>
+        /// <param name="supportLossyCodecs">If you wish to accept lossy encodings of image pixel data</param>
+        /// <returns></returns>
+        public static IList<VolumeLoaderResult> LoadAllDicomSeries(
+            DicomFolderContents dfc, IVolumeGeometricAcceptanceTest acceptanceTests, bool loadStructuresIfExists, bool supportLossyCodecs)
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            var resultList = new List<VolumeLoaderResult>();
+
+            foreach (var s in dfc.Series)
+            {
+                if (s.SeriesUID != null)
+                {
+                    resultList.Add(LoadDicomSeries(dfc, s.SeriesUID, acceptanceTests, loadStructuresIfExists, supportLossyCodecs));
+                }
+            }
+
+            stopwatch.Stop();
+            Trace.TraceInformation($"Reading all DICOM series took: {stopwatch.ElapsedMilliseconds} ms");
+            return resultList;
+        }
+
+        /// <su
