@@ -301,4 +301,34 @@
             return resultList;
         }
 
-        /// <su
+        /// <summary>
+        /// Loads a Nifti file from disk, returning it as a <see cref="Volume3D{T}"/> with datatype
+        /// <see cref="byte"/>, irrespective of the datatype used in the Nifti file itself.
+        /// </summary>
+        /// <param name="path">The file to load.</param>
+        /// <returns></returns>
+        public static Volume3D<byte> LoadNiftiAsByte(string path)
+        {
+            return LoadNiftiFromFile(path, NiftiIO.ReadNiftiAsByte);
+        }
+
+        /// <summary>
+        /// Loads a Nifti file from disk, where the Nifti file is expected to have
+        /// voxels in 'byte' format.
+        /// </summary>
+        /// <param name="path">The file to load.</param>
+        /// <returns></returns>
+        public static Volume3D<byte> LoadNiftiInByteFormat(string path)
+        {
+            return LoadNiftiFromFile(path, NiftiIO.ReadNiftiInByteFormat);
+        }
+
+        /// <summary>
+        /// Loads a Nifti file from disk, returning it as a <see cref="Volume3D{T}"/> with datatype
+        /// <see cref="short"/>, irrespective of the datatype used in the Nifti file itself.
+        /// </summary>
+        /// <param name="path">The file to load.</param>
+        /// <returns></returns>
+        public static Volume3D<short> LoadNiftiAsShort(string path)
+        {
+            return LoadNiftiFromFile(pa
