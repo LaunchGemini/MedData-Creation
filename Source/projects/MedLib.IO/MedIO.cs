@@ -331,4 +331,37 @@
         /// <returns></returns>
         public static Volume3D<short> LoadNiftiAsShort(string path)
         {
-            return LoadNiftiFromFile(pa
+            return LoadNiftiFromFile(path, NiftiIO.ReadNiftiAsShort);
+        }
+
+        /// <summary>
+        /// Loads a Nifti file from disk, where the Nifti file is expected to have
+        /// voxels in 'short' format.
+        /// </summary>
+        /// <param name="path">The file to load.</param>
+        /// <returns></returns>
+        public static Volume3D<short> LoadNiftiInShortFormat(string path)
+        {
+            return LoadNiftiFromFile(path, NiftiIO.ReadNiftiInShortFormat);
+        }
+
+        /// <summary>
+        /// Loads a Nifti file from disk, where the Nifti file is expected to have
+        /// voxels in 'ushort' (unsigned 16 bit integer) format.
+        /// </summary>
+        /// <param name="path">The file to load.</param>
+        /// <returns></returns>
+        public static Volume3D<ushort> LoadNiftiInUShortFormat(string path)
+        {
+            return LoadNiftiFromFile(path, NiftiIO.ReadNiftiInUShortFormat);
+        }
+
+        /// <summary>
+        /// Loads a Nifti file from disk, returning it as a <see cref="Volume3D{T}"/> with datatype
+        /// <see cref="short"/>, irrespective of the datatype used in the Nifti file itself.
+        /// </summary>
+        /// <param name="path">The file to load.</param>
+        /// <returns></returns>
+        public static async Task<Volume3D<short>> LoadNiftiAsShortAsync(string path)
+        {
+            return await Task.Run(() => LoadNi
