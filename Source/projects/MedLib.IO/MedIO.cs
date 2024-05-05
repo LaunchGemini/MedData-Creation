@@ -364,4 +364,35 @@
         /// <returns></returns>
         public static async Task<Volume3D<short>> LoadNiftiAsShortAsync(string path)
         {
-            return await Task.Run(() => LoadNi
+            return await Task.Run(() => LoadNiftiAsShort(path));
+        }
+
+        /// <summary>
+        /// Loads a Nifti file from disk, returning it as a <see cref="Volume3D{T}"/> with datatype
+        /// <see cref="float"/>, irrespective of the datatype used in the Nifti file itself.
+        /// </summary>
+        /// <param name="path">The file to load.</param>
+        /// <returns></returns>
+        public static Volume3D<float> LoadNiftiAsFloat(string path)
+        {
+            return LoadNiftiFromFile(path, NiftiIO.ReadNiftiAsFloat);
+        }
+
+        /// <summary>
+        /// Loads a Nifti file from disk, where the Nifti file is expected to have
+        /// voxels in 'float' format.
+        /// </summary>
+        /// <param name="path">The file to load.</param>
+        /// <returns></returns>
+        public static Volume3D<float> LoadNiftiInFloatFormat(string path)
+        {
+            return LoadNiftiFromFile(path, NiftiIO.ReadNiftiInFloatFormat);
+        }
+
+        /// <summary>
+        /// Loads a Nifti file from disk, returning it as a <see cref="Volume3D{T}"/> with datatype
+        /// <see cref="float"/>, irrespective of the datatype used in the Nifti file itself.
+        /// </summary>
+        /// <param name="path">The file to load.</param>
+        /// <returns></returns>
+        public static async Task<Volume3D<float>> LoadNiftiAsFloatAsync
