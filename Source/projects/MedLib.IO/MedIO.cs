@@ -395,4 +395,35 @@
         /// </summary>
         /// <param name="path">The file to load.</param>
         /// <returns></returns>
-        public static async Task<Volume3D<float>> LoadNiftiAsFloatAsync
+        public static async Task<Volume3D<float>> LoadNiftiAsFloatAsync(string path)
+        {
+            return await Task.Run(() => LoadNiftiAsFloat(path));
+        }
+
+        /// <summary>
+        /// Save a 3D volume to a file on the local disk, in compressed or uncompressed Nifti format.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="filename">The name of the file to write. The compression level will be
+        /// chosen based on the file extension (compressed if the extension is .nii.gz)</param>
+        public static void SaveNifti(Volume3D<short> image, string filename)
+        {
+            SaveNiftiToFile(filename, image, NiftiIO.WriteToStream);
+        }
+
+        /// <summary>
+        /// Save a 3D volume to a file on the local disk, in compressed or uncompressed Nifti format.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="filename">The name of the file to write. The compression level will be
+        /// chosen based on the file extension (compressed if the extension is .nii.gz)</param>
+        public static async Task SaveNiftiAsync(Volume3D<short> image, string filename)
+        {
+            await Task.Run(() => SaveNifti(image, filename));
+        }
+
+        /// <summary>
+        /// Save a 3D volume to a file on the local disk, in compressed or uncompressed Nifti format.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="filename">The name of the file to write. T
