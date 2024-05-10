@@ -488,4 +488,36 @@
                                 $"The original dicom directory was modified while using this image. File {file} is missing");
                         }
 
-       
+                        // ReSharper disable once AssignNullToNotNullAttribute
+                        var destFile = Path.Combine(folderPath, Path.GetFileName(file));
+                        File.Copy(file, destFile);
+                    }));
+        }
+
+        /// <summary>
+        /// Returns a task to save the given rtStruct to disk.
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="rtStruct"></param>
+        /// <returns></returns>
+        public static async Task SaveRtStructAsync(string filename, RadiotherapyStruct rtStruct)
+        {
+            await Task.Run(
+                () => RtStructWriter.SaveRtStruct(filename, rtStruct));
+        }
+
+        private static T LoadNiftiFromFile<T>(string path, Func<Stream,NiftiCompression,T> loadFromStream)
+        {
+            var compression = GetNiftiCompressionOrFail(path);
+            using (var fileStream = new FileStream(path, FileMode.Open))
+            {
+                return loadFromStream(fileStream, compression);
+            }
+        }
+
+        private static void SaveNiftiToFile<T>(string path, T volume, Action<Stream, T, NiftiCompression> saveToStream)
+        {
+            var compress = GetNiftiCompressionOrFail(path);
+            try
+            {
+                using (var fileStream = new FileStream(path, FileMode.Create, F
