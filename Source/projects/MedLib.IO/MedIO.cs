@@ -453,4 +453,39 @@
         public static async Task SaveNiftiAsync(Volume3D<byte> image, string filename)
         {
             await Task.Run(() => SaveNifti(image, filename));
- 
+        }
+
+        /// <summary>
+        /// Save all images and the rt struct to the given folder.
+        /// </summary>
+        /// <param name="folderPath"></param>
+        /// <param name="medicalVolume"></param>
+        /// <returns></returns>
+        public static async Task SaveMedicalVolumeAsync(
+            string folderPath, MedicalVolume medicalVolume)
+        {
+            await Task.WhenAll(
+                SaveDicomImageAsync(folderPath, medicalVolume),
+                SaveRtStructAsync(Path.Combine(folderPath, "rtstruct.dcm"), medicalVolume.Struct));
+        }
+
+        /// <summary>
+        /// Returns a task that saves a copy of the original DICOM files forming a medical volume.
+        /// </summary>
+        /// <param name="folderPath"></param>
+        /// <param name="medicalVolume"></param>
+        /// <returns></returns>
+        private static async Task SaveDicomImageAsync(string folderPath, MedicalVolume medicalVolume)
+        {
+            await Task.Run(() =>
+                Parallel.ForEach(
+                    medicalVolume.FilePaths,
+                    file =>
+                    {
+                        if (!File.Exists(file))
+                        {
+                            throw new FileNotFoundException(
+                                $"The original dicom directory was modified while using this image. File {file} is missing");
+                        }
+
+       
