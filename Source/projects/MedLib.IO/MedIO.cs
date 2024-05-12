@@ -573,4 +573,34 @@
 
                                 var warning = rtStructAndWarnings.Item2;
 
-                                if (!string.IsNullOrEmpty(war
+                                if (!string.IsNullOrEmpty(warning))
+                                {
+                                    warnings.Add(warning);
+                                }
+                            }
+                            else if (rtStructData.Content.Count > 1)
+                            {
+                                warnings.Add("There is more than 1 RT STRUCT referencing this series - skipping structure set load");
+                            }
+                        }
+                    }
+                    var dicomIdentifiers = dicomSeriesContent.Content.Select((v) => DicomIdentifiers.ReadDicomIdentifiers(v.File.Dataset)).ToArray();
+
+                    if (rtStruct == null)
+                    {
+                        rtStruct = RadiotherapyStruct.CreateDefault(dicomIdentifiers);
+                    }
+
+                    var result = new MedicalVolume(
+                        volumeData,
+                        dicomIdentifiers,
+                        dicomSeriesContent.Content.Select((d) => d.Path).ToArray(),
+                        rtStruct);
+
+                    return new VolumeLoaderResult(seriesUID.UID, result, null, warnings);
+                }
+                throw new Exception("Could not find that series");
+            }
+            catch (Exception oops)
+            {
+                return new
