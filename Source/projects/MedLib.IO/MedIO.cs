@@ -520,4 +520,29 @@
             var compress = GetNiftiCompressionOrFail(path);
             try
             {
-                using (var fileStream = new FileStream(path, FileMode.Create, F
+                using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                {
+                    saveToStream(fileStream, volume, compress);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error writing to file {path}: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Attempt to load a volume from the given SeriesUID for the given DicomFolderContents
+        /// </summary>
+        /// <param name="dfc">A pre-built description of DICOM contents within a particular folder</param>
+        /// <param name="seriesUID">The DICOM seriesUID you wish to construct a volume for</param>
+        /// <param name="acceptanceTests">An implementation of IVolumeGeometricAcceptanceTest defining the geometric constraints of your application</param>
+        /// <param name="loadStructuresIfExists">True if rt-structures identified in the folder and referencing seriesUID should be loaded</param>
+        /// <param name="supportLossyCodecs">If you wish to accept lossy encodings of image pixel data</param>
+        /// <returns></returns>
+        private static VolumeLoaderResult LoadDicomSeries(
+            DicomFolderContents dfc, DicomUID seriesUID, IVolumeGeometricAcceptanceTest acceptanceTests, bool loadStructuresIfExists, bool supportLossyCodecs)
+        {
+            try
+            {
+                var di
