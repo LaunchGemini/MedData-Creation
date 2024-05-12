@@ -545,4 +545,32 @@
         {
             try
             {
-                var di
+                var dicomSeriesContent = dfc.Series.FirstOrDefault((s) => s.SeriesUID == seriesUID);
+
+                var warnings = new List<string>();
+                RadiotherapyStruct rtStruct = null;
+
+                if (dicomSeriesContent != null)
+                {
+                    var volumeData = DicomSeriesReader.BuildVolume(dicomSeriesContent.Content.Select(x => x.File.Dataset), acceptanceTests, supportLossyCodecs);
+
+                    if (volumeData != null && loadStructuresIfExists)
+                    {
+                        var rtStructData = dfc.RTStructs.FirstOrDefault(rt => rt.SeriesUID == seriesUID);
+                        if (rtStructData != null)
+                        {
+                            if (rtStructData.Content.Count == 1)
+                            {
+
+                                var rtStructAndWarnings = RtStructReader.LoadContours(
+                                    rtStructData.Content.First().File.Dataset,
+                                    volumeData.Transform.DicomToData,
+                                    seriesUID.UID,
+                                    null,
+                                    false);
+
+                                rtStruct = rtStructAndWarnings.Item1;
+
+                                var warning = rtStructAndWarnings.Item2;
+
+                                if (!string.IsNullOrEmpty(war
