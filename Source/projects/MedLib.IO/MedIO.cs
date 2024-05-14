@@ -603,4 +603,8 @@
             }
             catch (Exception oops)
             {
-                return new
+                return new VolumeLoaderResult(seriesUID.UID, null, oops, new List<string>());
+            }
+        }
+    }
+}
