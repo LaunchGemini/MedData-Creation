@@ -46,4 +46,30 @@
       <HintPath>..\..\thirdparty\packages\fo-dicom.Desktop.4.0.5\lib\net45\Dicom.Core.dll</HintPath>
     </Reference>
     <Reference Include="LZ4, Version=1.0.15.93, Culture=neutral, PublicKeyToken=62e1b5ec1eec9bdd, processorArchitecture=MSIL">
-      <HintPath
+      <HintPath>..\..\thirdparty\packages\lz4net.1.0.15.93\lib\net4-client\LZ4.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="MoreLinq, Version=3.3.2.0, Culture=neutral, PublicKeyToken=384d532d7e88985d, processorArchitecture=MSIL">
+      <HintPath>..\..\thirdparty\packages\morelinq.3.3.2\lib\net451\MoreLinq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\thirdparty\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DicomRtHelpers.cs" />
+    <Compile Include="Extensions\DicomConstants.cs" />
+    <Compile Include="Extensions\DicomDatasetExtensions.cs" />
+    <Compile Include="Extensions\DicomExtensions.cs" />
+    <Compile Include="Extensions\VolumeRescaleConvert.cs">
+      <DependentUpon>VolumeRescaleConvert.tt</
