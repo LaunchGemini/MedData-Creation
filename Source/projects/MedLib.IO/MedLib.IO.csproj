@@ -72,4 +72,30 @@
     <Compile Include="Extensions\DicomDatasetExtensions.cs" />
     <Compile Include="Extensions\DicomExtensions.cs" />
     <Compile Include="Extensions\VolumeRescaleConvert.cs">
-      <DependentUpon>VolumeRescaleConvert.tt</
+      <DependentUpon>VolumeRescaleConvert.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="FastParallel.cs" />
+    <Compile Include="ContourRenderingInformation.cs" />
+    <Compile Include="Models\BaseInformation.cs" />
+    <Compile Include="Models\Hdf5Object.cs" />
+    <Compile Include="NiiToDicomHelpers.cs" />
+    <Compile Include="Readers\DicomFileAndPath.cs" />
+    <Compile Include="Readers\DicomFolderContents.cs" />
+    <Compile Include="Readers\DicomSeriesContent.cs" />
+    <Compile Include="Readers\DicomSeriesImageReader.cs" />
+    <Compile Include="Readers\DicomSeriesInformationValidator.cs" />
+    <Compile Include="Readers\StrictGeometricAcceptanceTest.cs" />
+    <Compile Include="Readers\IVolumeGeometricAcceptanceTest.cs" />
+    <Compile Include="Readers\NonStrictGeometricAcceptanceTest.cs" />
+    <Compile Include="Models\SliceInformation.cs" />
+    <Compile Include="Models\VolumeInformation.cs" />
+    <Compile Include="RGBValue.cs" />
+    <Compile Include="RT\DicomCommonImage.cs" />
+    <Compile Include="RT\DicomFrameOfReference.cs" />
+    <Compile Include="RT\DicomSeries.cs" />
+    <Compile Include="RT\DicomSOPCommon.cs" />
+    <Compile Include="StreamingExtensions.cs" />
+    <Compile Include="RT\DicomEquipment.cs" />
+    <Compile I
