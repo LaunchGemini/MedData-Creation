@@ -98,4 +98,32 @@
     <Compile Include="RT\DicomSOPCommon.cs" />
     <Compile Include="StreamingExtensions.cs" />
     <Compile Include="RT\DicomEquipment.cs" />
-    <Compile I
+    <Compile Include="RT\DicomPatient.cs" />
+    <Compile Include="RT\DicomPersonNameConverter.cs" />
+    <Compile Include="RT\DicomStudy.cs" />
+    <Compile Include="MedIO.cs" />
+    <Compile Include="Models\MedicalVolume.cs" />
+    <Compile Include="Models\DicomRt\RadiotherapyContour.cs" />
+    <Compile Include="Models\DicomRt\RadiotherapyStruct.cs" />
+    <Compile Include="NiftiIO.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RT\DicomRTSeries.cs" />
+    <Compile Include="Readers\DicomIdentifiers.cs" />
+    <Compile Include="Readers\DicomSeriesReader.cs" />
+    <Compile Include="RT\DicomRTFrameOFReference.cs" />
+    <Compile Include="RT\DicomRTReferencedSeries.cs" />
+    <Compile Include="RT\DicomRTReferencedStudy.cs" />
+    <Compile Include="RT\DicomRTStructureSet.cs" />
+    <Compile Include="RT\DicomRTContour.cs" />
+    <Compile Include="RT\DicomRTContourImageItem.cs" />
+    <Compile Include="RT\DicomRTContourItem.cs" />
+    <Compile Include="RT\DicomRTObservation.cs" />
+    <Compile Include="Readers\RTStructReader.cs" />
+    <Compile Include="RT\DicomRTStructureSetROI.cs" />
+    <Compile Include="Writers\RTStructCreator.cs" />
+    <Compile Include="Writers\RtStructWriter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\InnerEye.CreateDataset.Contours\InnerEye.CreateDataset.Contours.csproj">
+      <Project>{a27fa639-8a1d-40cc-8bc8-7bea28e615b2}</Project>
+   
