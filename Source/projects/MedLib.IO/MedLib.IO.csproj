@@ -126,4 +126,29 @@
   <ItemGroup>
     <ProjectReference Include="..\InnerEye.CreateDataset.Contours\InnerEye.CreateDataset.Contours.csproj">
       <Project>{a27fa639-8a1d-40cc-8bc8-7bea28e615b2}</Project>
-   
+      <Name>InnerEye.CreateDataset.Contours</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InnerEye.CreateDataset.Volumes\InnerEye.CreateDataset.Volumes.csproj">
+      <Project>{12416238-4311-4d15-a2d9-4f3ed7771244}</Project>
+      <Name>InnerEye.CreateDataset.Volumes</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Extensions\VolumeRescaleConvert.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>VolumeRescaleConvert.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\thirdparty\packages\fo-dicom.Desktop.4.0.5\build\net45\fo-dicom.Desktop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\thirdparty\packages\fo-dicom.Desktop.4.0.5\build\net45\fo-dicom
