@@ -151,4 +151,14 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\thirdparty\packages\fo-dicom.Desktop.4.0.5\build\net45\fo-dicom.Desktop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\thirdparty\packages\fo-dicom.Desktop.4.0.5\build\net45\fo-dicom
+    <Error Condition="!Exists('..\..\thirdparty\packages\fo-dicom.Desktop.4.0.5\build\net45\fo-dicom.Desktop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\thirdparty\packages\fo-dicom.Desktop.4.0.5\build\net45\fo-dicom.Desktop.targets'))" />
+  </Target>
+  <Import Project="..\..\thirdparty\packages\fo-dicom.Desktop.4.0.5\build\net45\fo-dicom.Desktop.targets" Condition="Exists('..\..\thirdparty\packages\fo-dicom.Desktop.4.0.5\build\net45\fo-dicom.Desktop.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
