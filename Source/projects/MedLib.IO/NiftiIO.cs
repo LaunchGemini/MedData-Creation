@@ -1748,3 +1748,353 @@ namespace MedLib.IO
            N.B.: The i index varies most rapidly, j index next, k index slowest.
             Thus, voxel (i,j,k) is stored starting at location
               (i + j*dim[1] + k*dim[1]*dim[2]) * (bitpix/8)
+            into the dataset array.
+
+           N.B.: The ANALYZE 7.5 coordinate system is
+              +x = Left  +y = Anterior  +z = Superior
+            which is a left-handed coordinate system.  This backwardness is
+            too difficult to tolerate, so this NIFTI-1 standard specifies the
+            coordinate order which is most common in functional neuroimaging.
+
+           N.B.: The 3 methods below all give the locations of the voxel centers
+            in the (x,y,z) coordinate system.  In many cases, programs will wish
+            to display image data on some other grid.  In such a case, the program
+            will need to convert its desired (x,y,z) values into (i,j,k) values
+            in order to extract (or interpolate) the image data.  This operation
+            would be done with the inverse transformation to those described below.
+
+           N.B.: Method 2 uses a factor 'qfac' which is either -1 or 1; qfac is
+            stored in the otherwise unused pixdim[0].  If pixdim[0]=0.0 (which
+            should not occur), we take qfac=1.  Of course, pixdim[0] is only used
+            when reading a NIFTI-1 header, not when reading an ANALYZE 7.5 header.
+
+           N.B.: The units of (x,y,z) can be specified using the xyzt_units field.
+
+           METHOD 1 (the "old" way, used only when qform_code = 0):
+           -------------------------------------------------------
+           The coordinate mapping from (i,j,k) to (x,y,z) is the ANALYZE
+           7.5 way.  This is a simple scaling relationship:
+
+             x = pixdim[1] * i
+             y = pixdim[2] * j
+             z = pixdim[3] * k
+
+           No particular spatial orientation is attached to these (x,y,z)
+           coordinates.  (NIFTI-1 does not have the ANALYZE 7.5 orient field,
+           which is not general and is often not set properly.)  This method
+           is not recommended, and is present mainly for compatibility with
+           ANALYZE 7.5 files.
+
+           METHOD 2 (used when qform_code > 0, which should be the "normal" case):
+           ---------------------------------------------------------------------
+           The (x,y,z) coordinates are given by the pixdim[] scales, a rotation
+           matrix, and a shift.  This method is intended to represent
+           "scanner-anatomical" coordinates, which are often embedded in the
+           image header (e.g., DICOM fields (0020,0032), (0020,0037), (0028,0030),
+           and (0018,0050)), and represent the nominal orientation and location of
+           the data.  This method can also be used to represent "aligned"
+           coordinates, which would typically result from some post-acquisition
+           alignment of the volume to a standard orientation (e.g., the same
+           subject on another day, or a rigid rotation to true anatomical
+           orientation from the tilted position of the subject in the scanner).
+           The formula for (x,y,z) in terms of header parameters and (i,j,k) is:
+
+             [ x ]   [ R11 R12 R13 ] [        pixdim[1] * i ]   [ qoffset_x ]
+             [ y ] = [ R21 R22 R23 ] [        pixdim[2] * j ] + [ qoffset_y ]
+             [ z ]   [ R31 R32 R33 ] [ qfac * pixdim[3] * k ]   [ qoffset_z ]
+
+           The qoffset_* shifts are in the NIFTI-1 header.  Note that the center
+           of the (i,j,k)=(0,0,0) voxel (first value in the dataset array) is
+           just (x,y,z)=(qoffset_x,qoffset_y,qoffset_z).
+
+           The rotation matrix R is calculated from the quatern_* parameters.
+           This calculation is described below.
+
+           The scaling factor qfac is either 1 or -1.  The rotation matrix R
+           defined by the quaternion parameters is "proper" (has determinant 1).
+           This may not fit the needs of the data; for example, if the image
+           grid is
+             i increases from Left-to-Right
+             j increases from Anterior-to-Posterior
+             k increases from Inferior-to-Superior
+           Then (i,j,k) is a left-handed triple.  In this example, if qfac=1,
+           the R matrix would have to be
+
+             [  1   0   0 ]
+             [  0  -1   0 ]  which is "improper" (determinant = -1).
+             [  0   0   1 ]
+
+           If we set qfac=-1, then the R matrix would be
+
+             [  1   0   0 ]
+             [  0  -1   0 ]  which is proper.
+             [  0   0  -1 ]
+
+           This R matrix is represented by quaternion [a,b,c,d] = [0,1,0,0]
+           (which encodes a 180 degree rotation about the x-axis).
+
+           METHOD 3 (used when sform_code > 0):
+           -----------------------------------
+           The (x,y,z) coordinates are given by a general affine transformation
+           of the (i,j,k) indexes:
+
+             x = srow_x[0] * i + srow_x[1] * j + srow_x[2] * k + srow_x[3]
+             y = srow_y[0] * i + srow_y[1] * j + srow_y[2] * k + srow_y[3]
+             z = srow_z[0] * i + srow_z[1] * j + srow_z[2] * k + srow_z[3]
+
+           The srow_* vectors are in the NIFTI_1 header.  Note that no use is
+           made of pixdim[] in this method.
+
+           WHY 3 METHODS?
+           --------------
+           Method 1 is provided only for backwards compatibility.  The intention
+           is that Method 2 (qform_code > 0) represents the nominal voxel locations
+           as reported by the scanner, or as rotated to some fiducial orientation and
+           location.  Method 3, if present (sform_code > 0), is to be used to give
+           the location of the voxels in some standard space.  The sform_code
+           indicates which standard space is present.  Both methods 2 and 3 can be
+           present, and be useful in different contexts (method 2 for displaying the
+           data on its original grid; method 3 for displaying it on a standard grid).
+
+           In this scheme, a dataset would originally be set up so that the
+           Method 2 coordinates represent what the scanner reported.  Later,
+           a registration to some standard space can be computed and inserted
+           in the header.  Image display software can use either transform,
+           depending on its purposes and needs.
+
+           In Method 2, the origin of coordinates would generally be whatever
+           the scanner origin is; for example, in MRI, (0,0,0) is the center
+           of the gradient coil.
+
+           In Method 3, the origin of coordinates would depend on the value
+           of sform_code; for example, for the Talairach coordinate system,
+           (0,0,0) corresponds to the Anterior Commissure.
+
+           QUATERNION REPRESENTATION OF ROTATION MATRIX (METHOD 2)
+           -------------------------------------------------------
+           The orientation of the (x,y,z) axes relative to the (i,j,k) axes
+           in 3D space is specified using a unit quaternion [a,b,c,d], where
+           a*a+b*b+c*c+d*d=1.  The (b,c,d) values are all that is needed, since
+           we require that a = sqrt(1.0-(b*b+c*c+d*d)) be nonnegative.  The (b,c,d)
+           values are stored in the (quatern_b,quatern_c,quatern_d) fields.
+
+           The quaternion representation is chosen for its compactness in
+           representing rotations. The (proper) 3x3 rotation matrix that
+           corresponds to [a,b,c,d] is
+
+                 [ a*a+b*b-c*c-d*d   2*b*c-2*a*d       2*b*d+2*a*c     ]
+             R = [ 2*b*c+2*a*d       a*a+c*c-b*b-d*d   2*c*d-2*a*b     ]
+                 [ 2*b*d-2*a*c       2*c*d+2*a*b       a*a+d*d-c*c-b*b ]
+
+                 [ R11               R12               R13             ]
+               = [ R21               R22               R23             ]
+                 [ R31               R32               R33             ]
+
+           If (p,q,r) is a unit 3-vector, then rotation of angle h about that
+           direction is represented by the quaternion
+
+             [a,b,c,d] = [cos(h/2), p*sin(h/2), q*sin(h/2), r*sin(h/2)].
+
+           Requiring a >= 0 is equivalent to requiring -Pi <= h <= Pi.  (Note that
+           [-a,-b,-c,-d] represents the same rotation as [a,b,c,d]; there are 2
+           quaternions that can be used to represent a given rotation matrix R.)
+           To rotate a 3-vector (x,y,z) using quaternions, we compute the
+           quaternion product
+
+             [0,x',y',z'] = [a,b,c,d] * [0,x,y,z] * [a,-b,-c,-d]
+
+           which is equivalent to the matrix-vector multiply
+
+             [ x' ]     [ x ]
+             [ y' ] = R [ y ]   (equivalence depends on a*a+b*b+c*c+d*d=1)
+             [ z' ]     [ z ]
+
+           Multiplication of 2 quaternions is defined by the following:
+
+             [a,b,c,d] = a*1 + b*I + c*J + d*K
+             where
+               I*I = J*J = K*K = -1 (I,J,K are square roots of -1)
+               I*J =  K    J*K =  I    K*I =  J
+               J*I = -K    K*J = -I    I*K = -J  (not commutative!)
+             For example
+               [a,b,0,0] * [0,0,0,1] = [0,0,-b,a]
+             since this expands to
+               (a+b*I)*(K) = (a*K+b*I*K) = (a*K-b*J).
+
+           The above formula shows how to go from quaternion (b,c,d) to
+           rotation matrix and direction cosines.  Conversely, given R,
+           we can compute the fields for the NIFTI-1 header by
+
+             a = 0.5  * sqrt(1+R11+R22+R33)    (not stored)
+             b = 0.25 * (R32-R23) / a       => quatern_b
+             c = 0.25 * (R13-R31) / a       => quatern_c
+             d = 0.25 * (R21-R12) / a       => quatern_d
+
+           If a=0 (a 180 degree rotation), alternative formulas are needed.
+           See the nifti1_io.c function mat44_to_quatern() for an implementation
+           of the various cases in converting R to [a,b,c,d].
+
+           Note that R-transpose (= R-inverse) would lead to the quaternion
+           [a,-b,-c,-d].
+
+           The choice to specify the qoffset_x (etc.) values in the final
+           coordinate system is partly to make it easy to convert DICOM images to
+           this format.  The DICOM attribute "Image Position (Patient)" (0020,0032)
+           stores the (Xd,Yd,Zd) coordinates of the center of the first voxel.
+           Here, (Xd,Yd,Zd) refer to DICOM coordinates, and Xd=-x, Yd=-y, Zd=z,
+           where (x,y,z) refers to the NIFTI coordinate system discussed above.
+           (i.e., DICOM +Xd is Left, +Yd is Posterior, +Zd is Superior,
+                whereas +x is Right, +y is Anterior  , +z is Superior. )
+           Thus, if the (0020,0032) DICOM attribute is extracted into (px,py,pz), then
+             qoffset_x = -px   qoffset_y = -py   qoffset_z = pz
+           is a reasonable setting when qform_code=NIFTI_XFORM_SCANNER_ANAT.
+
+           That is, DICOM's coordinate system is 180 degrees rotated about the z-axis
+           from the neuroscience/NIFTI coordinate system.  To transform between DICOM
+           and NIFTI, you just have to negate the x- and y-coordinates.
+
+           The DICOM attribute (0020,0037) "Image Orientation (Patient)" gives the
+           orientation of the x- and y-axes of the image data in terms of 2 3-vectors.
+           The first vector is a unit vector along the x-axis, and the second is
+           along the y-axis.  If the (0020,0037) attribute is extracted into the
+           value (xa,xb,xc,ya,yb,yc), then the first two columns of the R matrix
+           would be
+                      [ -xa  -ya ]
+                      [ -xb  -yb ]
+                      [  xc   yc ]
+           The negations are because DICOM's x- and y-axes are reversed relative
+           to NIFTI's.  The third column of the R matrix gives the direction of
+           displacement (relative to the subject) along the slice-wise direction.
+           This orientation is not encoded in the DICOM standard in a simple way;
+           DICOM is mostly concerned with 2D images.  The third column of R will be
+           either the cross-product of the first 2 columns or its negative.  It is
+           possible to infer the sign of the 3rd column by examining the coordinates
+           in DICOM attribute (0020,0032) "Image Position (Patient)" for successive
+           slices.  However, this method occasionally fails for reasons that I
+           (RW Cox) do not understand.
+        -----------------------------------------------------------------------------*/
+
+        /*---------------------------------------------------------------------------*/
+        /* UNITS OF SPATIAL AND TEMPORAL DIMENSIONS:
+           ----------------------------------------
+           The codes below can be used in xyzt_units to indicate the units of pixdim.
+           As noted earlier, dimensions 1,2,3 are for x,y,z; dimension 4 is for
+           time (t).
+            - If dim[4]=1 or dim[0] < 4, there is no time axis.
+            - A single time series (no space) would be specified with
+              - dim[0] = 4 (for scalar data) or dim[0] = 5 (for vector data)
+              - dim[1] = dim[2] = dim[3] = 1
+              - dim[4] = number of time points
+              - pixdim[4] = time step
+              - xyzt_units indicates units of pixdim[4]
+              - dim[5] = number of values stored at each time point
+
+           Bits 0..2 of xyzt_units specify the units of pixdim[1..3]
+            (e.g., spatial units are values 1..7).
+           Bits 3..5 of xyzt_units specify the units of pixdim[4]
+            (e.g., temporal units are multiples of 8).
+
+           This compression of 2 distinct concepts into 1 byte is due to the
+           limited space available in the 348 byte ANALYZE 7.5 header.  The
+           macros XYZT_TO_SPACE and XYZT_TO_TIME can be used to mask off the
+           undesired bits from the xyzt_units fields, leaving "pure" space
+           and time codes.  Inversely, the macro SPACE_TIME_TO_XYZT can be
+           used to assemble a space code (0,1,2,...,7) with a time code
+           (0,8,16,32,...,56) into the combined value for xyzt_units.
+
+           Note that codes are provided to indicate the "time" axis units are
+           actually frequency in Hertz (_HZ), in part-per-million (_PPM)
+           or in radians-per-second (_RADS).
+
+           The toffset field can be used to indicate a nonzero start point for
+           the time axis.  That is, time point #m is at t=toffset+m*pixdim[4]
+           for m=0..dim[4]-1.
+        -----------------------------------------------------------------------------*/
+
+        /*---------------------------------------------------------------------------*/
+        /* MRI-SPECIFIC SPATIAL AND TEMPORAL INFORMATION:
+           ---------------------------------------------
+           A few fields are provided to store some extra information
+           that is sometimes important when storing the image data
+           from an FMRI time series experiment.  (After processing such
+           data into statistical images, these fields are not likely
+           to be useful.)
+
+          { freq_dim  } = These fields encode which spatial dimension (1,2, or 3)
+          { phase_dim } = corresponds to which acquisition dimension for MRI data.
+          { slice_dim } =
+            Examples:
+              Rectangular scan multi-slice EPI:
+                freq_dim = 1  phase_dim = 2  slice_dim = 3  (or some permutation)
+              Spiral scan multi-slice EPI:
+                freq_dim = phase_dim = 0  slice_dim = 3
+                since the concepts of frequency- and phase-encoding directions
+                don't apply to spiral scan
+
+            slice_duration = If this is positive, AND if slice_dim is nonzero,
+                             indicates the amount of time used to acquire 1 slice.
+                             slice_duration*dim[slice_dim] can be less than pixdim[4]
+                             with a clustered acquisition method, for example.
+
+            slice_code = If this is nonzero, AND if slice_dim is nonzero, AND
+                         if slice_duration is positive, indicates the timing
+                         pattern of the slice acquisition.  The following codes
+                         are defined:
+                           NIFTI_SLICE_SEQ_INC  == sequential increasing
+                           NIFTI_SLICE_SEQ_DEC  == sequential decreasing
+                           NIFTI_SLICE_ALT_INC  == alternating increasing
+                           NIFTI_SLICE_ALT_DEC  == alternating decreasing
+                           NIFTI_SLICE_ALT_INC2 == alternating increasing #2
+                           NIFTI_SLICE_ALT_DEC2 == alternating decreasing #2
+          { slice_start } = Indicates the start and end of the slice acquisition
+          { slice_end   } = pattern, when slice_code is nonzero.  These values
+                            are present to allow for the possible addition of
+                            "padded" slices at either end of the volume, which
+                            don't fit into the slice timing pattern.  If there
+                            are no padding slices, then slice_start=0 and
+                            slice_end=dim[slice_dim]-1 are the correct values.
+                            For these values to be meaningful, slice_start must
+                            be non-negative and slice_end must be greater than
+                            slice_start.  Otherwise, they should be ignored.
+
+          The following table indicates the slice timing pattern, relative to
+          time=0 for the first slice acquired, for some sample cases.  Here,
+          dim[slice_dim]=7 (there are 7 slices, labeled 0..6), slice_duration=0.1,
+          and slice_start=1, slice_end=5 (1 padded slice on each end).
+
+          slice
+          index  SEQ_INC SEQ_DEC ALT_INC ALT_DEC ALT_INC2 ALT_DEC2
+            6  :   n/a     n/a     n/a     n/a    n/a      n/a    n/a = not applicable
+            5  :   0.4     0.0     0.2     0.0    0.4      0.2    (slice time offset
+            4  :   0.3     0.1     0.4     0.3    0.1      0.0     doesn't apply to
+            3  :   0.2     0.2     0.1     0.1    0.3      0.3     slices outside
+            2  :   0.1     0.3     0.3     0.4    0.0      0.1     the range
+            1  :   0.0     0.4     0.0     0.2    0.2      0.4     slice_start ..
+            0  :   n/a     n/a     n/a     n/a    n/a      n/a     slice_end)
+
+          The SEQ slice_codes are sequential ordering (uncommon but not unknown),
+          either increasing in slice number or decreasing (INC or DEC), as
+          illustrated above.
+
+          The ALT slice codes are alternating ordering.  The 'standard' way for
+          these to operate (without the '2' on the end) is for the slice timing
+          to start at the edge of the slice_start .. slice_end group (at slice_start
+          for INC and at slice_end for DEC).  For the 'ALT_*2' slice_codes, the
+          slice timing instead starts at the first slice in from the edge (at
+          slice_start+1 for INC2 and at slice_end-1 for DEC2).  This latter
+          acquisition scheme is found on some Siemens scanners.
+
+          The fields freq_dim, phase_dim, slice_dim are all squished into the single
+          byte field dim_info (2 bits each, since the values for each field are
+          limited to the range 0..3).  This unpleasantness is due to lack of space
+          in the 348 byte allowance.
+
+          The macros DIM_INFO_TO_FREQ_DIM, DIM_INFO_TO_PHASE_DIM, and
+          DIM_INFO_TO_SLICE_DIM can be used to extract these values from the
+          dim_info byte.
+
+          The macro FPS_INTO_DIM_INFO can be used to put these 3 values
+          into the dim_info byte.
+        -----------------------------------------------------------------------------*/
+    }
+}
