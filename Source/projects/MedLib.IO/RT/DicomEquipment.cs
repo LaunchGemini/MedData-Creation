@@ -43,4 +43,26 @@ namespace MedLib.IO.RT
             SoftwareVersions = softwareVersions;
         }
 
-        public static DicomEquipment Read(DicomDat
+        public static DicomEquipment Read(DicomDataset ds)
+        {
+            var manufacturer = ds.GetTrimmedStringOrEmpty(DicomTag.Manufacturer);
+            var softwareVersions = ds.GetTrimmedStringOrEmpty(DicomTag.SoftwareVersions);
+            return new DicomEquipment(manufacturer, softwareVersions);
+        }
+
+        public static void Write(DicomDataset ds, DicomEquipment equipment)
+        {
+            ds.Add(DicomTag.Manufacturer, equipment.Manufacturer);
+            ds.Add(DicomTag.SoftwareVersions, equipment.SoftwareVersions);
+        }
+
+        /// <summary>
+        /// Creates an empty DicomEquipment instance
+        /// </summary>
+        /// <returns></returns>
+        public static DicomEquipment CreateEmpty()
+        {
+            return new DicomEquipment(string.Empty, string.Empty);
+        }
+    }
+}
