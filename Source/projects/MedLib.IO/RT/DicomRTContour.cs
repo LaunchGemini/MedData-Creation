@@ -59,4 +59,33 @@ namespace MedLib.IO.RT
             return contours;
         }
 
-        public static void 
+        public static void Write(DicomDataset ds, IEnumerable<DicomRTContour> contours)
+        {
+            var roiContourSequence = new List<DicomDataset>();
+            foreach (var contour in contours)
+            {
+                var newDs = new DicomDataset();
+
+                newDs.Add(DicomTag.ReferencedROINumber, contour.ReferencedRoiNumber);
+                newDs.Add(DicomTag.ROIDisplayColor, contour.RgbColorAsString());
+
+                var contourItemDs = contour.DicomRtContourItems.Select(DicomRTContourItem.Write).ToList();
+                newDs.Add(new DicomSequence(DicomTag.ContourSequence, contourItemDs.ToArray()));
+
+                roiContourSequence.Add(newDs);
+            }
+
+            // Only write out contour sequences with contours. 
+            if (roiContourSequence.Count > 0)
+            {
+                ds.Add(new DicomSequence(DicomTag.ROIContourSequence, roiContourSequence.ToArray()));
+            }
+        }
+
+        private static Tuple<byte, byte, byte> ParseColor(string[] colorString)
+        {
+            var rgb = colorString.Select(x => (byte)int.Parse(x, CultureInfo.InvariantCulture)).ToArray();
+            return Tuple.Create(rgb[0], rgb[1], rgb[2]);
+        }
+    }
+}
