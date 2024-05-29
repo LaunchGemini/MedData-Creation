@@ -51,4 +51,9 @@ namespace MedLib.IO.RT
         /// </summary>
         public static DicomFrameOfReference CreateEmpty()
         {
-            r
+            return new DicomFrameOfReference(
+                string.Empty, string.Empty
+            );
+        }
+    }
+}
