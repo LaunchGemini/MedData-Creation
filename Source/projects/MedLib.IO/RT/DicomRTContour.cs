@@ -27,4 +27,36 @@ namespace MedLib.IO.RT
 
         public DicomRTContour(string referencedRoiNumber, Tuple<byte, byte, byte> colorRgb, IReadOnlyList<DicomRTContourItem> contoursPerSlice)
         {
-            Referenced
+            ReferencedRoiNumber = referencedRoiNumber;
+            RGBColor = colorRgb;
+            DicomRtContourItems = contoursPerSlice;
+        }
+
+        public static IReadOnlyList<DicomRTContour> Read(DicomDataset ds)
+        {
+            var contours = new List<DicomRTContour>();
+            if (ds.Contains(DicomTag.ROIContourSequence))
+            {
+                var seq = ds.GetSequence(DicomTag.ROIContourSequence);
+                foreach (var item in seq)
+                {
+                    // Note this must be present but we should avoid throwing here
+                    var referencedRoiNumber = item.GetSingleValueOrDefault(DicomTag.ReferencedROINumber, string.Empty);
+
+                    var color = item.GetValues<string>(DicomTag.ROIDisplayColor) ?? new[] { "255", "255", "255" };
+
+                    var contourItems = new List<DicomRTContourItem>();
+                    if (item.Contains(DicomTag.ContourSequence))
+                    {
+                        var seqContour = item.GetSequence(DicomTag.ContourSequence);
+                        contourItems.AddRange(seqContour.Select(DicomRTContourItem.Read));
+                    }
+
+                    contours.Add(new DicomRTContour(referencedRoiNumber, ParseColor(color), contourItems));
+
+                }
+            }
+            return contours;
+        }
+
+        public static void 
