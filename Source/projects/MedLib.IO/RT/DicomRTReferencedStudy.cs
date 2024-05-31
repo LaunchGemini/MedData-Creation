@@ -62,4 +62,14 @@ namespace MedLib.IO.RT
             var listOfContour = new List<DicomDataset>();
             foreach (var series in refStudy.ReferencedSeries)
             {
-                var newDS = DicomRTR
+                var newDS = DicomRTReferencedSeries.Write(series);
+                listOfContour.Add(newDS);
+            }
+            if (listOfContour.Count > 0)
+            {
+                ds.Add(new DicomSequence(DicomTag.RTReferencedSeriesSequence, listOfContour.ToArray()));
+            }
+            return ds;
+        }
+    }
+}
