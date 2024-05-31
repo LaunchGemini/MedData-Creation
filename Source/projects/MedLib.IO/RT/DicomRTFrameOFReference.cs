@@ -61,4 +61,7 @@ namespace MedLib.IO.RT
             {
                 ds.Add(new DicomSequence(DicomTag.RTReferencedStudySequence, lisOfStudies.ToArray()));
             }
-      
+            return ds;
+        }
+    }
+}
