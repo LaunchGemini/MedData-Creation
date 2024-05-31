@@ -29,4 +29,36 @@ namespace MedLib.IO.RT
             ReferencedStudies = referencedStudies;
         }
 
-        p
+        public static DicomRTFrameOFReference Read(DicomDataset ds)
+        {
+            var frameReferencedUID = ds.GetSingleValueOrDefault(DicomTag.FrameOfReferenceUID, string.Empty);
+
+            var referencedStudies = new List<DicomRTReferencedStudy>();
+            if (ds.Contains(DicomTag.RTReferencedStudySequence))
+            {
+                var seq = ds.GetSequence(DicomTag.RTReferencedStudySequence);
+                foreach (var item in seq)
+                {
+                    referencedStudies.Add(DicomRTReferencedStudy.Read(item));
+                }
+            }
+            return new DicomRTFrameOFReference(
+                frameReferencedUID,
+                referencedStudies);
+        }
+
+        public static DicomDataset Write(DicomRTFrameOFReference dicomRtFrameOfReference)
+        {
+            var ds = new DicomDataset();
+            ds.Add(DicomTag.FrameOfReferenceUID, dicomRtFrameOfReference.FrameOfRefUID);
+            var lisOfStudies = new List<DicomDataset>();
+            foreach (var refStudy in dicomRtFrameOfReference.ReferencedStudies)
+            {
+                var newDS = DicomRTReferencedStudy.Write(refStudy);
+                lisOfStudies.Add(newDS);
+            }
+            if (lisOfStudies.Count > 0)
+            {
+                ds.Add(new DicomSequence(DicomTag.RTReferencedStudySequence, lisOfStudies.ToArray()));
+            }
+      
