@@ -21,4 +21,40 @@
         public string SopClassUid { get; }
 
         /// <summary>
-        /// A unique identifier fo
+        /// A unique identifier for the parent instance. In theory this is a GUID in DICOM format. 
+        /// Type 1: VR: UI
+        /// </summary>
+        public string SopInstanceUid { get;  }
+
+        private DicomSOPCommon(string sopClassUid, string sopInstanceUid)
+        {
+            SopClassUid = sopClassUid;
+            SopInstanceUid = sopInstanceUid; 
+        }
+
+        /// <summary>
+        /// Read a DicomSOPInstance from the given DicomDataset, throwing if required
+        /// type 1 properties are not present. 
+        /// </summary>
+        /// <param name="ds"></param>
+        /// <returns></returns>
+        public static DicomSOPCommon Read(DicomDataset ds)
+        {
+            // throw
+            var sopClassUid = ds.GetSingleValue<DicomUID>(DicomTag.SOPClassUID).UID;
+            var sopInstanceUid = ds.GetSingleValue<DicomUID>(DicomTag.SOPInstanceUID).UID;
+
+            return new DicomSOPCommon(sopClassUid, sopInstanceUid);
+        }
+
+        /// <summary>
+        /// Creates an empty DicomSOPCommon instance. 
+        /// </summary>
+        /// <returns></returns>
+        public static DicomSOPCommon CreateEmpty()
+        {
+            return new DicomSOPCommon(DicomExtensions.EmptyUid.UID, DicomExtensions.EmptyUid.UID);
+        }
+
+    }
+}
