@@ -32,4 +32,33 @@
         /// </summary>
         public string SeriesDescription { get; set;  }
 
-        public DicomRTSeries(string modality, s
+        public DicomRTSeries(string modality, string seriesInstanceUID, string description)
+        {
+            Modality = modality;
+            SeriesInstanceUID = seriesInstanceUID;
+            SeriesDescription = description;
+        }
+
+        public static DicomRTSeries Read(DicomDataset ds)
+        {
+            var modality = ds.GetStringOrEmpty(DicomTag.Modality);
+            var seriesInstanceUID = ds.GetStringOrEmpty(DicomTag.SeriesInstanceUID);
+            var description = ds.GetStringOrEmpty(DicomTag.SeriesDescription);
+            return new DicomRTSeries(modality, seriesInstanceUID, description);
+        }
+
+        public static void Write(DicomDataset ds, DicomRTSeries series)
+        {
+            ds.Add(DicomTag.Modality, series.Modality);
+            ds.Add(DicomTag.SeriesInstanceUID, series.SeriesInstanceUID);
+            ds.Add(DicomTag.SeriesDescription, series.SeriesDescription);
+            // Type 2 attributes - must be present but empty is fine. 
+            ds.Add(DicomTag.OperatorsName, string.Empty);
+            ds.Add(DicomTag.SeriesNumber, string.Empty);
+
+            // Type 3 tags - optional but useful
+            var now = DateTime.UtcNow;
+            var date = now.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
+            var time = now.ToString("HHmmss", CultureInfo.InvariantCulture);
+            ds.Add(DicomTag.SeriesDate, date);
+            ds.Add(DicomTag.SeriesTime
