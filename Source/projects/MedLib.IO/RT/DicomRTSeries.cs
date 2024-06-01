@@ -61,4 +61,8 @@
             var date = now.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
             var time = now.ToString("HHmmss", CultureInfo.InvariantCulture);
             ds.Add(DicomTag.SeriesDate, date);
-            ds.Add(DicomTag.SeriesTime
+            ds.Add(DicomTag.SeriesTime, time);
+        }
+    }
+
+}
