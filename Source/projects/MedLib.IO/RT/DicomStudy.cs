@@ -51,3 +51,68 @@ namespace MedLib.IO.RT
             StudyInstanceUid = studyInstanceUid;
             StudyDate = studyDate;
             StudyTime = studyTime;
+            ReferringPhysicianName = referringPhysicianName;
+            StudyId = studyId;
+            AccessionNumber = accessionNumber;
+            StudyDescription = studyDescription;
+        }
+
+        /// <summary>
+        /// Creates an empty study instance.
+        /// </summary>
+        /// <returns></returns>
+        public static DicomStudy CreateEmpty()
+        {
+            var instanceUid = DicomExtensions.EmptyUid.UID;
+            var studyDate = string.Empty;
+            var studyTime = string.Empty;
+            var physicianName = string.Empty;
+            var studyId = string.Empty;
+            var accessionNumber = string.Empty;
+            var studyDescription = string.Empty;
+
+            return new DicomStudy(
+                instanceUid,
+                studyDate,
+                studyTime,
+                physicianName,
+                studyId,
+                accessionNumber,
+                studyDescription);
+        }
+
+        public static DicomStudy Read(DicomDataset ds)
+        {
+            // throw
+            var instanceUid = ds.GetSingleValue<DicomUID>(DicomTag.StudyInstanceUID).UID;
+
+            // no throw
+            var studyDate = ds.GetStringOrEmpty(DicomTag.StudyDate);
+            var studyTime = ds.GetStringOrEmpty(DicomTag.StudyTime);
+            var physicianName = ds.GetStringOrEmpty(DicomTag.ReferringPhysicianName);
+            var studyId = ds.GetTrimmedStringOrEmpty(DicomTag.StudyID);
+            var accessionNumber = ds.GetTrimmedStringOrEmpty(DicomTag.AccessionNumber);
+            var studyDescription = ds.GetTrimmedStringOrEmpty(DicomTag.StudyDescription);
+
+            return new DicomStudy(
+                instanceUid,
+                studyDate,
+                studyTime,
+                physicianName,
+                studyId,
+                accessionNumber,
+                studyDescription);
+        }
+
+        public static void Write(DicomDataset ds, DicomStudy study)
+        {
+            ds.Add(DicomTag.StudyInstanceUID, study.StudyInstanceUid);
+            ds.Add(DicomTag.StudyDate, study.StudyDate);
+            ds.Add(DicomTag.StudyTime, study.StudyTime);
+            ds.Add(DicomTag.ReferringPhysicianName, study.ReferringPhysicianName);
+            ds.Add(DicomTag.StudyID, study.StudyId);
+            ds.Add(DicomTag.AccessionNumber, study.AccessionNumber);
+            ds.Add(DicomTag.StudyDescription, study.StudyDescription);
+        }
+    }
+}
