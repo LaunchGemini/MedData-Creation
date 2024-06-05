@@ -76,4 +76,19 @@ namespace MedLib.IO.Readers
 
         /// <summary>
         /// Saves the Dicom file to the given folder. The filename is read from the <see cref="Path"/>
-        /// property, which must be non-empty. Returns the full filename (folder pl
+        /// property, which must be non-empty. Returns the full filename (folder plus filename) to which 
+        /// the file was saved.
+        /// </summary>
+        /// <param name="folder">The directory into which the Dicom file should be saved. The directory must exist already.</param>
+        public string SaveToFolder(string folder)
+        {
+            if (string.IsNullOrWhiteSpace(Path))
+            {
+                throw new InvalidOperationException("Saving requires a non-empty string in the Path property.");
+            }
+            var fullFilename = System.IO.Path.Combine(folder, Path);
+            File.Save(fullFilename);
+            return fullFilename;
+        }
+    }
+}
