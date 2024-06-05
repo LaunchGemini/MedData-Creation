@@ -36,4 +36,44 @@ namespace MedLib.IO.Readers
         {
             try
             {
-                return new D
+                return new DicomFileAndPath(DicomFile.Open(path), path);
+            }
+            catch (Exception e)
+            {
+                Trace.TraceInformation($"DicomFileAndPath.Create: File {path} error {e}");
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Create a DicomFileAndPath from a stream and path
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static DicomFileAndPath SafeCreate(Stream stream, string path)
+        {
+            try
+            {
+                return new DicomFileAndPath(DicomFile.Open(stream), path);
+            }
+            catch (Exception e)
+            {
+                Trace.TraceInformation($"DicomFileAndPath.Create: Cannot open from stream. Error {e}");
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// The DicomFile associated with the given Path, 
+        /// </summary>
+        public DicomFile File { get; private set; }
+
+        /// <summary>
+        /// The file system path to the DicomFile
+        /// </summary>
+        public string Path { get; private set; }
+
+        /// <summary>
+        /// Saves the Dicom file to the given folder. The filename is read from the <see cref="Path"/>
+        /// property, which must be non-empty. Returns the full filename (folder pl
