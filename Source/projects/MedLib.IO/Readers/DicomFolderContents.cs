@@ -47,4 +47,37 @@ namespace MedLib.IO.Readers
             );
 
             // Filter out the CT and MR SOPClasses
-            var ctMR = fileAndPaths.Where((fp
+            var ctMR = fileAndPaths.Where((fp) => IsSupportedImageSOPClass(fp.File.Dataset.GetSingleValueOrDefault(DicomTag.SOPClassUID, DicomExtensions.EmptyUid)));
+
+            // Group by seriesUID
+            var ctMRGroups = ctMR.GroupBy((fp) => fp.File.Dataset.GetSingleValue<DicomUID>(DicomTag.SeriesInstanceUID));
+
+            // construct output
+            var seriesContent = ctMRGroups.Select((g) => new DicomSeriesContent(g.Key, g.ToList()));
+
+            // RT structs without frame of reference information will be group into a null DicomUID entry,
+            var rtContent = parsedReferencedFoR.Select((g) => new DicomSeriesContent(DicomUID.Parse(g.Key), g.ToList()));
+
+            return new DicomFolderContents(seriesContent.ToList(), rtContent.ToList());
+        }
+
+        private DicomFolderContents(IReadOnlyList<DicomSeriesContent> series, IReadOnlyList<DicomSeriesContent> rtStructs)
+        {
+            Series = series;
+            RTStructs = rtStructs;
+        }
+
+        private static bool IsSupportedImageSOPClass(DicomUID id)
+        {
+            return id == DicomUID.CTImageStorage || id == DicomUID.MRImageStorage;
+        }
+    }
+
+    /// <summary>
+    /// Construct a DicomFolderContents based upon a folder in the file system. 
+    /// </summary>
+    public sealed class DicomFileSystemSource
+    {
+
+        /// <summary>
+   
