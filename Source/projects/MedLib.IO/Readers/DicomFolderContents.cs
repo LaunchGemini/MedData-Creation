@@ -80,4 +80,20 @@ namespace MedLib.IO.Readers
     {
 
         /// <summary>
-   
+        /// Return a task to asynchronously inspect and arrange all dicom folders in the given path. It is left to 
+        /// the caller to insure the folderPath exists and is readable. 
+        /// </summary>
+        /// <param name="folderPath"></param>
+        /// <returns></returns>
+        public static async Task<DicomFolderContents> Build(string folderPath)
+        {
+            // Open all the DICOM files and read series ids
+            var paths = Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories);
+
+            // Task.Run is needed because fo-dicom async doesnt work properly
+            var fileAndPaths = (await Task.WhenAll(paths.Select(x => Task.Run(() => DicomFileAndPath.SafeCreate(x))))).Where(x => x != null);
+
+            return DicomFolderContents.Build(fileAndPaths.ToList());
+        }
+    }
+}
