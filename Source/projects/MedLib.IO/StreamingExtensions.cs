@@ -85,4 +85,35 @@
         {
             var files = new List<(string FileName, byte[] Data)>();
 
-            using (var zipToOpen = new Memor
+            using (var zipToOpen = new MemoryStream(data))
+            {
+                using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Read))
+                {
+                    foreach (ZipArchiveEntry entry in archive.Entries)
+                    {
+                        byte[] bytes = ToByteArray(entry);
+                        files.Add((FileName: entry.Name, Data: bytes));
+                    };
+                };
+
+            };
+
+            return files.ToArray();
+        }
+
+        /// <summary>
+        /// Read the contents of ziparchiveentry and return them as a byte array.
+        /// </summary>
+        /// <param name="entry">The zip archive entry.</param>
+        /// <returns>The entry contents as a byte array.</returns>
+        private static byte[] ToByteArray(ZipArchiveEntry entry)
+        {
+            using (var entryStream = entry.Open())
+            using (var memoryStream = new MemoryStream())
+            {
+                entryStream.CopyTo(memoryStream);
+                return memoryStream.ToArray();
+            }
+        }
+    }
+}
