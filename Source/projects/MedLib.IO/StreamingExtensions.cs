@@ -51,4 +51,38 @@
                     var zipName =
                         string.IsNullOrWhiteSpace(file.Path)
                         ? $"DicomFile{dicomCount}.dcm"
-      
+                        : file.Path;
+                    var zipEntry = zip.CreateEntry(zipName, CompressionLevel.Fastest);
+                    using (var entryStream = zipEntry.Open())
+                    {
+                        dicomFileStream.CopyTo(entryStream);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Creates a Zip archive that contains all the given Dicom files, and returns the
+        /// Zip archive as a byte array.
+        /// </summary>
+        /// <param name="dicomFiles">The Dicom files to write to the Zip archive.</param>
+        /// <returns></returns>
+        public static byte[] DicomFilesToZipArchive(IEnumerable<DicomFileAndPath> dicomFiles)
+        {
+            using (var zipStream = new MemoryStream())
+            {
+                DicomFilesToZipArchive(dicomFiles, zipStream);
+                return zipStream.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// The input byte[] containing zip file contents is deflated.
+        /// Resulting file names and their contents are returned.
+        /// </summary>
+        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
+        public static (string FileName, byte[] Data)[] GetUncompressedPayload(byte[] data)
+        {
+            var files = new List<(string FileName, byte[] Data)>();
+
+            using (var zipToOpen = new Memor
