@@ -32,4 +32,23 @@
             IReadOnlyList<DicomIdentifiers> identifiers, 
             VolumeTransform volumeTransform, 
             string name, 
-            (byte R, byte G, byte B)
+            (byte R, byte G, byte B) color, 
+            string roiNumber, 
+            DicomPersonNameConverter interpreterName,
+            ROIInterpretedType roiInterpretedType)
+        {
+            if (identifiers == null || identifiers.Count == 0)
+            {
+                throw new ArgumentException("The DICOM identifiers cannot be null or empty");
+            }
+
+            var contours = axialContours.ToDicomRtContours(identifiers, volumeTransform);
+            var rtcontour = new DicomRTContour(roiNumber, Tuple.Create(color.R, color.G, color.B), contours);
+            var rtRoIstructure = new DicomRTStructureSetROI(roiNumber, name, identifiers[0].FrameOfReference.FrameOfReferenceUid, ERoiGenerationAlgorithm.Semiautomatic);
+            var observation = new DicomRTObservation(roiNumber, interpreterName, roiInterpretedType);
+            var output = new RadiotherapyContour(rtcontour, rtRoIstructure, observation);
+            output.Contours = axialContours;
+            return output;
+        }
+    }
+}
