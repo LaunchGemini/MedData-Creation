@@ -40,4 +40,6 @@
             RadiotherapyStruct.Write(ds, rtStruct);
 
             return file;
- 
+        }
+    }
+}
