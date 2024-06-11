@@ -49,4 +49,26 @@
 
             Assert.AreEqual(-250, origin.X);
             Assert.AreEqual(-250, origin.Y);
-      
+            Assert.AreEqual(125.5, origin.Z);
+
+            Assert.AreEqual(0.9765625, spacingX);
+            Assert.AreEqual(0.9765625, spacingY);
+
+            Assert.AreEqual(1, direction.Data[0]);
+            Assert.AreEqual(0, direction.Data[1]);
+            Assert.AreEqual(0, direction.Data[2]);
+            Assert.AreEqual(0, direction.Data[3]);
+            Assert.AreEqual(1, direction.Data[4]);
+            Assert.AreEqual(0, direction.Data[5]);
+            Assert.AreEqual(0, direction.Data[6]);
+            Assert.AreEqual(0, direction.Data[7]);
+            Assert.AreEqual(1, direction.Data[8]);
+
+            Assert.AreEqual(0, rescaleIntercept);
+            Assert.AreEqual(1, rescaleSlope);
+            Assert.AreEqual(true, isSignedPixelRepresentation);
+            Assert.AreEqual(15, highBit);
+            Assert.AreEqual(DicomUID.CTImageStorage, sopClass);
+        }
+    }
+}
