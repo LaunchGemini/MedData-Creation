@@ -37,4 +37,42 @@
                     executed.Add(index);
                 });
                 var expected = Enumerable.Range(0, count).ToArray();
-                var actual = executed.
+                var actual = executed.ToArray();
+                Array.Sort(actual);
+                Assert.AreEqual(expected, actual, $"count = {count}: The set of executed actions is wrong");
+            }
+        }
+
+        [Test]
+        // maxThreads == null should run a plain vanilla for loop.
+        public void FastParallelLoopErrors()
+        {
+            Assert.Throws<ArgumentException>(() => FastParallel.Loop(0, 0, i => { }));
+            Assert.Throws<ArgumentNullException>(() => FastParallel.Loop(0, 0, null));
+        }
+
+        [Test]
+        // maxThreads == null should run a plain vanilla for loop.
+        [TestCase(null, 0)]
+        [TestCase(null, 1)]
+        [TestCase(1, 0)]
+        [TestCase(1, 10)]
+        [TestCase(2, 1)]
+        [TestCase(2, 2)]
+        [TestCase(10, 0)]
+        [TestCase(10, 1)]
+        [TestCase(10, 30)]
+        public void FastParallelMapToArray(int? maxThreads, int count)
+        {
+            var inArray = new int[count];
+            foreach (var index in Enumerable.Range(0, count))
+            {
+                inArray[index] = index;
+            }
+            var outArray = new int[count];
+            FastParallel.MapToArray(inArray, outArray, maxThreads, value => value + 1);
+            foreach (var index in Enumerable.Range(0, count))
+            {
+                Assert.AreEqual(index, inArray[index]);
+                Assert.AreEqual(inArray[index] + 1, outArray[index]);
+     
