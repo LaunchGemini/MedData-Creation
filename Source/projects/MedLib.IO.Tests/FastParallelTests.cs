@@ -109,4 +109,32 @@
                 inArray[index] = index + 1;
             }
             var outArray = new int[count];
-            FastParallel.MapToArrayIndexed(inArray, outAr
+            FastParallel.MapToArrayIndexed(inArray, outArray, maxThreads, (value, index) => value + index * 2);
+            foreach (var index in Enumerable.Range(0, count))
+            {
+                Assert.AreEqual(index + 1, inArray[index]);
+                Assert.AreEqual(inArray[index] + index * 2, outArray[index]);
+            }
+        }
+
+        [Test]
+        public void FastParallelMapToArrayIndexedErrors()
+        {
+            var a = new int[1];
+            var b = new int[2];
+            Assert.Throws<ArgumentNullException>(() => FastParallel.MapToArrayIndexed<int, int>(null, a, null, (i,index) => i));
+            Assert.Throws<ArgumentNullException>(() => FastParallel.MapToArrayIndexed(a, null, null, (i, index) => i));
+            Assert.Throws<ArgumentNullException>(() => FastParallel.MapToArrayIndexed(a, a, null, null));
+            Assert.Throws<ArgumentException>(() => FastParallel.MapToArrayIndexed(a, a, 0, (i, index) => i));
+            Assert.Throws<ArgumentException>(() => FastParallel.MapToArrayIndexed(a, b, 0, (i, index) => i));
+        }
+
+        [Test]
+        // No item to process
+        [TestCase(0, 0, 1, 0, -1)]
+        // Single item, processing in 1 batch: Loop from 0 to 0
+        [TestCase(1, 0, 1, 0, 0)]
+        // Single item, processing in 2 batch: first batch processes the item, second batch has nothing to do.
+        [TestCase(1, 0, 2, 0, 0)]
+        [TestCase(1, 1, 2, 0, -1)]
+        // Three items: Testing com
