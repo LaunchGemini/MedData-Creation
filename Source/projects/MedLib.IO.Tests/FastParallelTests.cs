@@ -137,4 +137,25 @@
         // Single item, processing in 2 batch: first batch processes the item, second batch has nothing to do.
         [TestCase(1, 0, 2, 0, 0)]
         [TestCase(1, 1, 2, 0, -1)]
-        // Three items: Testing com
+        // Three items: Testing computation of batch size. Batch size should be rounded upwards,
+        // giving the first batch from 0 to 1, second from 2 to 2.
+        [TestCase(3, 0, 2, 0, 1)]
+        [TestCase(3, 1, 2, 2, 2)]
+        public void FastParallelBatchBoundaries(int count, int currentBatch, int totalBatches, int expectedStart, int expectedEnd)
+        {
+            var (firstIndex, lastIndex) = FastParallel.BatchBoundaries(count, currentBatch, totalBatches);
+            Assert.AreEqual(expectedStart, firstIndex, "firstIndex");
+            Assert.AreEqual(expectedEnd, lastIndex, "lastIndex");
+        }
+
+        [Test]
+        [TestCase(-1, 0, 1)]
+        [TestCase(0, 0, 0)]
+        [TestCase(0, 1, 1)]
+        [TestCase(0, -1, 1)]
+        public void FastParallelBatchBoundariesErrors(int count, int currentBatch, int totalBatches)
+        {
+            Assert.Throws<ArgumentException>(() => FastParallel.BatchBoundaries(count, currentBatch, totalBatches));
+        }
+    }
+}
