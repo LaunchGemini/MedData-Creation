@@ -75,4 +75,38 @@
             {
                 Assert.AreEqual(index, inArray[index]);
                 Assert.AreEqual(inArray[index] + 1, outArray[index]);
-     
+            }
+        }
+
+        [Test]
+        public void FastParallelMapToArrayErrors()
+        {
+            var a = new int[1];
+            var b = new int[2];
+            Assert.Throws<ArgumentNullException>(() => FastParallel.MapToArray<int,int>(null, a, null, i => i));
+            Assert.Throws<ArgumentNullException>(() => FastParallel.MapToArray(a, null, null, i => i));
+            Assert.Throws<ArgumentNullException>(() => FastParallel.MapToArray(a, a, null, null));
+            Assert.Throws<ArgumentException>(() => FastParallel.MapToArray(a, a, 0, i => i));
+            Assert.Throws<ArgumentException>(() => FastParallel.MapToArray(a, b, 0, i => i));
+        }
+
+        [Test]
+        // maxThreads == null should run a plain vanilla for loop.
+        [TestCase(null, 0)]
+        [TestCase(null, 1)]
+        [TestCase(1, 0)]
+        [TestCase(1, 10)]
+        [TestCase(2, 1)]
+        [TestCase(2, 2)]
+        [TestCase(10, 0)]
+        [TestCase(10, 1)]
+        [TestCase(10, 30)]
+        public void FastParallelMapToArrayIndexed(int? maxThreads, int count)
+        {
+            var inArray = new int[count];
+            foreach (var index in Enumerable.Range(0, count))
+            {
+                inArray[index] = index + 1;
+            }
+            var outArray = new int[count];
+            FastParallel.MapToArrayIndexed(inArray, outAr
