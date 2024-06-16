@@ -74,4 +74,42 @@
         }
 
         /// <summary>
-        ///  Test to ensure that only foreground (intensity > 0) voxels are used to identify
+        ///  Test to ensure that only foreground (intensity > 0) voxels are used to identify the boundary
+        ///  taking into account the edge points
+        /// </summary>
+        [Test]
+        public void MaskWithNoForegroundMaskBoundariesWithEdgesTest()
+        {
+
+            CheckNoBoundaryPointsInImage(_inputWithNoForegroundVoxels, true);
+        }
+
+        /// <summary>
+        ///  Test to ensure that only foreground (intensity > 0) voxels are used to identify the boundary
+        ///  ignoring the edge points
+        /// </summary>
+        [Test]
+        public void MaskWithNoForegroundBoundariesWithoutEdgesTest()
+        {
+
+            CheckNoBoundaryPointsInImage(_inputWithNoForegroundVoxels, false);
+        }
+
+        /// <summary>
+        ///  Test to ensure no other boundary voxels are identified (apart from the ones on the edge)
+        ///  in a structure with no background
+        /// </summary>
+        [Test]
+        public void MaskWithNoBoundariesWithEdgesTest()
+        {
+            CheckBoundaryIsAsExpected(_inputImageWithNoBoundaryVoxels, true, _edgeBoundaryVoxels.ToArray());
+        }
+
+        /// <summary>
+        ///  Test to ensure no boundary voxels are identified in a structure with no background
+        /// </summary>
+        [Test]
+        public void MaskWithNoBoundariesWithoutEdgesTest()
+        {
+            CheckNoBoundaryPointsInImage(_inputImageWithNoBoundaryVoxels, false);
+ 
