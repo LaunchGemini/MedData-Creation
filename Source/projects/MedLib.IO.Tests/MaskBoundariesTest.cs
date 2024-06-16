@@ -40,4 +40,38 @@
         [SetUp]
         public void Setup()
         {
-            v
+            var DimX = _inputImageWithBoundaryVoxels.DimX;
+            var DimY = _inputImageWithBoundaryVoxels.DimY;
+            var DimZ = _inputImageWithBoundaryVoxels.DimZ;
+
+            for (int x = 0; x < DimX; ++x)
+            {
+                for (int y = 0; y < DimY; ++y)
+                {
+                    for (int z = 0; z < DimZ; ++z)
+                    {
+                        var point = new Point3D(x, y, z);
+                        _inputImageWithNoBoundaryVoxels[x, y, z] = 1;
+
+                        // Create boundary voxels on the edges of the structure
+                        if (_inputImageWithNoBoundaryVoxels.IsEdgeVoxel(x, y, z))
+                        {
+                            _edgeBoundaryVoxels.Add(point);
+                        }
+
+                        // Create a boundary on the bottom left corner of the structure
+                        if (x == 0 && z <= 1)
+                        {
+                            _inputImageWithBoundaryVoxels[x, y, z] = 0;
+                        }
+                        else
+                        {
+                            _inputImageWithBoundaryVoxels[x, y, z] = 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///  Test to ensure that only foreground (intensity > 0) voxels are used to identify
