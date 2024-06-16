@@ -144,4 +144,43 @@
         }
         private void CheckBoundaryIsAsExpected(Volume3D<byte> inputImage, bool withEdges, Point3D[] boundaryPoints)
         {
-            var outputImage = inputImage.MaskBo
+            var outputImage = inputImage.MaskBoundaries(withEdges);
+            var passed = false;
+            for (int x = 0; x < inputImage.DimX; ++x)
+            {
+                for (int y = 0; y < inputImage.DimY; ++y)
+                {
+                    for (int z = 0; z < inputImage.DimZ; ++z)
+                    {
+                        var point = new Point3D(x, y, z);
+                        var isBoundary = (int)outputImage[x, y, z] == 1;
+                        if (isBoundary && boundaryPoints.Contains(point))
+                        {
+                            passed = true;
+                        }
+                        else if (isBoundary && !(withEdges && inputImage.IsEdgeVoxel(x, y, z)))
+                        {
+                            Assert.Fail($"{x},{y},{z} should not be a boundary voxel");
+                        }
+                    }
+                }
+            }
+            Assert.That(passed);
+        }
+
+        [Test]
+        public void MaskBoundariesAllOnes()
+        {
+            int dim = 4;
+            var binary = new Volume3D<byte>(dim, dim, dim);
+            for (int i = 0; i < dim; i++)
+            {
+                for (int j = 0; j < dim; j++)
+                {
+                    for (int k = 0; k < dim; k++)
+                    {
+                        binary[i, j, k] = 1;
+                    }
+                }
+            }
+            var boundaryFull = binary.MaskBou
