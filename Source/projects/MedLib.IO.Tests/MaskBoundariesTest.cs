@@ -112,4 +112,36 @@
         public void MaskWithNoBoundariesWithoutEdgesTest()
         {
             CheckNoBoundaryPointsInImage(_inputImageWithNoBoundaryVoxels, false);
- 
+        }
+
+        /// <summary>
+        ///  Test to ensure only the 26 immediate neighbours of the bottom left corner,
+        ///  marked as the boundary ie: the voxels (0,y,[0,1]) are identified as boundary voxels
+        ///  ignoring the edge voxels
+        /// </summary>       
+        [Test]
+        public void MaskWithBoundariesWithoutEdgesTest()
+        {
+            CheckBoundaryIsAsExpected(_inputImageWithBoundaryVoxels, false, _expectedBoundaryVoxels);
+        }
+
+        /// <summary>
+        ///  Test to ensure only the 26 immediate neighbours of the bottom left corner,
+        ///  marked as the boundary ie: the voxels (0,y,[0,1]) are identified as boundary voxels
+        ///  taking into account the edge voxels
+        /// </summary> 
+        [Test]
+        public void MaskWithBoundariesWithEdgesTest()
+        {
+            CheckBoundaryIsAsExpected(_inputImageWithBoundaryVoxels, true, _expectedBoundaryVoxels);
+        }
+
+
+        private void CheckNoBoundaryPointsInImage(Volume3D<byte> inputImage, bool withEdges)
+        {
+            var outputImage = inputImage.MaskBoundaries(withEdges);
+            Assert.That(Array.TrueForAll(outputImage.Array, x => x == 0));
+        }
+        private void CheckBoundaryIsAsExpected(Volume3D<byte> inputImage, bool withEdges, Point3D[] boundaryPoints)
+        {
+            var outputImage = inputImage.MaskBo
