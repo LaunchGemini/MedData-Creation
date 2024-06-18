@@ -183,4 +183,45 @@
                     }
                 }
             }
-            var boundaryFull = binary.MaskBou
+            var boundaryFull = binary.MaskBoundaries(true);
+            for (int i = 0; i < dim; i++)
+            {
+                for (int j = 0; j < dim; j++)
+                {
+                    for (int k = 0; k < dim; k++)
+                    {
+                        var val = (i * (dim - 1 - i) * j * (dim - 1 - j) * k * (dim - 1 - k) == 0) ? 1 : 0;
+                        Assert.AreEqual(val, boundaryFull[i, j, k]);
+                    }
+                }
+            }
+            var boundaryInside = binary.MaskBoundaries(withEdges: false);
+            for (int i = 1; i < dim - 1; i++)
+            {
+                for (int j = 1; j < dim - 1; j++)
+                {
+                    for (int k = 1; k < dim - 1; k++)
+                    {
+                        Assert.AreEqual(0, boundaryInside[i, j, k]);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void MaskBoundariesPlane()
+        {
+            int dim = 7;
+            var binary = new Volume3D<byte>(dim, dim, dim);
+            for (int i = 0; i < dim; i++)
+            {
+                var val = (i >= 2 && i <= 4) ? 1 : 0;
+                for (int j = 0; j < dim; j++)
+                {
+                    for (int k = 0; k < dim; k++)
+                    {
+                        binary[i, j, k] = (byte)val;
+                    }
+                }
+            }
+            var boundary 
