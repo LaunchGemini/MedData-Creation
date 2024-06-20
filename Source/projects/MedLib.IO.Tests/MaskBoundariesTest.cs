@@ -224,4 +224,41 @@
                     }
                 }
             }
-            var boundary 
+            var boundary = binary.MaskBoundaries(withEdges: true);
+            for (int i = 0; i < dim; i++)
+            {
+                for (int j = 0; j < dim; j++)
+                {
+                    for (int k = 0; k < dim; k++)
+                    {
+                        // The boundary should be: all of planes i==2 and i==4, and the parts of
+                        // plane i==3 that are on the j and/or k edges.
+                        var expected = (i == 2 || i == 4 || (i == 3 &&
+                            (j == 0 || j == dim - 1 || k == 0 || k == dim - 1))) ? 1 : 0;
+                        Assert.AreEqual(expected, boundary[i, j, k]);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void MaskBoundariesChessBoard()
+        {
+            int dim = 5;
+            var binary = new Volume3D<byte>(dim, dim, dim);
+            for (int i = 0; i < dim; i++)
+            {
+                for (int j = 0; j < dim; j++)
+                {
+                    for (int k = 0; k < dim; k++)
+                    {
+                        binary[i, j, k] = (byte)((i + j + k) % 2);
+                    }
+                }
+            }
+            var boundary = binary.MaskBoundaries(withEdges: true);
+            for (int i = 0; i < dim; i++)
+            {
+                for (int j = 0; j < dim; j++)
+                {
+                    for (int k = 0; k < d
