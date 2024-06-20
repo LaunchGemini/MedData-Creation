@@ -261,4 +261,12 @@
             {
                 for (int j = 0; j < dim; j++)
                 {
-                    for (int k = 0; k < d
+                    for (int k = 0; k < dim; k++)
+                    {
+                        Assert.AreEqual(binary[i, j, k], boundary[i, j, k]);
+                    }
+                }
+            }
+        }
+    }
+}
