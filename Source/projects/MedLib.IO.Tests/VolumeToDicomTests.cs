@@ -85,4 +85,28 @@
             }
 
             // Now test if we can ZIP up all the Dicom files, and read them back in. 
-            var zippedDicom = ZippedDicom.Dic
+            var zippedDicom = ZippedDicom.DicomFilesToZipArchive(dicomFiles);
+            var dicomFromZip = ZippedDicom.DicomFilesFromZipArchive(zippedDicom);
+            var volumeFromZip = NiiToDicomHelpers.MedicalVolumeFromDicom(dicomFromZip.ToList());
+            VolumeAssert.AssertVolumesMatch(scan, volumeFromZip.Volume, "Scan from Zip archive does not match");
+            Assert.AreEqual(masks.Count, volumeFromZip.Struct.Contours.Count, "RtStructs from Zip do not match");
+        }
+
+        /// <summary>
+        /// Tests whether the mask-to-contour-to-mask conversion checks work as expected.
+        /// </summary>
+        /// <param name="trueForeground"></param>
+        /// <param name="renderedForeground"></param>
+        /// <param name="maxAbsoluteDifference"></param>
+        /// <param name="maxRelativeDifference"></param>
+        /// <param name="isAccepted">If true, the check method is expected to succeed with the above parameters.</param>
+        [Test]
+        [TestCase(0, 0, 0, 0.0, true)]
+        // No difference, no slack allowed.
+        [TestCase(10, 10, 0, 0.0, true)]
+        // values are equal, with either relative or absolute slack
+        [TestCase(10, 10, 1, 0.0, true)]
+        [TestCase(10, 10, 0, 0.1, true)]
+        // Values within the allowed max difference. The allowed relative difference is 0,
+        // to confirm that in this case only the absolute difference is checked.
+        [TestCase(10, 11, 1, 
