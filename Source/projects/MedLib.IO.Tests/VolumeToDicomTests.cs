@@ -67,3 +67,22 @@
             foreach (var dicomFile in dicomFiles)
             {
                 dicomFilesOnDisk.Add(dicomFile.SaveToFolder(outputFolder));
+            }
+            // Test if the first returned Dicom file is really the RTStruct
+            var rtStructFromFile = RtStructReader.LoadContours(dicomFilesOnDisk[0], scan.Transform.DicomToData);
+            Assert.IsNotNull(rtStructFromFile);
+            Assert.AreEqual(masks.Count, rtStructFromFile.Item1.Contours.Count);
+            var fromDisk = NiiToDicomHelpers.MedicalVolumeFromDicomFolder(outputFolder);
+            VolumeAssert.AssertVolumesMatch(scan, fromDisk.Volume, "Loaded scan does not match");
+            Assert.AreEqual(seriesDescription, fromDisk.Identifiers.First().Series.SeriesDescription);
+            Assert.AreEqual(patientId, fromDisk.Identifiers.First().Patient.Id);
+            Assert.AreEqual(studyId, fromDisk.Identifiers.First().Study.StudyInstanceUid);
+            foreach (var index in Enumerable.Range(0, fromDisk.Struct.Contours.Count))
+            {
+                var loadedMask = fromDisk.Struct.Contours[index].Contours.ToVolume3D(scan);
+                VolumeAssert.AssertVolumesMatch(masks[index].Contour.ToVolume3D(scan), loadedMask, $"Loaded mask {index}");
+                Assert.AreEqual(masks[index].Name, fromDisk.Struct.Contours[index].StructureSetRoi.RoiName, $"Loaded mask name {index}");
+            }
+
+            // Now test if we can ZIP up all the Dicom files, and read them back in. 
+            var zippedDicom = ZippedDicom.Dic
