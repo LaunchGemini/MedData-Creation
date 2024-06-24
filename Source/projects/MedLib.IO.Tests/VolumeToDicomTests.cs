@@ -109,4 +109,35 @@
         [TestCase(10, 10, 0, 0.1, true)]
         // Values within the allowed max difference. The allowed relative difference is 0,
         // to confirm that in this case only the absolute difference is checked.
-        [TestCase(10, 11, 1, 
+        [TestCase(10, 11, 1, 0.0, true)]
+        // Values outside the max allowed difference, and no relative difference allowed.
+        [TestCase(10, 12, 1, 0.0, false)]
+        // Allowed absolute difference is exceeded, and also relative difference exceeded.
+        [TestCase(100, 110, 1, 0.05, false)]
+        // Allowed absolute difference is exceeded, but relative difference within bounds.
+        [TestCase(100, 110, 1, 0.2, true)]
+        public void MaskToContourCheck(int trueForeground, 
+            int renderedForeground, 
+            int? maxAbsoluteDifference, 
+            double? maxRelativeDifference, 
+            bool isAccepted)
+        {
+            if (isAccepted)
+            {
+                NiiToDicomHelpers.CheckContourRendering(trueForeground, renderedForeground, 
+                    maxAbsoluteDifference, maxRelativeDifference, string.Empty);
+            }
+            else
+            {
+                var messagePrefix = "foo";
+                var exception = Assert.Throws<InvalidOperationException>(() => 
+                    NiiToDicomHelpers.CheckContourRendering(trueForeground, renderedForeground, 
+                    maxAbsoluteDifference, maxRelativeDifference, messagePrefix));
+                Assert.IsTrue(exception.Message.Contains(messagePrefix));
+            }
+        }
+
+        [Test]
+        public void SanitizeDicomLongStringTest()
+        {
+            var testCases = new List<(boo
