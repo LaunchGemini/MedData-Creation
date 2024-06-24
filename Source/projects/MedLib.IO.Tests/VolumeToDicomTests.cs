@@ -140,4 +140,20 @@
         [Test]
         public void SanitizeDicomLongStringTest()
         {
-            var testCases = new List<(boo
+            var testCases = new List<(bool IsValidAlready, string Text, string Expected)>
+            {
+                (false, "12\\34", "12/34"),
+                (true, "abcd/efg", "abcd/efg"),
+                (true, null, null),
+                (false, new string('a', NiiToDicomHelpers.MaxDicomLongStringLength * 2), new string('a', NiiToDicomHelpers.MaxDicomLongStringLength))
+            };
+            foreach (var (isValidAlready, text, expected) in testCases)
+            {
+                Assert.AreEqual(isValidAlready, NiiToDicomHelpers.IsValidDicomLongString(text), $"Validity check before conversion on {text}");
+                var actual = NiiToDicomHelpers.SanitizeDicomLongString(text);
+                Assert.IsTrue(NiiToDicomHelpers.IsValidDicomLongString(actual), $"Should be valid after conversion on {text}");
+                Assert.AreEqual(expected, actual, "Conversion result does not match expected");
+            }
+        }
+    }
+}
